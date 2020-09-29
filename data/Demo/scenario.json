@@ -1,0 +1,240 @@
+{
+	"nonServiceTraffic": [],
+	"disabledTrackPart": [],
+	"workers": [
+		{
+			"id": "77",
+			"type": "Schoonmakers",
+			"skills": [
+			  "Binnenkant reiniging",
+			  "Kop reiniging",
+			  "Zeep reiniging zijkant",
+			  "Oxaal reiniging zijkant",
+			  "Zeep reiniging",
+			  "Oxaal reiniging"
+			],
+			"shifts": [
+			  {
+				"start": 0,
+				"end": 115200
+			  }
+			],
+			"breakWindows": [],
+			"breakDuration": 0,
+			"startLocationId": "11",
+			"endLocationId": "11",
+			"canMoveTrains": false,
+			"name": "Adam"
+		},
+		{
+			"id": "101",
+			"type": "Machinisten",
+			"skills": [
+				"Rangeren"
+			],
+			"shifts": [
+			  {
+				"start": 0,
+				"end": 115200
+			  }
+			],
+			"breakWindows": [],
+			"breakDuration": 0,
+			"startLocationId": "1",
+			"endLocationId": "1",
+			"canMoveTrains": true,
+			"name": "Bob"
+		},
+		{
+			"id": "102",
+			"type": "Machinisten",
+			"skills": [
+				"Rangeren"
+			],
+			"shifts": [
+			  {
+				"start": 40,
+				"end": 2000
+			  }
+			],
+			"breakWindows": [],
+			"breakDuration": 0,
+			"startLocationId": "1",
+			"endLocationId": "1",
+			"canMoveTrains": true,
+			"name": "Charles"
+		}
+	],
+	"in": [
+		{
+			"time": "30",
+			"id": "11111",
+			"sideTrackPart": "14",
+			"parkingTrackPart": "1",
+			"members": [
+				{
+					"id": "2422",
+					"typeDisplayName": "SLT4",
+					"tasks": []
+				},
+				{
+					"id": "2433",
+					"typeDisplayName": "SLT4",
+					"tasks": []
+				}
+			]
+		},
+		{
+			"time": "100",
+			"id": "33333",
+			"sideTrackPart": "14",
+			"parkingTrackPart": "1",
+			"members": [
+				{
+					"id": "2301",
+					"typeDisplayName": "SNG3",
+					"tasks": [
+						{
+							"type": {
+							  "other": "Binnenkant reiniging"
+							},
+							"priority": 0,
+							"duration": "50",
+							"requiredSkills": [
+							  "Binnenkant reiniging"
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"out": [
+		{
+		  "time": "878",
+		  "id": "11112",
+		  "sideTrackPart": "14",
+		  "parkingTrackPart": "1",
+		  "members": [
+			{
+			  "id": "****",
+			  "typeDisplayName": "SLT4",
+			  "tasks": []
+			}
+		  ]
+		}
+	],
+	"startTime": "0",
+	"endTime": "1500",
+	"inStanding": [
+	    {
+		  "time": "0",
+		  "id": "55555",
+		  "sideTrackPart": "5",
+		  "parkingTrackPart": "4",
+		  "members": [
+				{
+				  "id": "2302",
+				  "typeDisplayName": "SNG3",
+				  "tasks": []
+				}
+			  ],
+		  "standingIndex": "2"
+		},
+	    {
+		  "time": "0",
+		  "id": "77777",
+		  "sideTrackPart": "5",
+		  "parkingTrackPart": "4",
+		  "members": [
+				{
+				  "id": "2303",
+				  "typeDisplayName": "SNG3",
+				  "tasks": []
+				}
+			  ],
+		  "standingIndex": "1"
+		}
+	],
+	"outStanding": [
+		{
+		  "time": "1500",
+		  "id": "33333",
+		  "sideTrackPart": "12",
+		  "parkingTrackPart": "11",
+		  "members": [
+				{
+				  "id": "****",
+				  "typeDisplayName": "SNG3",
+				  "tasks": []
+				}
+			  ],
+		  "standingIndex": "1"
+		},
+		{
+		  "time": "1500",
+		  "id": "11111",
+		  "sideTrackPart": "10",
+		  "parkingTrackPart": "8",
+		  "members": [
+			{
+			  "id": "****",
+			  "typeDisplayName": "SLT4",
+			  "tasks": []
+			}
+		  ],
+		  "standingIndex": "1"
+		},
+		{
+		  "time": "1500",
+		  "id": "55555",
+		  "sideTrackPart": "5",
+		  "parkingTrackPart": "11",
+		  "members": [
+			{
+			  "id": "****",
+			  "typeDisplayName": "SNG3",
+			  "tasks": []
+			},
+			{
+			  "id": "****",
+			  "typeDisplayName": "SNG3",
+			  "tasks": []
+			}
+		  ],
+		  "standingIndex": "2"
+		}
+	],
+	"trainUnitTypes": [
+		{
+		  "displayName": "SLT4",
+		  "carriages": 4,
+		  "length": 70,
+		  "combineDuration": "180",
+		  "splitDuration": "120",
+		  "backNormTime": "120",
+		  "backAdditionTime": "16",
+		  "travelSpeed": "0",
+		  "startUpTime": "0",
+		  "typePrefix": "SLT",
+		  "needsLoco": false,
+		  "isLoco": false,
+		  "needsElectricity": true
+		},
+				{
+		  "displayName": "SNG3",
+		  "carriages": 3,
+		  "length": 35,
+		  "combineDuration": "180",
+		  "splitDuration": "120",
+		  "backNormTime": "120",
+		  "backAdditionTime": "16",
+		  "travelSpeed": "0",
+		  "startUpTime": "0",
+		  "typePrefix": "SNG",
+		  "needsLoco": false,
+		  "isLoco": false,
+		  "needsElectricity": true
+		}
+	]
+}
