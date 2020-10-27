@@ -55,24 +55,18 @@ void Track::AssignNeighbors(vector<Track*> aside, vector<Track*> bside)
 }
 
 bool Track::IsASide(Track* t) const {
-	auto it = next.find(t);
-	if(it != next.end())
-		return it->second == aSides;
-	return false; //Or should it check for tracks that are equal, but don't share the same reference?
+	auto it = find(aSides.begin(), aSides.end(), t);
+	if(it != aSides.end())
+		return true;
+	return false; 
 }
 
 bool Track::IsBSide(Track* t) const {
-	auto it = next.find(t);
-	if (it != next.end())
-		return it->second == bSides;
-	return false; //Or should it check for tracks that are equal, but don't share the same reference?
+	auto it = find(bSides.begin(), bSides.end(), t);
+	if(it != bSides.end())
+		return true;
+	return false; 
 }
-
-//Direction Track::GetDirectionByPrevious(Track* previous) const {
-//	if (IsASide(previous))
-//		return Direction::B;
-//	return Direction::A;
-//}
 
 void from_json(const json& j, Track& t) {
 	j.at("id").get_to(t.id);

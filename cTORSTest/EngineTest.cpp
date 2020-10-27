@@ -17,6 +17,13 @@ namespace cTORSTest
 				state->RemoveActiveAction(&su, &beginMoveAction);
 				CHECK(!state->HasActiveAction(&su));
 			}
+			SUBCASE("Test get actions") {
+				list<Action*> &actions = engine.GetActions(state);
+				CHECK(actions.size() > 0);
+				Action* a = actions.front();
+				engine.ApplyAction(state, a);
+			}
+			engine.EndSession(state);
 		}
 
 		SUBCASE("Test get scenario") {

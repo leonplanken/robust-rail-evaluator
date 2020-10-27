@@ -35,5 +35,8 @@ add_library(MainTest OBJECT MainTest.cpp)
 add_executable(EngineTest EngineTest.cpp $<TARGET_OBJECTS:MainTest>)
 add_test(NAME EngineTest COMMAND EngineTest)
 
+add_executable(TrackTest TrackTest.cpp $<TARGET_OBJECTS:MainTest>)
+add_test(NAME TrackTest COMMAND TrackTest)
+
 file(COPY "../data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
