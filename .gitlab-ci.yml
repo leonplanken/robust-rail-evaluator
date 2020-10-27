@@ -10,7 +10,8 @@ build:
   # install the necessary build tools when needed
   before_script:
     - apt-get update && apt-get -y install make autoconf
-    - apt-get -y install cmake 
+    - apt-get -y install cmake
+    - apt-get install python3-dev
   script:
     - mkdir build
     - cd build
