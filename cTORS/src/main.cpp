@@ -3,7 +3,7 @@
 
 int main()
 {
-	Engine engine("../data/Demo");
+	Engine engine("data/Demo");
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
 	while (true) {

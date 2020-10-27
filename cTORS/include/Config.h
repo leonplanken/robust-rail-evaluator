@@ -23,8 +23,8 @@ private:
 public:
 	Config() = delete;
 	Config(string path);
-	inline bool IsBusinessRuleActive(string name) const { return businessRules.at(name); }
-	inline bool IsGeneratorActive(string name) const { return actionRules.at(name); }
-	inline const json GetActionParameters(string name) const { return actionParams.at(name); }
+	bool IsBusinessRuleActive(string name) const;
+	bool IsGeneratorActive(string name) const;
+	const json GetActionParameters(string name) const;
 };
 

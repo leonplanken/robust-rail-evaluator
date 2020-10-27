@@ -1,11 +1,11 @@
 {
-	"data folder": "D:\\libraries\\cTORS\\cTORS\\data\\Demo",
+	"data folder": "../data/Demo",
 	"verbose": 1,
 	"n_runs": 1000,
 	"planner": {
-		"comment3": "planner.random_planner.RandomPlanner",
+		"class": "planner.random_planner.RandomPlanner",
 		"comment1": "planner.goal_planner.GoalPlanner",
-		"class": "planner.simple_rl_planner.SimpleRLPlanner",
+		"comment3": "planner.simple_rl_planner.SimpleRLPlanner",
 		"comment5": "planner.mapf_planner.MAPFPlanner",
 		"seed": 38,
 		"remote": false,

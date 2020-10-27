@@ -35,3 +35,21 @@ void Config::importActionRules(const json& j) {
 		actionParams[name] = value.at("parameters");
 	}
 }
+
+bool Config::IsBusinessRuleActive(string name) const { 
+	auto it = businessRules.find(name);
+	if(it == businessRules.end()) return true;
+	return it->second;
+}
+
+bool Config::IsGeneratorActive(string name) const {
+	auto it = actionRules.find(name);
+	if(it == actionRules.end()) return true;
+	return it->second;
+}
+
+const json Config::GetActionParameters(string name) const {
+	auto it = actionParams.find(name);
+	if(it == actionParams.end()) return json();
+	return it->second;
+}

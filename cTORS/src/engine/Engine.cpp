@@ -63,7 +63,7 @@ list<Action*> &Engine::GetValidActions(State* state) {
 
 void Engine::ExecuteImmediateEvents(State* state) {
 	if (state == nullptr) {
-		throw exception("state == null, something went wrong");
+		throw runtime_error("state == null, something went wrong");
 	}
 	debug_out("Execute immediate events (" << to_string(state->GetNumberOfEvents()) << " events queued)");
 	while (state->GetNumberOfEvents() > 0) {

@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-#include <conio.h>
 #include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
