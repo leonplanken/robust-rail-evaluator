@@ -5,9 +5,10 @@ import threading
 
 class Manager:
     
-    def __init__(self, config):
-        self.config = config
-        self.simulator = Simulator(config)
+    def __init__(self, episode_config, agent_config):
+        self.episode_config = episode_config
+        self.agent_config = agent_config
+        self.simulator = Simulator(episode_config)
         self.planner = self.get_planner()
         
     def run(self):
@@ -22,14 +23,14 @@ class Manager:
             self.print("M> ###############################")
             self.print("M> ### Testing with {:3} trains ###".format(t))
             self.print("M> ###############################")
-            for r in range(self.config.n_runs):
+            for r in range(self.episode_config.n_runs):
                 self.print("M> ### Run {:3}                 ###".format(r+1))
                 result, failure = self.run_one()
                 results[t] += result
                 fails[t] += failure
-            self.print("M> Average score: {}%, Failures: {}%".format(results[t]/self.config.n_runs * 100., fails[t]/self.config.n_runs * 100))
+            self.print("M> Average score: {}%, Failures: {}%".format(results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
         for t in results:
-            self.print("M> {} Trains |\tAverage score: {}%, Failures: {}%".format(t, results[t]/self.config.n_runs * 100., fails[t]/self.config.n_runs * 100))
+            self.print("M> {} Trains |\tAverage score: {}%, Failures: {}%".format(t, results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
             
     def run_one(self):
         failure = 0
@@ -64,10 +65,10 @@ class Manager:
     def run_train_session(self, visualizer=None):
         n_trains = 1
         self.simulator.set_n_trains(n_trains)
-        for e in range(self.config.rl.n_epochs):
+        for e in range(self.episode_config.rl.n_epochs):
             if e>0: self.planner.new_epoch()
             self.print("### Epoch {:3}          ###".format(e+1))
-            for i in range(self.config.rl.n_episodes_per_epoch): 
+            for i in range(self.episode_config.rl.n_episodes_per_epoch): 
                 self.run_one()
             if self.planner.can_increase_difficulty():
                 n_trains += 1
@@ -101,7 +102,7 @@ class Manager:
     def tune_offline(self):
         self.simulator.start()
         import matplotlib.pyplot as plt
-        config = self.config['planner.simple_rl_planner.SimpleRLPlanner']
+        config = self.agent_config['planner.simple_rl_planner.SimpleRLPlanner']
         test_name = "dropout"
         test_data = {
             "alpha": ("Alpha: ", [0.001, 0.01, 0.05, 0.1, 0.2], "alpha"),
@@ -127,18 +128,18 @@ class Manager:
             plt.show()
      
     def print(self, m):
-        if self.config.verbose >= 1: print(m)   
+        if self.episode_config.verbose >= 1: print(m)   
                 
     def get_planner(self):
-        planner_str = self.config.planner['class']
+        planner_str = self.agent_config.planner['class']
         planner_lst = planner_str.split('.')
         _module = importlib.import_module(".".join(planner_lst[:-1]))
         _class = getattr(_module, planner_lst[-1])
-        if planner_str in self.config:
-            config = self.config[planner_str]
+        if planner_str in self.agent_config:
+            config = self.agent_config[planner_str]
         else: config = {} 
-        planner = _class(self.config.planner.seed, self.config.planner.verbose, config)
-        #if self.config.planner.remote:
-        #    planner = RemotePlanner(planner, self.config)
+        planner = _class(self.agent_config.planner.seed, self.agent_config.planner.verbose, config)
+        #if self.agent_config.planner.remote:
+        #    planner = RemotePlanner(planner, self.agent_config)
         return planner
     

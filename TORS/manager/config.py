@@ -39,13 +39,13 @@ class Config(dict):
         self.__dict__ = self
     
     @staticmethod
-    def load_from_file(filename):
+    def load_from_file(filename, typ):
         with open(filename) as json_data_file:
             data = json.load(json_data_file)
-        result = Config.__default_values__.copy()
+        result = Config.__default_values__[typ].copy()
         Config._nested_update(result, data)
         config = Config(**result)
-        config._check_required_fields()
+        config._check_required_fields(typ)
         config._check_valid_fields()
         return config
     
@@ -57,8 +57,9 @@ class Config(dict):
             else:
                 d[k] = v
                
-    def _check_required_fields(self):
-        required_fields = ['planner', 'data folder', 'planner/seed', 'planner/class', 'generator', 'generator/class']
+    def _check_required_fields(self,typ):
+        required_fields = {"episode": ['data folder', 'generator', 'generator/class'],
+                            "agent": ['planner', 'planner/seed', 'planner/class']}[typ]
         for field in required_fields:
             if not field in self:
                 raise Exception("Field {} missing in configuration".format(field))
@@ -90,10 +91,14 @@ class Config(dict):
             raise Exception("Path {} does not exist".format(value))
         
     __default_values__ = {
-            "n_runs": 6,
+        "episode": {
+            "n_runs": 6
+        },
+        "agent": {
             "planner": {
                 'class': 'planner.simple_rl_planner.SimpleRLPlanner',
                 'seed': 42
             } 
         }
+    }
         
