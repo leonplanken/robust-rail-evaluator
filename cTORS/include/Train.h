@@ -24,7 +24,7 @@ struct TrainUnitType {
 
 	TrainUnitType() = default;
 	TrainUnitType(const string& displayName, int carriages, double length, int combineDuration, int splitDuration, int backNormTime,
-		int backAdditionTime, int travelSpeed, int startUpTime, const string& typePrefix, bool needsLoco, bool isLoco, bool needsElectricty) :
+		int backAdditionTime, int travelSpeed, int startUpTime, const string& typePrefix, bool needsLoco, bool isLoco, bool needsElectricity) :
 		displayName(displayName), carriages(carriages), length(length), combineDuration(combineDuration), splitDuration(splitDuration),
 		backNormTime(backNormTime), backAdditionTime(backAdditionTime), travelSpeed(travelSpeed), startUpTime(startUpTime), typePrefix(typePrefix),
 		needsLoco(needsLoco), isLoco(isLoco), needsElectricity(needsElectricity) {}

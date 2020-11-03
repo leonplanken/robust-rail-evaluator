@@ -12,14 +12,11 @@ pair<bool, string> electric_move_rule::IsValid(State* state, Action* action) con
 	Track* destination = nullptr;
 	if (MoveAction* ma = dynamic_cast<MoveAction*>(action)) {
 		destination = ma->GetDestinationTrack();
-	}
-	else if (ArriveAction* aa = dynamic_cast<ArriveAction*>(action)) {
+	} else if (ArriveAction* aa = dynamic_cast<ArriveAction*>(action)) {
 		destination = aa->GetDestinationTrack();
-	}
-	else if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
+	} else if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
 		destination = ea->GetDestinationTrack();
-	}
-	else {
+	} else {
 		return make_pair(true, "");
 	}
 	if (!destination->isElectrified)

@@ -38,5 +38,8 @@ add_test(NAME EngineTest COMMAND EngineTest)
 add_executable(TrackTest TrackTest.cpp $<TARGET_OBJECTS:MainTest>)
 add_test(NAME TrackTest COMMAND TrackTest)
 
+add_executable(RulesTest RulesTest.cpp $<TARGET_OBJECTS:MainTest>)
+add_test(NAME RulesTest COMMAND RulesTest)
+
 file(COPY "../data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

@@ -7,10 +7,10 @@ ShuntingUnit::ShuntingUnit(int id, vector<Train*> trains) : id(id), trains(train
 
 void ShuntingUnit::UpdateValues() {
 	length = 0;
-	needsElectricity = true;
+	needsElectricity = false;
 	for (auto& t : trains) {
 		length += t->GetType()->length;
-		needsElectricity &= t->GetType()->needsElectricity;
+		needsElectricity |= t->GetType()->needsElectricity;
 	}
 }
 
@@ -22,6 +22,7 @@ ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
 	id(su.id), length(su.length) {
 	for (auto t : su.trains)
 		trains.push_back(new Train(*t));
+	UpdateValues();
 }
 
 void ShuntingUnit::fromJSON(const json& j) {

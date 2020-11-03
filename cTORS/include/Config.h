@@ -21,7 +21,7 @@ private:
 	void importBusinessRules(const json& j);
 	void importActionRules(const json& j);
 public:
-	Config() = delete;
+	Config() = default;
 	Config(string path);
 	bool IsBusinessRuleActive(string name) const;
 	bool IsGeneratorActive(string name) const;
