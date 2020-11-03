@@ -15,6 +15,7 @@ struct TrainUnitType {
 	int splitDuration;
 	int backNormTime;
 	int backAdditionTime;
+	int setbackTime;
 	int travelSpeed;
 	int startUpTime;
 	string typePrefix;
@@ -26,8 +27,8 @@ struct TrainUnitType {
 	TrainUnitType(const string& displayName, int carriages, double length, int combineDuration, int splitDuration, int backNormTime,
 		int backAdditionTime, int travelSpeed, int startUpTime, const string& typePrefix, bool needsLoco, bool isLoco, bool needsElectricity) :
 		displayName(displayName), carriages(carriages), length(length), combineDuration(combineDuration), splitDuration(splitDuration),
-		backNormTime(backNormTime), backAdditionTime(backAdditionTime), travelSpeed(travelSpeed), startUpTime(startUpTime), typePrefix(typePrefix),
-		needsLoco(needsLoco), isLoco(isLoco), needsElectricity(needsElectricity) {}
+		backNormTime(backNormTime), backAdditionTime(backAdditionTime), setbackTime(carriages*backAdditionTime), travelSpeed(travelSpeed),
+		startUpTime(startUpTime), typePrefix(typePrefix), needsLoco(needsLoco), isLoco(isLoco), needsElectricity(needsElectricity) {}
 	string toString() { return displayName; }
 	bool operator==(const TrainUnitType& t) const { return (displayName == t.displayName); }
 	bool operator!=(const TrainUnitType& t) const { return !(*this == t); }

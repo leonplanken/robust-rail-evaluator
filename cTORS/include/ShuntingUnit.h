@@ -34,6 +34,8 @@ public:
 	inline bool NeedsElectricity() const { return needsElectricity; }
 	inline size_t GetNumberOfTrains() const { return trains.size(); }
 	inline const vector<Train*>& GetTrains() const { return trains; }
+	int GetSetbackTime(bool normTime, bool walkTime, int direction, int setbackTime) const;
+	inline int GetSetbackTime(bool normTime, bool walkTime, int direction) const { return GetSetbackTime(normTime, walkTime, direction, 0); }
 	inline void SetTrains(vector<Train*> trains) {
 		this->trains = trains;
 		UpdateValues();

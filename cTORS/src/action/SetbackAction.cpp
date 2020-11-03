@@ -26,6 +26,11 @@ SetbackActionGenerator::SetbackActionGenerator(const json& params) : ActionGener
 	params.at("walk_time").get_to(walkTime);
 }
 
+int SetbackActionGenerator::GetDuration(State* state, ShuntingUnit* su, int numDrivers) const {
+	if(defaultTime) return su->GetSetbackTime(true, numDrivers < 2, state->GetDirection(su));
+	return su->GetSetbackTime(normTime, walkTime, state->GetDirection(su), constantTime);
+}
+
 void SetbackActionGenerator::Generate(State* state, list<Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	bool driver_mandatory = false;//TODO get value from config
@@ -36,7 +41,7 @@ void SetbackActionGenerator::Generate(State* state, list<Action*>& out) const {
 		if (driver_mandatory) {
 			//TODO
 		}
-		int duration = 50;//TODO from config and number of drivers
+		int duration = GetDuration(state, su, drivers.size());
 		Action* a = new SetbackAction(su, drivers, duration);
 		out.push_back(a);		
 	}

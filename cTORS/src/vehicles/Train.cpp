@@ -39,6 +39,7 @@ void from_json(const json& j, TrainUnitType& tt) {
 	tt.splitDuration = stoi(j.at("splitDuration").get<string>());
 	tt.backNormTime = stoi(j.at("backNormTime").get<string>());
 	tt.backAdditionTime = stoi(j.at("backAdditionTime").get<string>());
+	tt.setbackTime = tt.carriages*tt.backAdditionTime;
 	tt.travelSpeed = stoi(j.at("travelSpeed").get<string>());
 	tt.startUpTime = stoi(j.at("startUpTime").get<string>());
 	j.at("typePrefix").get_to(tt.typePrefix);

@@ -216,6 +216,7 @@ class SetbackActionGenerator : public ActionGenerator {
 private:
 	bool defaultTime, normTime, walkTime;
 	int constantTime;
+	int GetDuration(State* state, ShuntingUnit* su, int numDrivers) const;
 public:
 	SetbackActionGenerator(const json& params);
 	OVERRIDE_ACTIONGENERATOR(SetbackActionGenerator)
