@@ -4,7 +4,7 @@ using namespace std;
 
 Engine::Engine(const string &path) : path(path), location(Location(path)), 
 	originalScenario(Scenario(path, location)), config(Config(path)),
-	actionValidator(ActionValidator(&config)), actionManager(ActionManager(&config)) {}
+	actionValidator(ActionValidator(&config)), actionManager(ActionManager(&config, &location)) {}
 
 
 Engine::~Engine() {

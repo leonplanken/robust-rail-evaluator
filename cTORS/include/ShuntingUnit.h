@@ -36,6 +36,8 @@ public:
 	inline const vector<Train*>& GetTrains() const { return trains; }
 	int GetSetbackTime(bool normTime, bool walkTime, int direction, int setbackTime) const;
 	inline int GetSetbackTime(bool normTime, bool walkTime, int direction) const { return GetSetbackTime(normTime, walkTime, direction, 0); }
+	inline Train* GetFrontTrain(int direction) const { return (direction >= 0 ? trains.front() : trains.back()); }
+	inline int GetStartUpTime(int direction) const { return GetFrontTrain(direction)->GetType()->startUpTime; }
 	inline void SetTrains(vector<Train*> trains) {
 		this->trains = trains;
 		UpdateValues();

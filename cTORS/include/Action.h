@@ -6,6 +6,7 @@
 #include "Track.h"
 #include "Employee.h"
 #include "Config.h"
+#include "Location.h"
 
 #ifndef ACTION_OVERRIDE
 #define ACTION_OVERRIDE(name) \
@@ -92,14 +93,16 @@ public:
 class MoveAction : public Action {
 private:
 	const vector<Track*> tracks;
+	const vector<Track*> reservedTracks;
 public:
 	MoveAction() = delete;
-	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks, int duration) : Action(su, duration), tracks(tracks) {};
-	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks) : Action(su), tracks(tracks) {};
+	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks, int duration) : 
+		Action(su, duration), tracks(tracks), reservedTracks(vector<Track*>(tracks.begin()+1, tracks.end())) {};
+	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks) : MoveAction(su, tracks, 0) {};
 	inline Track* GetDestinationTrack() const { return tracks.back(); }
 	inline Track* GetPreviousTrack() const { return tracks[tracks.size()-2]; }
 	inline const vector<Track*>& GetTracks() const { return tracks; }
-	inline const vector<Track*> GetReservedTracks() const override { return tracks; }
+	inline const vector<Track*> GetReservedTracks() const override { return reservedTracks; }
 	ACTION_OVERRIDE(MoveAction)
 };
 
@@ -155,10 +158,12 @@ public:
 };
 
 class ActionGenerator {
+protected:
+	const Location* location;
 public:
 	ActionGenerator() = delete;
 	ActionGenerator(const ActionGenerator& am) = delete;
-	ActionGenerator(const json& params) {}
+	ActionGenerator(const json& params, const Location* location) : location(location) {}
 	~ActionGenerator() = default;
 	virtual void Generate(State* state, list<Action*>& out) const = 0;
 };
@@ -167,12 +172,13 @@ class ActionManager {
 private:
 	vector<ActionGenerator*> generators;
 	const Config* config;
+	const Location* location;
 	void AddGenerators();
 	void AddGenerator(string name, ActionGenerator* generator);
 public:
 	ActionManager() = delete;
 	ActionManager(const ActionManager& am) = delete;
-	ActionManager(const Config* config) : config(config) {
+	ActionManager(const Config* config, const Location* location) : config(config), location(location) {
 		AddGenerators();
 	}
 	~ActionManager();
@@ -191,7 +197,7 @@ public:
 #define DEFINE_ACTIONGENERATOR(name) \
 class name : public ActionGenerator { \
 public: \
-	name(const json& params) : ActionGenerator(params) {}; \
+	name(const json& params, const Location* location) : ActionGenerator(params, location) {}; \
 	OVERRIDE_ACTIONGENERATOR(name) \
 };
 #endif
@@ -207,8 +213,10 @@ class MoveActionGenerator : public ActionGenerator {
 private:
 	int noRoutingDuration, constantTime;
 	bool defaultTime, normTime, walkTime;
+	void GenerateMovesFrom(ShuntingUnit* su, const vector<Track*> &tracks,
+			Track* previous, int duration, list<Action*> &out) const;
 public:
-	MoveActionGenerator(const json& params);
+	MoveActionGenerator(const json& params, const Location* location);
 	OVERRIDE_ACTIONGENERATOR(MoveActionGenerator)
 };
 
@@ -218,7 +226,7 @@ private:
 	int constantTime;
 	int GetDuration(State* state, ShuntingUnit* su, int numDrivers) const;
 public:
-	SetbackActionGenerator(const json& params);
+	SetbackActionGenerator(const json& params, const Location* location);
 	OVERRIDE_ACTIONGENERATOR(SetbackActionGenerator)
 };
 

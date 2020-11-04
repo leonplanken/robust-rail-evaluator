@@ -8,20 +8,20 @@ using json = nlohmann::json;
 
 struct TrainUnitType {
 	static map<string,TrainUnitType*> types;
-	string displayName;
-	int carriages;
-	double length;
-	int combineDuration;
-	int splitDuration;
-	int backNormTime;
-	int backAdditionTime;
-	int setbackTime;
-	int travelSpeed;
-	int startUpTime;
-	string typePrefix;
-	bool needsLoco;
-	bool isLoco;
-	bool needsElectricity;
+	string displayName;		// The name of the train unit type
+	int carriages;			// The number of carriages
+	double length;			// The length of this train unit, in meters
+	int combineDuration;	// The time it takes to combine this type of train unit with another
+	int splitDuration;		// The time it takes to split this type of train unit
+	int backNormTime;		// the back norm time
+	int backAdditionTime;	// The back addition time
+	int setbackTime;		// The time needed to setback this type of train unit, calculated as #carriages * backAdditionTime
+	int travelSpeed;		// The travel speed of the train
+	int startUpTime;		// The time it takes for this type of train unit to start up / shut down
+	string typePrefix;		// The prefix for this type of train unit, for example "SLT" or "VIRM"
+	bool needsLoco;			// Whether or not this type of train unit needs a locomotive to move
+	bool isLoco;			// Whether or not this type of train unit is a locomotive
+	bool needsElectricity;	// Whether or not this type of train unit can only drive over electrified tracks
 
 	TrainUnitType() = default;
 	TrainUnitType(const string& displayName, int carriages, double length, int combineDuration, int splitDuration, int backNormTime,

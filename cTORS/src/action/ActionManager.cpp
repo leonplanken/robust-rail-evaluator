@@ -3,7 +3,7 @@
 #ifndef ADD_GENERATOR
 #define ADD_GENERATOR(name, generator)\
 if (config->IsGeneratorActive(name)) { \
-generators.push_back(new generator(config->GetActionParameters(name))); \
+generators.push_back(new generator(config->GetActionParameters(name), location)); \
 }
 #endif
 
@@ -19,6 +19,7 @@ void ActionManager::AddGenerators() {
 	ADD_GENERATOR("move", MoveActionGenerator);
 	ADD_GENERATOR("wait", WaitActionGenerator);
 	ADD_GENERATOR("service", ServiceActionGenerator);
+	ADD_GENERATOR("set_back", SetbackActionGenerator);
 }
 
 void ActionManager::AddGenerator(string name, ActionGenerator* generator) {

@@ -85,6 +85,8 @@ public:
 		return res;
 	}
 
+	inline double GetLength() const { return length; }
+
 	inline string toString() const { 
 		return name;
 	}

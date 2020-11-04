@@ -21,7 +21,7 @@ void EndMoveActionGenerator::Generate(State* state, list<Action*>& out) const {
 	for (auto su : sus) {
 		auto track = state->GetPosition(su);
 		if (state->IsMoving(su) && track->standingAllowed && !state->HasActiveAction(su)) {
-			Action* a = new EndMoveAction(su, 25);
+			Action* a = new EndMoveAction(su, su->GetStartUpTime(state->GetDirection(su)));
 			out.push_back(a);
 		}
 	}

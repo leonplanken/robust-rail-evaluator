@@ -20,7 +20,7 @@ void BeginMoveActionGenerator::Generate(State* state, list<Action*>& out) const 
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
 		if (!state->IsWaiting(su) && !state->IsMoving(su) && !state->HasActiveAction(su)) {
-			Action* a = new BeginMoveAction(su, 25);
+			Action* a = new BeginMoveAction(su, su->GetStartUpTime(state->GetDirection(su)));
 			out.push_back(a);
 		}
 	}

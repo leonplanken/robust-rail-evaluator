@@ -19,7 +19,7 @@ string SetbackAction::toString() const {
 }
 
 
-SetbackActionGenerator::SetbackActionGenerator(const json& params) : ActionGenerator(params) {
+SetbackActionGenerator::SetbackActionGenerator(const json& params, const Location* location) : ActionGenerator(params, location) {
 	params.at("constant_time").get_to(constantTime);
 	params.at("default_time").get_to(defaultTime);
 	params.at("norm_time").get_to(normTime);
@@ -35,7 +35,7 @@ void SetbackActionGenerator::Generate(State* state, list<Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	bool driver_mandatory = false;//TODO get value from config
 	for (auto su : sus) {
-		if (!state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su)) continue;
+		if (!state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su) || state->GetDirection(su) == 0) continue;
 		Track* tr = state->GetPosition(su);
 		vector<Employee*> drivers;
 		if (driver_mandatory) {

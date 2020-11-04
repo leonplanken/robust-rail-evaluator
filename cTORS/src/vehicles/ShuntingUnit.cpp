@@ -27,8 +27,7 @@ ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
 
 int ShuntingUnit::GetSetbackTime(bool normTime, bool walkTime, int direction, int setbackTime) const {
 	if(normTime && trains.size() > 0) {
-		Train* frontTrain = (direction >= 0 ? trains.front() : trains.back());
-		setbackTime += frontTrain->GetType()->backNormTime;
+		setbackTime += GetFrontTrain(direction)->GetType()->backNormTime;
 	}
 	if(walkTime) {
 		for(auto t: trains) {

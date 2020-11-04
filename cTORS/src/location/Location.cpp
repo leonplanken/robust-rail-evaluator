@@ -17,14 +17,21 @@ Location::Location(const string &folderName) {
 		importTracksFromJSON(j["trackParts"]);
 		importFacilitiesFromJSON(j["facilities"]);
 		importDistanceMatrix(j["distanceEntries"]);
+		j["movementConstant"].get_to(movementConstant);
+		int movementTrackCoefficient = j["movementTrackCoefficient"].get<int>();
+		int movementSwitchCoefficient = j["movementSwitchCoefficient"].get<int>();
+		moveDuration[TrackPartType::Railroad] = movementTrackCoefficient;
+		moveDuration[TrackPartType::Switch] = movementSwitchCoefficient;
+		moveDuration[TrackPartType::EnglishSwitch] = 2 * movementSwitchCoefficient;
+		moveDuration[TrackPartType::HalfEnglishSwitch] = 2 * movementSwitchCoefficient;
+		moveDuration[TrackPartType::InterSection] = 0;
+		moveDuration[TrackPartType::Bumper] = 0;
 	}
 	catch (exception& e) {
 		cout << "Error in loading location: " << e.what() << "\n";
 		throw e;
 	}
 }
-
-Location::Location(const Location& location) : tracks(location.tracks) {}
 
 Location::~Location()
 {
