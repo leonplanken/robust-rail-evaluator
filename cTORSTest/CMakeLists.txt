@@ -30,16 +30,17 @@ link_libraries(cTORS doctest::doctest)
 
 add_library(MainTest OBJECT MainTest.cpp)
 
-
-
-add_executable(EngineTest EngineTest.cpp $<TARGET_OBJECTS:MainTest>)
-add_test(NAME EngineTest COMMAND EngineTest)
-
 add_executable(TrackTest TrackTest.cpp $<TARGET_OBJECTS:MainTest>)
 add_test(NAME TrackTest COMMAND TrackTest)
 
+add_executable(VehicleTest VehicleTest.cpp $<TARGET_OBJECTS:MainTest>)
+add_test(NAME VehicleTest COMMAND VehicleTest)
+
 add_executable(RulesTest RulesTest.cpp $<TARGET_OBJECTS:MainTest>)
 add_test(NAME RulesTest COMMAND RulesTest)
+
+add_executable(EngineTest EngineTest.cpp $<TARGET_OBJECTS:MainTest>)
+add_test(NAME EngineTest COMMAND EngineTest)
 
 file(COPY "../data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
