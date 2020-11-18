@@ -6,8 +6,8 @@ Rule that verifies that all required service tasks are performed before a shunti
 
 */
 
-pair<bool, string> mandatory_service_task_rule::IsValid(State* state, Action* action) const {
-	if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
+pair<bool, string> mandatory_service_task_rule::IsValid(const State* state, const Action* action) const {
+	if (auto ea = dynamic_cast<const ExitAction*>(action)) {
 		auto su = ea->GetShuntingUnit();
 		for (auto tu : su->GetTrains()) {
 			auto& tasks = state->GetTasksForTrain(tu);

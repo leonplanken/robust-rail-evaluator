@@ -12,18 +12,18 @@ class Action;
 class ShuntingUnit {
 private:
 	int id;
-	vector<Train*> trains;
+	vector<const Train*> trains;
 	double length;
 	bool needsElectricity;
 	void UpdateValues();
 public:
 	ShuntingUnit() = default;
-	ShuntingUnit(int id, vector<Train*> trains);
+	ShuntingUnit(int id, vector<const Train*> trains);
 	ShuntingUnit(const ShuntingUnit& su);
 	~ShuntingUnit();
 	void fromJSON(const json& j);
 
-	inline string toString() const {
+	inline const string toString() const {
 		return "ShuntingUnit-" + to_string(id);
 	}
 
@@ -33,12 +33,11 @@ public:
 	inline double GetLength() const { return length; }
 	inline bool NeedsElectricity() const { return needsElectricity; }
 	inline size_t GetNumberOfTrains() const { return trains.size(); }
-	inline const vector<Train*>& GetTrains() const { return trains; }
-	int GetSetbackTime(bool normTime, bool walkTime, int direction, int setbackTime) const;
-	inline int GetSetbackTime(bool normTime, bool walkTime, int direction) const { return GetSetbackTime(normTime, walkTime, direction, 0); }
-	inline Train* GetFrontTrain(int direction) const { return (direction >= 0 ? trains.front() : trains.back()); }
-	inline int GetStartUpTime(int direction) const { return GetFrontTrain(direction)->GetType()->startUpTime; }
-	inline void SetTrains(vector<Train*> trains) {
+	inline const vector<const Train*>& GetTrains() const { return trains; }
+	int GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime, int setbackTime) const;
+	inline int GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime) const { return GetSetbackTime(frontTrain, normTime, walkTime, 0); }
+	inline int GetStartUpTime(const Train* const frontTrain) const { return frontTrain->GetType()->startUpTime; }
+	inline void SetTrains(vector<const Train*> trains) {
 		this->trains = trains;
 		UpdateValues();
 	}

@@ -28,7 +28,7 @@ void ActionManager::AddGenerator(string name, ActionGenerator* generator) {
 	}
 }
 
-void ActionManager::Generate(State* state, list<Action*>& out) const
+void ActionManager::Generate(const State* state, list<const Action*>& out) const
 {
 	for (auto generator : generators) {
 		generator->Generate(state, out);

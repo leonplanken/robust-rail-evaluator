@@ -9,11 +9,11 @@ void WaitAction::Finish(State* state) const {
 	state->SetWaiting(GetShuntingUnit(), false);
 }
 
-string WaitAction::toString() const {
+const string WaitAction::toString() const {
 	return "Wait " + su->toString() + " for " + to_string(duration) + " seconds";
 }
 
-void WaitActionGenerator::Generate(State* state, list<Action*>& out) const {
+void WaitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	auto e = state->PeekEvent();
 	if (e == nullptr || e->GetTime() == state->GetTime()) return;

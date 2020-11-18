@@ -52,7 +52,7 @@ void ActionValidator::AddValidators() {
 	//Matching
 }
 
-pair<bool, string> ActionValidator::IsValid(State* state, Action* action) const {
+pair<bool, string> ActionValidator::IsValid(const State* state, const Action* action) const {
 	for (auto rule : validators) {
 		auto result = rule->IsValid(state, action);
 		if (!result.first)
@@ -61,8 +61,8 @@ pair<bool, string> ActionValidator::IsValid(State* state, Action* action) const 
 	return make_pair(true,"");
 }
 
-void ActionValidator::FilterValid(State* state, list<Action*>& actions) const {
-	actions.remove_if([this, state](Action*& a) {
+void ActionValidator::FilterValid(const State* state, list<const Action*>& actions) const {
+	actions.remove_if([this, state](const Action*& a) {
 		auto result = IsValid(state, a);
 		if (!result.first) {
 			//if verbose:

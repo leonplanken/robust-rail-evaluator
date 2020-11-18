@@ -41,10 +41,10 @@ class Facility;
 
 class Track {
 private:
-	vector<Track*> aSides;
-	vector<Track*> bSides;
-	map<Track*, vector<Track*>> next;
-	vector<Facility*> facilities;
+	vector<const Track*> aSides;
+	vector<const Track*> bSides;
+	map<const Track*, vector<const Track*>> next;
+	vector<const Facility*> facilities;
 public:
 	string id;
 	TrackPartType type;
@@ -60,34 +60,36 @@ public:
 		bool parkingAllowed, bool isElectrified, bool standingAllowed);
 	Track(const Track& track);
 	~Track();
-	void AssignNeighbors(vector<Track*> aside, vector<Track*> bside);
+	void AssignNeighbors(vector<const Track*> aside, vector<const Track*> bside);
 	
-	bool IsASide(Track* t) const;
-	bool IsBSide(Track* t) const;
-	inline TrackPartType GetType() const { return type; }
+	bool IsASide(const Track* t) const;
+	bool IsBSide(const Track* t) const;
+	inline const TrackPartType GetType() const { return type; }
 	
-	inline void AddFacility(Facility* f) {
+	inline void AddFacility(const Facility* f) {
 		facilities.push_back(f);
 	}
 
-	inline const vector<Facility*> &GetFacilities() {
+	inline const vector<const Facility*> &GetFacilities() const {
 		return facilities;
 	}
 	
-	inline const vector<Track*> &GetNextTrackParts(Track* previous) const {
+	inline const vector<const Track*> &GetNextTrackParts(const Track* previous) const {
 		return next.at(previous);
 	}
 
-	inline const vector<Track*> GetNeighbors() const {
-		vector<Track*> res = aSides;
+	inline const vector<const Track*> GetNeighbors() const {
+		vector<const Track*> res = aSides;
 		if(bSides.size() > 0)
 			res.insert(res.end(), bSides.begin(), bSides.end());
 		return res;
 	}
 
+	inline const Track* GetOppositeSide(const Track* previous) const { return GetNextTrackParts(previous).front(); }
+
 	inline double GetLength() const { return length; }
 
-	inline string toString() const { 
+	inline const string& toString() const { 
 		return name;
 	}
 	

@@ -21,17 +21,17 @@ private:
 	Config config;
 	ActionValidator actionValidator;
 	ActionManager actionManager;
-	map<State*, list<Action*>> stateActionMap;
+	map<State*, list<const Action*>> stateActionMap;
 
-	list<Action*> &GetValidActions(State* state);
-	void ExecuteEvent(State* state, Event* e);
+	list<const Action*> &GetValidActions(State* state);
+	void ExecuteEvent(State* state, const Event* e);
 	void ExecuteImmediateEvents(State * state);
 public:
 	Engine() = delete;
 	Engine(const string &path);
 	~Engine();
-	list<Action*> &GetActions(State* state, Scenario* scenario = nullptr);
-	void ApplyAction(State* state, Action* action);
+	list<const Action*> &GetActions(State* state, Scenario* scenario = nullptr);
+	void ApplyAction(State* state, const Action* action);
 	State *StartSession(const Scenario& scenario);
 	inline State *StartSession() { return StartSession(originalScenario); }
 	void EndSession(State* state);

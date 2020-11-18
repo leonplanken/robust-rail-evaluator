@@ -1,6 +1,6 @@
 #include "ShuntingUnit.h"
 
-ShuntingUnit::ShuntingUnit(int id, vector<Train*> trains) : id(id), trains(trains)
+ShuntingUnit::ShuntingUnit(int id, vector<const Train*> trains) : id(id), trains(trains)
 {
 	UpdateValues();
 }
@@ -25,9 +25,9 @@ ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
 	UpdateValues();
 }
 
-int ShuntingUnit::GetSetbackTime(bool normTime, bool walkTime, int direction, int setbackTime) const {
+int ShuntingUnit::GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime, int setbackTime) const {
 	if(normTime && trains.size() > 0) {
-		setbackTime += GetFrontTrain(direction)->GetType()->backNormTime;
+		setbackTime += frontTrain->GetType()->backNormTime;
 	}
 	if(walkTime) {
 		for(auto t: trains) {

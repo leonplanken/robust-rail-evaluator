@@ -45,6 +45,7 @@ set(TORS_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/action/MoveAction.cpp
 	${PROJECT_SOURCE_DIR}/action/ServiceAction.cpp
 	${PROJECT_SOURCE_DIR}/action/SetbackAction.cpp
+	${PROJECT_SOURCE_DIR}/action/SplitAction.cpp
 	${PROJECT_SOURCE_DIR}/action/WaitAction.cpp
 	
 	${PROJECT_SOURCE_DIR}/rules/arrival_departure/end_correct_order_on_track_rule.cpp

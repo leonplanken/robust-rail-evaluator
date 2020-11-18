@@ -2,14 +2,13 @@
 #include "State.h"
 
 void ArriveAction::Start(State* state) const {
-	Track* parkingTrack = incoming->GetParkingTrack();
-	Track* sideTrack = incoming->GetSideTrack();
-	ShuntingUnit* su = GetShuntingUnit();
+	const Track* parkingTrack = incoming->GetParkingTrack();
+	const Track* sideTrack = incoming->GetSideTrack();
+	const ShuntingUnit* su = GetShuntingUnit();
 
-	state->AddShuntingUnit(su);
+	state->AddShuntingUnit(su, parkingTrack, sideTrack);
 	if (!incoming->IsInstanding())
 		state->ReserveTracks(vector({ parkingTrack, sideTrack }));
-	state->OccupyTrack(GetShuntingUnit(), parkingTrack, sideTrack);
 	state->addTasksToTrains(incoming->GetTasks());
 	state->RemoveIncoming(incoming);
 	state->AddActiveAction(su, this);
@@ -22,11 +21,11 @@ void ArriveAction::Finish(State* state) const {
 		state->FreeTracks( vector({incoming->GetParkingTrack(), incoming->GetSideTrack() }));
 }
 
-string ArriveAction::toString() const {
+const string ArriveAction::toString() const {
 	return "Arrive " + su->toString() + " at " + incoming->GetParkingTrack()->toString() + " at T" + to_string(incoming->GetTime());
 }
 
-void ArriveActionGenerator::Generate(State* state, list<Action*>& out) const {
+void ArriveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto incoming = state->GetIncomingTrains();
 	if (state->GetTime() == 0) { //First handle Instanding Units
 		int min = 1024;

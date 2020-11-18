@@ -6,7 +6,7 @@ Rule that verifies that at most one shunting unit can use a piece of track at a 
 
 */
 
-pair<bool, string> single_move_track_rule::IsValid(State* state, Action* action) const {
+pair<bool, string> single_move_track_rule::IsValid(const State* state, const Action* action) const {
     auto reserves = action->GetReservedTracks();
     for (auto t : reserves) {
         if (state->IsReserved(t))

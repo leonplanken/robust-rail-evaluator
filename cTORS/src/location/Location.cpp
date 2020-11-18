@@ -55,8 +55,8 @@ void Location::importTracksFromJSON(const json& j) {
 	for (Track* t : tracks) {
 		vector<string> saside = aSides[t];
 		vector<string> sbside = bSides[t];
-		auto aside = vector<Track*>(saside.size());
-		auto bside = vector<Track*>(sbside.size());
+		auto aside = vector<const Track*>(saside.size());
+		auto bside = vector<const Track*>(sbside.size());
 		for (int j = 0; j != saside.size(); j++)
 			aside[j] = trackIndex[saside[j]];
 		for (int j = 0; j != sbside.size(); j++)

@@ -13,8 +13,8 @@ Facility::~Facility() {
 	tasks.clear();
 }
 
-bool Facility::ExecutesTask(Task* task) {
-	string taskName = task->toString();
+bool Facility::ExecutesTask(const Task* task) const {
+	const string taskName = task->toString();
 	auto it = find_if(tasks.begin(), tasks.end(), [taskName](const string& s) -> bool { return s == taskName; });
 	if (it == tasks.end()) return false;
 	return true;	

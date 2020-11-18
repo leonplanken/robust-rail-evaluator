@@ -12,14 +12,14 @@ Engine::~Engine() {
 	stateActionMap.clear();
 }
 
-list<Action*> &Engine::GetActions(State * state, Scenario * scenario) {
+list<const Action*> &Engine::GetActions(State * state, Scenario * scenario) {
 	ExecuteImmediateEvents(state);
-	list<Action*>& actions = GetValidActions(state);
+	auto& actions = GetValidActions(state);
 	debug_out("Got valid actions succesfully");
 	EventQueue disturbances = scenario ? scenario->GetDisturbances() : EventQueue();
 	while (actions.empty() && state->GetNumberOfEvents() > 0) {
 		debug_out("No actions but still events available");
-		Event* evnt;
+		const Event* evnt;
 		if (disturbances.size() > 0 && disturbances.top()->GetTime() <= state->PeekEvent()->GetTime())
 			evnt = disturbances.top();
 		else
@@ -42,15 +42,15 @@ list<Action*> &Engine::GetActions(State * state, Scenario * scenario) {
 	return actions;
 }
 
-void Engine::ApplyAction(State* state, Action* action) {
+void Engine::ApplyAction(State* state, const Action* action) {
 	debug_out("\tApplying action " + action->toString());
 	state->StartAction(action);
 }
 
-list<Action*> &Engine::GetValidActions(State* state) {
+list<const Action*> &Engine::GetValidActions(State* state) {
 	debug_out("Starting GetValidActions");
 	if (state->IsChanged()) {
-		auto& actions = stateActionMap[state];
+		auto& actions = stateActionMap.at(state);
 		DELETE_LIST(actions)
 		actionManager.Generate(state, actions);
 		debug_out("Generated "+ to_string(actions.size())+" actions");
@@ -58,7 +58,7 @@ list<Action*> &Engine::GetValidActions(State* state) {
 		debug_out("GetValidActions list filtered");
 		state->SetUnchanged();
 	}
-	return stateActionMap[state];
+	return stateActionMap.at(state);
 }
 
 void Engine::ExecuteImmediateEvents(State* state) {
@@ -67,7 +67,7 @@ void Engine::ExecuteImmediateEvents(State* state) {
 	}
 	debug_out("Execute immediate events (" << to_string(state->GetNumberOfEvents()) << " events queued)");
 	while (state->GetNumberOfEvents() > 0) {
-		Event *evnt = state->PeekEvent();
+		auto evnt = state->PeekEvent();
 		debug_out("Next event at T=" << to_string(evnt->GetTime()) << ": " << evnt->toString());
 		if (evnt->GetTime() > state->GetTime()) break;
 		evnt = state->PopEvent();
@@ -75,8 +75,8 @@ void Engine::ExecuteImmediateEvents(State* state) {
 	}
 }
 
-void Engine::ExecuteEvent(State* state, Event* e) {
-	Action* a = e->GetAction();
+void Engine::ExecuteEvent(State* state, const Event* e) {
+	auto a = e->GetAction();
 	if (a != nullptr) {
 		//auto result = actionValidator.IsValid(state, a);
 		//if (!result.first)
@@ -88,7 +88,7 @@ void Engine::ExecuteEvent(State* state, Event* e) {
 }
 
 State* Engine::StartSession(const Scenario& scenario) {
-	State* state = new State(scenario);
+	State* state = new State(scenario, location.GetTracks());
 	stateActionMap[state];
 	return state;
 }

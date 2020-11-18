@@ -7,8 +7,8 @@ correct order when they leave the shunting yard.
 
 */
 
-pair<bool, string> out_correct_order_rule::IsValid(State* state, Action* action) const {
-	if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
+pair<bool, string> out_correct_order_rule::IsValid(const State* state, const Action* action) const {
+	if (auto ea = dynamic_cast<const ExitAction*>(action)) {
 		auto& outTrains = ea->GetOutgoing()->GetShuntingUnit()->GetTrains();
 		auto& avTrains = ea->GetShuntingUnit()->GetTrains();
 		if(outTrains.size() != avTrains.size()) 
@@ -16,9 +16,9 @@ pair<bool, string> out_correct_order_rule::IsValid(State* state, Action* action)
 		bool leftValid = true;
 		bool rightValid = true;
 		for (int i = 0; i < outTrains.size(); i++) {
-			Train* exp = outTrains.at(i);
-			Train* left = avTrains.at(i);
-			Train* right = avTrains.at(avTrains.size() - 1 - i);
+			auto exp = outTrains.at(i);
+			auto left = avTrains.at(i);
+			auto right = avTrains.at(avTrains.size() - 1 - i);
 			if ((exp->GetID() != -1 && exp->GetID() != left->GetID()) ||
 				(exp->GetID() == -1 && exp->GetType()->displayName != left->GetType()->displayName))
 				leftValid = false;

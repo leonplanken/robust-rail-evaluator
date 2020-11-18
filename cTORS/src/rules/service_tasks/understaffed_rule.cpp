@@ -7,7 +7,7 @@ such that the task will have all of its required skills available.
 
 */
 
-pair<bool, string> understaffed_rule::IsValid(State* state, Action* action) const {
+pair<bool, string> understaffed_rule::IsValid(const State* state, const Action* action) const {
 	//TODO
 	return make_pair(true, "");
 }

@@ -6,15 +6,15 @@ Rule that verifies that shunting units which need electricity park only on elect
 
 */
 
-pair<bool, string> electric_track_rule::IsValid(State* state, Action* action) const {
+pair<bool, string> electric_track_rule::IsValid(const State* state, const Action* action) const {
 	auto su = action->GetShuntingUnit();
 	if (!su->NeedsElectricity()) return make_pair(true, "");
-	Track* destination = nullptr;
-	if (MoveAction* ma = dynamic_cast<MoveAction*>(action)) {
+	const Track* destination = nullptr;
+	if (auto ma = dynamic_cast<const MoveAction*>(action)) {
 		destination = ma->GetDestinationTrack();
-	} else if (ArriveAction* aa = dynamic_cast<ArriveAction*>(action)) {
+	} else if (auto aa = dynamic_cast<const ArriveAction*>(action)) {
 		destination = aa->GetDestinationTrack();
-	} else if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
+	} else if (auto ea = dynamic_cast<const ExitAction*>(action)) {
 		destination = ea->GetDestinationTrack();
 	} else {
 		return make_pair(true, "");

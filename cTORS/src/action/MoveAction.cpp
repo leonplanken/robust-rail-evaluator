@@ -14,7 +14,7 @@ void MoveAction::Finish(State* state) const {
 	state->FreeTracks(GetReservedTracks());
 }
 
-string MoveAction::toString() const {
+const string MoveAction::toString() const {
 	return "Move " + su->toString() + " to " + GetDestinationTrack()->toString();
 }
 
@@ -26,17 +26,17 @@ MoveActionGenerator::MoveActionGenerator(const json& params, const Location* loc
 	params.at("walk_time").get_to(walkTime);
 }
 
-void MoveActionGenerator::GenerateMovesFrom(ShuntingUnit* su, const vector<Track*> &tracks,
-									Track* previous, int duration, list<Action*> &out) const {
+void MoveActionGenerator::GenerateMovesFrom(const ShuntingUnit* su, const vector<const Track*> &tracks,
+									const Track* previous, int duration, list<const Action*> &out) const {
 	auto track = tracks.back();
-	vector<Track*> nexts;
+	vector<const Track*> nexts;
 	if (previous == nullptr)
 		nexts = track->GetNeighbors();
 	else
 		nexts = track->GetNextTrackParts(previous);
 	for (auto next : nexts) {
 		int newDuration = duration + location->GetDurationByType(next);
-		vector<Track*> newTracks = tracks;
+		vector<const Track*> newTracks = tracks;
 		newTracks.push_back(next);
 		if (next->GetType() == TrackPartType::Railroad) {
 			Action* a = new MoveAction(su, newTracks, newDuration);
@@ -47,13 +47,13 @@ void MoveActionGenerator::GenerateMovesFrom(ShuntingUnit* su, const vector<Track
 	}
 }
 
-void MoveActionGenerator::Generate(State* state, list<Action*>& out) const {
+void MoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
 		if (!state->IsMoving(su) || state->HasActiveAction(su)) continue;
 		auto track = state->GetPosition(su);
 		auto previous = state->GetPrevious(su);
-		vector<Track*> tracks{ track };
+		vector<const Track*> tracks{ track };
 		GenerateMovesFrom(su, tracks, previous, location->GetDurationByType(track), out);
 	}
 }

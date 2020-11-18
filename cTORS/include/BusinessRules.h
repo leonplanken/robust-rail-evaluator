@@ -9,7 +9,7 @@ class name : public BusinessRule { \
 public: \
 	name() = delete; \
 	name(const Config* config) : BusinessRule(config) {}; \
-	pair<bool, string> IsValid(State* state, Action* action) const override; \
+	pair<bool, string> IsValid(const State* state, const Action* action) const override; \
 };
 #endif
 
@@ -20,7 +20,7 @@ private:
 public:
 	BusinessRule() = delete;
 	BusinessRule(const Config* config) : config(config) {};
-	virtual pair<bool, string> IsValid(State*, Action* action) const = 0;
+	virtual pair<bool, string> IsValid(const State*, const Action* action) const = 0;
 };
 
 //Arrival and departure

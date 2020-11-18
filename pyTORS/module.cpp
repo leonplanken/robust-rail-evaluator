@@ -25,7 +25,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// ShuntingUnit               ////
 	////////////////////////////////////
 	py::class_<ShuntingUnit>(m, "ShuntingUnit")
-		.def(py::init<int, vector<Train*>>())
+		.def(py::init<int, vector<const Train*>>())
 		.def_property("train_units", &ShuntingUnit::GetTrains, &ShuntingUnit::SetTrains, py::return_value_policy::reference, py::keep_alive<1, 2>())
 		.def("get_length", &ShuntingUnit::GetLength)
 		.def("needs_electricity", &ShuntingUnit::NeedsElectricity)
@@ -95,10 +95,10 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_side_track", &TrainGoal::GetSideTrack, py::return_value_policy::reference)
 		.def("get_parking_track", &TrainGoal::GetParkingTrack, py::return_value_policy::reference);
 	py::class_<Incoming, TrainGoal>(m, "Incoming")
-		.def(py::init<int, ShuntingUnit*, Track*, Track*, int, bool, int, map<Train*, vector<Task>>>())
+		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int, map<const Train*, vector<Task>>>())
 		.def("__str__", &Incoming::toString);
 	py::class_<Outgoing, TrainGoal>(m, "Outgoing")
-		.def(py::init<int, ShuntingUnit*, Track*, Track*, int, bool, int>())
+		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int>())
 		.def("__str__", &Outgoing::toString);
 
 	////////////////////////////////////
@@ -123,10 +123,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_shunting_units", &State::GetShuntingUnits, py::return_value_policy::reference)
 		.def("has_active_action", &State::HasActiveAction, py::arg("shunting_unit"))
 		.def("get_train_units_in_order", &State::GetTrainUnitsInOrder, py::arg("shunting_unit"), py::return_value_policy::move)
-		.def("get_direction", &State::GetDirection, py::arg("shunting_unit"))
+		.def("get_front_train", &State::GetFrontTrain, py::arg("shunting_unit"), py::return_value_policy::reference)
 		.def("get_active_actions", &State::GetActiveActions, py::return_value_policy::reference)
-		.def("get_tasks_for_train", &State::GetTasksForTrain, py::arg("train"), py::return_value_policy::reference)
-		.def("get_active_tasks", &State::GetActiveTasks, py::return_value_policy::reference);
+		.def("get_tasks_for_train", &State::GetTasksForTrain, py::arg("train"), py::return_value_policy::reference);
 
 	////////////////////////////////////
 	//// Action                     ////

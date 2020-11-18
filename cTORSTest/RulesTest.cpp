@@ -6,7 +6,6 @@ namespace cTORSTest
 {
 	TEST_CASE("Rules Test") {
 		Scenario scenario;
-		State state(scenario);
 		
 		/* Set up a small track
 		b0==r0===s0==r1=======b1
@@ -27,22 +26,23 @@ namespace cTORSTest
 		b1.AssignNeighbors({&r1},{});
 		b2.AssignNeighbors({&r2},{});
 
+		vector<Track*> tracks = {&r0, &r1, &r2, &s0, &b0, &b1, &b2};
+		State state(scenario, tracks);
+
 		//Setup a two test trains
 		TrainUnitType elecTrainType("ElecTrainType", 1, 100, 100, 100, 100, 100, 50, 100, "ETT", false, false, true);
-		Train elecTrain(0, &elecTrainType);
-		ShuntingUnit* elecSU = new ShuntingUnit(0, {&elecTrain});
+		Train* elecTrain = new Train(0, &elecTrainType);
+		ShuntingUnit* elecSU = new ShuntingUnit(0, {elecTrain});
 
 		TrainUnitType nonElecTrainType("NonElecTrainType", 1, 100, 100, 100, 100, 100, 50, 100, "NETT", false, false, false);
-		Train nonElecTrain(0, &nonElecTrainType);
-		ShuntingUnit* nonElecSU = new ShuntingUnit(1, {&nonElecTrain});
+		Train* nonElecTrain = new Train(0, &nonElecTrainType);
+		ShuntingUnit* nonElecSU = new ShuntingUnit(1, {nonElecTrain});
 		
-		state.AddShuntingUnit(elecSU);
-		state.AddShuntingUnit(nonElecSU);
-		state.OccupyTrack(elecSU, &r1, &b1);
-		state.OccupyTrack(nonElecSU, &r0, &b0);
+		state.AddShuntingUnit(elecSU, &r1, &b1);
+		state.AddShuntingUnit(nonElecSU, &r0, &b0);
 
-		vector<Track*> elecMove = {&r1, &s0, &r0};
-		vector<Track*> nonElecMove = {&r0, &s0, &r2};
+		vector<const Track*> elecMove = {&r1, &s0, &r0};
+		vector<const Track*> nonElecMove = {&r0, &s0, &r2};
 		MoveAction elecMoveAction(elecSU, elecMove);
 		MoveAction nonElecMoveAction(nonElecSU, nonElecMove);
 

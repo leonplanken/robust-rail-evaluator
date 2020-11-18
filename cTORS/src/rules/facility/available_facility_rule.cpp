@@ -6,8 +6,8 @@ Rule that verifies that tasks assigned to a facility are only executed when that
 
 */
 
-pair<bool, string> available_facility_rule::IsValid(State* state, Action* action) const {
-	if (ServiceAction* sa = dynamic_cast<ServiceAction*>(action)) {
+pair<bool, string> available_facility_rule::IsValid(const State* state, const Action* action) const {
+	if (auto sa = dynamic_cast<const ServiceAction*>(action)) {
 		auto ta = sa->GetTask();
 		auto fa = sa->GetFacility();
 		if (!fa->IsAvailable(state->GetTime(), ta->duration))

@@ -23,7 +23,7 @@ Track::Track(const Track& track) :
 
 Track::~Track() { }
 
-void Track::AssignNeighbors(vector<Track*> aside, vector<Track*> bside)
+void Track::AssignNeighbors(vector<const Track*> aside, vector<const Track*> bside)
 {
 	if (type == TrackPartType::Railroad && (aside.size() != 1 || bside.size() != 1))
 		throw InvalidLocationException("Track " + toString() + "(" + id + "): Railroad must have one track at each side");
@@ -34,34 +34,34 @@ void Track::AssignNeighbors(vector<Track*> aside, vector<Track*> bside)
 	bSides = bside;
 	if (type == TrackPartType::HalfEnglishSwitch) {
 		next[aside[0]] = bside;
-		next[aside[1]] = vector<Track*> { bside[1] };
+		next[aside[1]] = vector<const Track*> { bside[1] };
 	} else if (type == TrackPartType::InterSection) {
-		next[aside[0]] = vector<Track*>{ bside[1] };
-		next[aside[1]] = vector<Track*>{ bside[0] };
+		next[aside[0]] = vector<const Track*>{ bside[1] };
+		next[aside[1]] = vector<const Track*>{ bside[0] };
 	} else {
-		for (Track* t : aside)
+		for (const Track* t : aside)
 			next[t] = bside;
 	}
 	if (type == TrackPartType::HalfEnglishSwitch) {
 		next[bside[0]] = aside;
-		next[bside[1]] = vector<Track*>{ aside[1] };
+		next[bside[1]] = vector<const Track*>{ aside[1] };
 	} else if (type == TrackPartType::InterSection) {
-		next[bside[0]] = vector<Track*>{ aside[1] };
-		next[bside[1]] = vector<Track*>{ aside[0] };
+		next[bside[0]] = vector<const Track*>{ aside[1] };
+		next[bside[1]] = vector<const Track*>{ aside[0] };
 	} else {
-		for (Track* t : bside)
+		for (const Track* t : bside)
 			next[t] = aside;
 	}
 }
 
-bool Track::IsASide(Track* t) const {
+bool Track::IsASide(const Track* t) const {
 	auto it = find(aSides.begin(), aSides.end(), t);
 	if(it != aSides.end())
 		return true;
 	return false; 
 }
 
-bool Track::IsBSide(Track* t) const {
+bool Track::IsBSide(const Track* t) const {
 	auto it = find(bSides.begin(), bSides.end(), t);
 	if(it != bSides.end())
 		return true;

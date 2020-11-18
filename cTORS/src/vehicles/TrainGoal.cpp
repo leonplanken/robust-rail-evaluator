@@ -14,19 +14,20 @@ TrainGoal::~TrainGoal() {
 void TrainGoal::fromJSON(const json& j) {
 	id = stoi(j.at("id").get<string>());
 	time = stoi(j.at("time").get<string>());
-	shuntingUnit = new ShuntingUnit();
-	j.get_to(*shuntingUnit);
+	ShuntingUnit* su = new ShuntingUnit();
+	j.get_to(*su);
+	shuntingUnit = su;
 	if (j.find("standingIndex") != j.end())
 		standingIndex = stoi(j.at("standingIndex").get<string>());
 	int i = 0;
 	for (auto jit : j.at("members")) {
-		Train* tu = shuntingUnit->GetTrains()[i++];
+		auto tu = shuntingUnit->GetTrains()[i++];
 		auto& trainTasks = tasks[tu];
 		jit.at("tasks").get_to(trainTasks);
 	}
 }
 
-void TrainGoal::assignTracks(Track* park, Track* side) {
+void TrainGoal::assignTracks(const Track* park, const Track* side) {
 	parkingTrack = park;
 	sideTrack = side;
 }

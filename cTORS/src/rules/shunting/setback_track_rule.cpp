@@ -7,8 +7,8 @@ allowed on the track where the shunting unit is at.
 
 */
 
-pair<bool, string> setback_track_rule::IsValid(State* state, Action* action) const {
-	if (SetbackAction* sa = dynamic_cast<SetbackAction*>(action)) {
+pair<bool, string> setback_track_rule::IsValid(const State* state, const Action* action) const {
+	if (auto sa = dynamic_cast<const SetbackAction*>(action)) {
 		auto su = action->GetShuntingUnit();
 		auto track = state->GetPosition(su);
 		if (!track->sawMovementAllowed)

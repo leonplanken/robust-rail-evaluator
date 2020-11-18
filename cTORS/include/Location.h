@@ -22,7 +22,7 @@ private:
 	map<pair<const Track*, const Track*>, double> distanceMatrix;
 	map<string, Track*> trackIndex;
 	int movementConstant;
-	map<TrackPartType, int> moveDuration;
+	map<const TrackPartType, int> moveDuration;
 	
 	void importTracksFromJSON(const json& j);
 	void importFacilitiesFromJSON(const json& j);

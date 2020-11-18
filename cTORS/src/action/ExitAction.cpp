@@ -2,9 +2,9 @@
 #include "State.h"
 
 void ExitAction::Start(State* state) const {
-	Track* parkingTrack = outgoing->GetParkingTrack();
-	Track* sideTrack = outgoing->GetSideTrack();
-	ShuntingUnit* su = GetShuntingUnit();
+	const Track* parkingTrack = outgoing->GetParkingTrack();
+	const Track* sideTrack = outgoing->GetSideTrack();
+	const ShuntingUnit* su = GetShuntingUnit();
 	if (!outgoing->IsInstanding())
 		state->ReserveTracks(vector({ parkingTrack, sideTrack }));
 	state->RemoveOutgoing(outgoing);
@@ -18,11 +18,11 @@ void ExitAction::Finish(State* state) const {
 	state->RemoveShuntingUnit(su);
 }
 
-string ExitAction::toString() const {
+const string ExitAction::toString() const {
 	return "Exit from " + su->toString() + " at " + outgoing->GetParkingTrack()->toString() + " at T" + to_string(outgoing->GetTime());
 }
 
-void ExitActionGenerator::Generate(State* state, list<Action*>& out) const {
+void ExitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	auto& outgoing = state->GetOutgoingTrains();
 	if (outgoing.size() == 0) return;

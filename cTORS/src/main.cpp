@@ -8,10 +8,10 @@ int main()
 	cout << "\nBeginning of session\n";
 	while (true) {
 		try {
-			list<Action*> &actions = engine.GetActions(state);
+			auto& actions = engine.GetActions(state);
 			cout << "[T = "  + to_string(state->GetTime()) + "]\tChoosing from " << actions.size() << " actions.\n";
 			if (actions.size() == 0) break;
-			Action* a;
+			const Action* a;
 			if (actions.size() == 1) a = actions.front();
 			else {
 				int i = 0;

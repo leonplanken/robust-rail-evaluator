@@ -9,38 +9,66 @@
 #include "TrainGoals.h"
 using namespace std;
 
+struct ShuntingUnitState {
+	const Track* position;
+	const Track* previous;
+	list<const Action*> activeActions;
+	bool moving, waiting, inNeutral;
+	const Train* frontTrain;
+
+
+	ShuntingUnitState() = delete;
+	ShuntingUnitState(const ShuntingUnitState& suState) : position(suState.position), previous(suState.previous),
+		moving(suState.moving), waiting(suState.waiting), inNeutral(suState.inNeutral), frontTrain(suState.frontTrain) {
+			for(auto action: suState.activeActions) activeActions.emplace_back(action->clone());
+		}
+	ShuntingUnitState(const Track* position, const Track* previous, const Train* frontTrain) 
+		: position(position), previous(previous), moving(false), waiting(false), inNeutral(true), frontTrain(frontTrain) {}
+	~ShuntingUnitState() {
+		DELETE_LIST(activeActions);
+	}
+	bool HasActiveAction() const { return activeActions.size() > 0; }
+};
+
+struct TrackState {
+	list<const ShuntingUnit*> occupations;
+	bool reserved;
+	TrackState() : reserved(false) {};
+};
+
+struct TrainState {
+	vector<Task> tasks;
+	list<const Task*> activeTasks;
+};
+
 class State
 {
 private:
 	EventQueue events;
 	int time, startTime, endTime;
-	vector<Incoming*> incomingTrains;
-	vector<Outgoing*> outgoingTrains;
-	vector<Employee*> employees;
-	vector<ShuntingUnit*> shuntingUnits;
-	map<ShuntingUnit*, Track*> positions;
-	map<Track*, list<ShuntingUnit*>> occupations;
-	map<ShuntingUnit*, Track*> previous;
-	map<Track*, bool> reserved;
-	map<ShuntingUnit*, list<Action*>> activeActions;
-	map<ShuntingUnit*, bool> moving;
-	map<ShuntingUnit*, bool> waiting;
-	map<Train*, vector<Task>> tasks;
-	map<Train*, list<Task*>> activeTasks;
+	vector<const Incoming*> incomingTrains;
+	vector<const Outgoing*> outgoingTrains;
+	vector<const Employee*> employees;
+	vector<const ShuntingUnit*> shuntingUnits;
+	
+	map<const ShuntingUnit*, ShuntingUnitState> shuntingUnitStates;
+	map<const Track*, TrackState> trackStates;
+	map<const Train*, TrainState> trainStates;
+
 	bool changed;
 public:
 	State() = delete;
-	State(const Scenario& scenario);
+	State(const Scenario& scenario, const vector<Track*>& tracks);
 	State(const State& state) = default;
 	~State();
 
 	//Events
 	inline size_t GetNumberOfEvents() const { return events.size(); }
-	Event* PeekEvent() const;
-	Event* PopEvent();
-	void AddEvent(Incoming* in);
-	void AddEvent(Outgoing* out);
-	void AddEvent(Action* action);
+	const Event* PeekEvent() const;
+	const Event* PopEvent();
+	void AddEvent(const Incoming* in);
+	void AddEvent(const Outgoing* out);
+	void AddEvent(const Action* action);
 
 	//Time
 	void SetTime(int time);
@@ -53,62 +81,68 @@ public:
 	inline void SetUnchanged() { changed = false; }
 	
 	//Apply action
-	void StartAction(Action* action);
-	void FinishAction(Action* action);
+	void StartAction(const Action* action);
+	void FinishAction(const Action* action);
 
 	//Getters
-	inline const vector<Incoming*>& GetIncomingTrains() const { return incomingTrains; }
-	inline const vector<Outgoing*>& GetOutgoingTrains() const { return outgoingTrains; }
-	inline Track* GetPosition(ShuntingUnit* su)  { return positions[su]; }
-	inline Track* GetPrevious(ShuntingUnit* su) { return previous[su]; }
-	inline const list<ShuntingUnit*>& GetOccupations(Track* track)  { return occupations[track]; }
-	int GetPositionOnTrack(ShuntingUnit* su);
-	inline size_t GetAmountOnTrack(Track* track) { return occupations[track].size(); }
-	vector<Train*> GetTrainUnitsInOrder(ShuntingUnit* su);
-	bool CanMoveToSide(ShuntingUnit* su, Track* side);
-	inline bool IsMoving(ShuntingUnit* su) { return moving[su]; }
-	inline bool IsReserved(Track* track) { return reserved[track]; }
-	inline bool IsWaiting(ShuntingUnit* su) { return waiting[su]; }
-	inline const vector<ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
-	inline const bool HasActiveAction(ShuntingUnit* su) { return activeActions[su].size() > 0; }
-	inline const list<Action*> &GetActiveActions(ShuntingUnit* su) { return activeActions[su]; }
-	const bool IsActive();
-	const bool IsAnyInactive();
-	int GetDirection(ShuntingUnit* su);
-	inline vector<Task>& GetTasksForTrain(Train* tu) { return tasks[tu]; }
-	inline map<Train*, list<Task*>>& GetActiveTasks() { return activeTasks; }
+	inline const vector<const Incoming*>& GetIncomingTrains() const { return incomingTrains; }
+	inline const vector<const Outgoing*>& GetOutgoingTrains() const { return outgoingTrains; }
+	inline const Track* GetPosition(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).position; }
+	inline const Track* GetPrevious(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).previous; }
+	inline const list<const ShuntingUnit*>& GetOccupations(const Track* track) const { return trackStates.at(track).occupations; }
+	int GetPositionOnTrack(const ShuntingUnit* su) const;
+	inline size_t GetAmountOnTrack(const Track* track) const { return GetOccupations(track).size(); }
+	const vector<const Train*> GetTrainUnitsInOrder(const ShuntingUnit* su) const;
+	bool CanMoveToSide(const ShuntingUnit* su, const Track* side) const;
+	inline bool IsMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).moving; }
+	inline bool IsReserved(const Track* track) const { return trackStates.at(track).reserved; }
+	inline bool IsWaiting(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).waiting; }
+	inline bool IsInNeutral(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).inNeutral; }
+	inline const vector<const ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
+	inline bool HasActiveAction(const ShuntingUnit* su) const { return GetActiveActions(su).size() > 0; }
+	inline const list<const Action*> &GetActiveActions(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).activeActions; }
+	bool IsActive() const;
+	bool IsAnyInactive() const;
+	inline const Train* GetFrontTrain(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).frontTrain; }
+	inline const vector<Task>& GetTasksForTrain(const Train* tu) const { return trainStates.at(tu).tasks; }
+	inline const list<const Task*>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
+	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return shuntingUnitStates.at(su); }
+	inline const map<const ShuntingUnit*, ShuntingUnitState>& GetShuntingUnitStates() const { return shuntingUnitStates; }
 
 	//Setters and Adders
-	inline void SetMoving(ShuntingUnit* su, bool b) { moving[su] = b; }
-	inline void SetWaiting(ShuntingUnit* su, bool b) { waiting[su] = b; }
-	inline void SetPosition(ShuntingUnit* su, Track* track) { positions[su] = track; }
-	inline void SetPrevious(ShuntingUnit* su, Track* track) { previous[su] = track; }
+	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }
+	inline void SetWaiting(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).waiting = b; }
+	inline void SetInNeutral(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).inNeutral = b; }
+	inline void SetPosition(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).position = track; }
+	inline void SetPrevious(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).previous = track; }
 
-	void addTasksToTrains(const map<Train*, vector<Task>>& tasks);
-	inline void AddTaskToTrain(Train* tu, const Task& task) { tasks[tu].push_back(task); }
-	inline void AddActiveTaskToTrain(Train* tu, Task* task) { activeTasks[tu].push_back(task); }
-	inline void AddActiveAction(ShuntingUnit* su, const Action* action) { activeActions[su].push_back(action->clone()); }
-	inline void AddShuntingUnit(ShuntingUnit* su) { shuntingUnits.push_back(su); }
+	void addTasksToTrains(const map<const Train*, vector<Task>>& tasks);
+	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
+	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
+	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->clone()); }
+	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
+	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }
+	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { shuntingUnitStates.at(su).frontTrain = frontTrain; }
 	
 	//Track Reservation
-	void ReserveTracks(const vector<Track*>& tracks);
-	void ReserveTracks(const list<Track*>& tracks);
-	inline void ReserveTrack(Track* track) { reserved[track] = true; };
-	void FreeTracks(const vector<Track*>& tracks);
-	void FreeTracks(const list<Track*>& tracks);
-	inline void FreeTrack(Track* track) { reserved[track] = false; };
+	void ReserveTracks(const vector<const Track*>& tracks);
+	void ReserveTracks(const list<const Track*>& tracks);
+	inline void ReserveTrack(const Track* track) { trackStates.at(track).reserved = true; };
+	void FreeTracks(const vector<const Track*>& tracks);
+	void FreeTracks(const list<const Track*>& tracks);
+	inline void FreeTrack(const Track* track) { trackStates.at(track).reserved = false; };
 
 	//Moving
-	void MoveShuntingUnit(ShuntingUnit* su, Track* to, Track* previous);
-	void OccupyTrack(ShuntingUnit* su, Track* park, Track* previous);
+	void MoveShuntingUnit(const ShuntingUnit* su, const Track* to, const Track* previous);
+	void OccupyTrack(const ShuntingUnit* su, const Track* park, const Track* previous);
 	
 	//Remove
-	void RemoveIncoming(Incoming* incoming);
-	void RemoveOutgoing(Outgoing* outgoing);
-	void RemoveShuntingUnit(ShuntingUnit* su);
-	void RemoveActiveAction(ShuntingUnit* su, const Action* action);
-	void RemoveOccupation(ShuntingUnit* su);
-	void RemoveTaskFromTrain(Train* tu, const Task& task);
-	void RemoveActiveTaskFromTrain(Train* tu, Task* task);
+	void RemoveIncoming(const Incoming* incoming);
+	void RemoveOutgoing(const Outgoing* outgoing);
+	void RemoveShuntingUnit(const ShuntingUnit* su);
+	void RemoveActiveAction(const ShuntingUnit* su, const Action* action);
+	void RemoveOccupation(const ShuntingUnit* su);
+	void RemoveTaskFromTrain(const Train* tu, const Task& task);
+	void RemoveActiveTaskFromTrain(const Train* tu, const Task* task);
 };
 

@@ -25,12 +25,12 @@ public:
 	
 	inline int GetCapacity() const { return simultaneousUsageCount; }
 	const inline vector<string> &GetTasks() const { return tasks; }
-	bool ExecutesTask(Task* task);
+	bool ExecutesTask(const Task* task) const;
 	inline bool IsAvailable(int start, int duration) const { return start >= tStart && start + duration < tEnd; }
 	
 	void fromJSON(const json& j);
 	
-	inline string toString() {
+	inline const string toString() const {
 		return "Facility " + id;
 	}
 	

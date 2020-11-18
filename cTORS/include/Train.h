@@ -41,7 +41,7 @@ struct Task {
 	int priority;
 	int duration;
 	list<string> skills;
-	string toString() { return taskType; }
+	const string &toString() const { return taskType; }
 	
 	Task() = default;
 	Task(const string& taskType, int priority, int duration, list<string> skills) :
@@ -65,7 +65,7 @@ public:
 	inline TrainUnitType* GetType() const { return type; }
 	bool operator==(const Train& train) const;
 	bool operator!=(const Train& t) const { return !(*this == t); }
-	string toString();
+	const string toString() const;
 	inline int GetID() const { return id; }
 	inline void SetID(int id) { this->id = id; }
 };

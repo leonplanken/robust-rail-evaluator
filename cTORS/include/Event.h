@@ -7,22 +7,22 @@ class Event
 {
 private:
 	int time;
-	Action* action;
-	EventType type;
+	const Action* action;
+	const EventType type;
 public:
-	Event(int time, Action* action, EventType eventType);
+	Event(int time, const Action* action, const EventType eventType);
 	Event(const Event &e);
 	~Event();
-	inline int GetTime() { return time; }
-	inline Action* GetAction() { return action; }
-	inline EventType GetType() { return type; }
+	inline int GetTime() const { return time; }
+	inline const Action* GetAction() const { return action; }
+	inline const EventType GetType() const { return type; }
 	inline friend bool operator< (const Event& lhs, const Event& rhs) {
 		return lhs.time < rhs.time;
 	}
 	inline friend bool operator> (const Event& lhs, const Event& rhs) {
 		return lhs.time > rhs.time;
 	}
-	inline string toString() const {
+	inline const string toString() const {
 		switch (type) {
 		case EventType::ActionFinish: return "Finish action " + (action == nullptr ? "X" : action->toString());
 		case EventType::IncomingTrain: return "Incoming train";

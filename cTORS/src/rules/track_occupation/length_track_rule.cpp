@@ -7,16 +7,16 @@ space than available on that track.
 
 */
 
-pair<bool, string> length_track_rule::IsValid(State* state, Action* action) const {
-	Track* track;
-	ShuntingUnit* su = action->GetShuntingUnit();
+pair<bool, string> length_track_rule::IsValid(const State* state, const Action* action) const {
+	const Track* track;
+	const ShuntingUnit* su = action->GetShuntingUnit();
 	bool move = false;
-	if (ArriveAction* aa = dynamic_cast<ArriveAction*>(action)) {
+	if (auto aa = dynamic_cast<const ArriveAction*>(action)) {
 		track = aa->GetDestinationTrack();
-	} else if (MoveAction* ma = dynamic_cast<MoveAction*>(action)) {
+	} else if (auto ma = dynamic_cast<const MoveAction*>(action)) {
 		track = ma->GetDestinationTrack();
 		move = true;
-	} else if (state->IsMoving(su) && (dynamic_cast<WaitAction*>(action) || dynamic_cast<EndMoveAction*>(action))) {
+	} else if (state->IsMoving(su) && (dynamic_cast<const WaitAction*>(action) || dynamic_cast<const EndMoveAction*>(action))) {
 		track = state->GetPosition(su);
 	} else {
 		return make_pair(true, "");

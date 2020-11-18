@@ -2,8 +2,12 @@
 #include "State.h"
 
 void SetbackAction::Start(State* state) const {
-	ShuntingUnit* su = GetShuntingUnit();
-	state->SetPrevious(su, nullptr);
+	const ShuntingUnit* su = GetShuntingUnit();
+	const ShuntingUnitState& suState = state->GetShuntingUnitState(su);
+	state->SetPrevious(su, suState.position->GetOppositeSide(suState.previous));
+	auto front = su->GetTrains().front();
+	auto back = su->GetTrains().back();
+	state->SetFrontTrain(su, suState.frontTrain == front ? back : front);
 	for (auto e : GetDrivers()) {
 		//TODO
 	}
@@ -14,7 +18,7 @@ void SetbackAction::Finish(State* state) const {
 	state->RemoveActiveAction(su, this);
 }
 
-string SetbackAction::toString() const {
+const string SetbackAction::toString() const {
 	return "Setback " + GetShuntingUnit()->toString();
 }
 
@@ -26,18 +30,18 @@ SetbackActionGenerator::SetbackActionGenerator(const json& params, const Locatio
 	params.at("walk_time").get_to(walkTime);
 }
 
-int SetbackActionGenerator::GetDuration(State* state, ShuntingUnit* su, int numDrivers) const {
-	if(defaultTime) return su->GetSetbackTime(true, numDrivers < 2, state->GetDirection(su));
-	return su->GetSetbackTime(normTime, walkTime, state->GetDirection(su), constantTime);
+int SetbackActionGenerator::GetDuration(const State* state, const ShuntingUnit* su, int numDrivers) const {
+	if(defaultTime) return su->GetSetbackTime(state->GetFrontTrain(su), true, numDrivers < 2);
+	return su->GetSetbackTime(state->GetFrontTrain(su), normTime, walkTime, constantTime);
 }
 
-void SetbackActionGenerator::Generate(State* state, list<Action*>& out) const {
+void SetbackActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	bool driver_mandatory = false;//TODO get value from config
 	for (auto su : sus) {
-		if (!state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su) || state->GetDirection(su) == 0) continue;
-		Track* tr = state->GetPosition(su);
-		vector<Employee*> drivers;
+		const ShuntingUnitState& suState = state->GetShuntingUnitState(su);
+		if (!suState.moving || suState.waiting || suState.HasActiveAction() || suState.inNeutral) continue;
+		vector<const Employee*> drivers;
 		if (driver_mandatory) {
 			//TODO
 		}

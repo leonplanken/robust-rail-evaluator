@@ -8,36 +8,36 @@ using json = nlohmann::json;
 class TrainGoal {
 protected:
 	int id;
-	Track* parkingTrack;
-	Track* sideTrack;
-	ShuntingUnit* shuntingUnit;
+	const Track* parkingTrack;
+	const Track* sideTrack;
+	const ShuntingUnit* shuntingUnit;
 	int time;
 	int standingIndex;
 	bool isInstanding;
-	map<Train*, vector<Task>> tasks;
+	map<const Train*, vector<Task>> tasks;
 public:
 	TrainGoal() = default;
-	TrainGoal(int id, ShuntingUnit* su, Track* parkingTrack, Track* sideTrack, int time, bool isInstanding, int standingIndex, map<Train*, vector<Task>> tasks) :
+	TrainGoal(int id, const ShuntingUnit* su, const Track* parkingTrack, const Track* sideTrack, int time, bool isInstanding, int standingIndex, map<const Train*, vector<Task>> tasks) :
 		id(id), shuntingUnit(su), parkingTrack(parkingTrack), sideTrack(sideTrack), time(time), isInstanding(isInstanding), standingIndex(standingIndex), tasks(tasks) {};
 	TrainGoal(const TrainGoal& traingoal);
 	~TrainGoal();
 	void fromJSON(const json& j);
-	void assignTracks(Track* park, Track* side);
+	void assignTracks(const Track* park, const Track* side);
 	inline void setInstanding(bool b) { isInstanding = b; }
 	inline bool IsInstanding() const { return isInstanding; }
 	inline int GetTime() const { return time; }
 	inline int GetStandingIndex() const { return standingIndex; }
-	inline ShuntingUnit* GetShuntingUnit() const { return shuntingUnit; }
-	inline Track* GetSideTrack() const { return sideTrack; }
-	inline Track* GetParkingTrack() const { return parkingTrack; }
-	const inline map<Train*, vector<Task>>& GetTasks() { return tasks; }
+	inline const ShuntingUnit* GetShuntingUnit() const { return shuntingUnit; }
+	inline const Track* GetSideTrack() const { return sideTrack; }
+	inline const Track* GetParkingTrack() const { return parkingTrack; }
+	const inline map<const Train*, vector<Task>>& GetTasks() const { return tasks; }
 	virtual string toString() const = 0;
 };
 
 class Incoming : public TrainGoal {
 public:
 	Incoming() = default;
-	Incoming(int id, ShuntingUnit* su, Track* parkingTrack, Track* sideTrack, int time, bool isInstanding, int standingIndex, map<Train*, vector<Task>> tasks) :
+	Incoming(int id, const ShuntingUnit* su, const Track* parkingTrack, const Track* sideTrack, int time, bool isInstanding, int standingIndex, map<const Train*, vector<Task>> tasks) :
 		TrainGoal(id, su, parkingTrack, sideTrack, time, isInstanding, standingIndex, tasks) {}
 	Incoming(const Incoming& incoming) : TrainGoal(incoming) {}
 	~Incoming() = default;
@@ -48,8 +48,8 @@ public:
 class Outgoing : public TrainGoal {
 public:
 	Outgoing() = default;
-	Outgoing(int id, ShuntingUnit* su, Track* parkingTrack, Track* sideTrack, int time, bool isInstanding, int standingIndex) :
-		TrainGoal(id, su, parkingTrack, sideTrack, time, isInstanding, standingIndex, map<Train*, vector<Task>> {}) {}
+	Outgoing(int id, const ShuntingUnit* su, const Track* parkingTrack, const Track* sideTrack, int time, bool isInstanding, int standingIndex) :
+		TrainGoal(id, su, parkingTrack, sideTrack, time, isInstanding, standingIndex, map<const Train*, vector<Task>> {}) {}
 	Outgoing(const Outgoing& outgoing) : TrainGoal(outgoing) {}
 	~Outgoing() = default;
 	void fromJSON(const json& j);

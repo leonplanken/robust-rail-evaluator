@@ -8,8 +8,8 @@ setback or service action is performed.
 
 */
 
-pair<bool, string> setback_once_rule::IsValid(State* state, Action* action) const {
-	if (SetbackAction* sa = dynamic_cast<SetbackAction*>(action)) {
+pair<bool, string> setback_once_rule::IsValid(const State* state, const Action* action) const {
+	if (auto sa = dynamic_cast<const SetbackAction*>(action)) {
 		auto su = action->GetShuntingUnit();
 		auto dir = state->GetPrevious(su);
 		if(dir == nullptr)

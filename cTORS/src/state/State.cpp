@@ -1,6 +1,6 @@
 #include "State.h"
 
-State::State(const Scenario& scenario) {
+State::State(const Scenario& scenario, const vector<Track*>& tracks) {
 	time = scenario.GetStartTime();
 	startTime = scenario.GetStartTime();
 	endTime = scenario.GetEndTime();
@@ -12,13 +12,11 @@ State::State(const Scenario& scenario) {
 	for (auto out : outgoingTrains)
 		AddEvent(out);
 	changed = true;
+	for(auto track : tracks) trackStates[track];
 }
 
 State::~State() {
-	shuntingUnits.clear();
-	for (auto it : activeActions) {
-		it.second.clear();
-	}
+	DELETE_VECTOR(shuntingUnits);
 }
 
 void State::SetTime(int time) {
@@ -28,127 +26,130 @@ void State::SetTime(int time) {
 	}
 }
 
-Event* State::PeekEvent() const
+const Event* State::PeekEvent() const
 {
 	if (events.size() == 0)
 		return nullptr;
 	return events.top();
 }
 
-Event* State::PopEvent()
+const Event* State::PopEvent()
 {
-	Event* evnt = events.top();
+	auto evnt = events.top();
 	events.pop();
 	return evnt;
 }
 
-void State::AddEvent(Incoming *in) {
+void State::AddEvent(const Incoming *in) {
 	Event* event = new Event(in->GetTime(), nullptr, EventType::IncomingTrain);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }
 
-void State::AddEvent(Outgoing *out) {
+void State::AddEvent(const Outgoing *out) {
 	Event* event = new Event(out->GetTime(), nullptr, EventType::OutgoingTrain);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }
 
-void State::AddEvent(Action* action) {
+void State::AddEvent(const Action* action) {
 	Event* event = new Event(time + action->GetDuration(), action, EventType::ActionFinish);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }
 
-void State::StartAction(Action* action) {
+void State::StartAction(const Action* action) {
 	if (action == nullptr) return;
 	changed = true;
 	action->Start(this);
 	AddEvent(action);
 }
 
-void State::FinishAction(Action* action) {
+void State::FinishAction(const Action* action) {
 	if (action == nullptr) return;
 	changed = true;
 	action->Finish(this);
 }
 
-void State::MoveShuntingUnit(ShuntingUnit* su, Track* to, Track* previous) {
+void State::AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
+	shuntingUnits.push_back(su);
+	shuntingUnitStates.emplace(su, ShuntingUnitState(track, previous, frontTrain));
+	for(auto train: su->GetTrains()) trainStates[train];
+	OccupyTrack(su, track, previous);
+}
+
+void State::MoveShuntingUnit(const ShuntingUnit* su, const Track* to, const Track* previous) {
 	RemoveOccupation(su);
 	OccupyTrack(su, to, previous);
 }
 
-void State::RemoveOccupation(ShuntingUnit* su) {
-	Track* current = GetPosition(su);
-	auto& occ = occupations[current];
+void State::RemoveOccupation(const ShuntingUnit* su) {
+	const Track* current = GetPosition(su);
+	auto& occ = trackStates[current].occupations;
 	auto it = find(occ.begin(), occ.end(), su);
 	if (it != occ.end()) {
 		occ.remove(*it);
 	}
 }
 
-void State::OccupyTrack(ShuntingUnit* su, Track* track, Track* previous) {
+void State::OccupyTrack(const ShuntingUnit* su, const Track* track, const Track* previous) {
 	if(track->IsASide(previous))
-		occupations[track].push_front(su);
+		trackStates[track].occupations.push_front(su);
 	else
-		occupations[track].push_back(su);
+		trackStates[track].occupations.push_back(su);
 	SetPosition(su, track);
 	SetPrevious(su, previous);
 }
 
-void State::ReserveTracks(const vector<Track*>& tracks) {
-	for (Track* t : tracks)
+void State::ReserveTracks(const vector<const Track*>& tracks) {
+	for (auto t : tracks)
 		ReserveTrack(t);
 }
 
-void State::ReserveTracks(const list<Track*>& tracks) {
-	for (Track* t : tracks)
+void State::ReserveTracks(const list<const Track*>& tracks) {
+	for (auto t : tracks)
 		ReserveTrack(t);
 }
 
-void State::FreeTracks(const vector<Track*>& tracks) {
-	for (Track* t : tracks)
+void State::FreeTracks(const vector<const Track*>& tracks) {
+	for (auto t : tracks)
 		FreeTrack(t);
 }
 
-void State::FreeTracks(const list<Track*>& tracks) {
-	for (Track* t : tracks)
+void State::FreeTracks(const list<const Track*>& tracks) {
+	for (auto t : tracks)
 		FreeTrack(t);
 }
 
-void State::RemoveIncoming(Incoming* incoming) {
+void State::RemoveIncoming(const Incoming* incoming) {
 	auto it = find(incomingTrains.begin(), incomingTrains.end(), incoming);
 	if(it != incomingTrains.end())
 		incomingTrains.erase(it);
 }
 
-void State::RemoveOutgoing(Outgoing* outgoing) {
+void State::RemoveOutgoing(const Outgoing* outgoing) {
 	auto it = find(outgoingTrains.begin(), outgoingTrains.end(), outgoing);
 	if (it != outgoingTrains.end())
 		outgoingTrains.erase(it);
 }
 
-void State::RemoveShuntingUnit(ShuntingUnit* su) {
+void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 	RemoveOccupation(su);
-	positions.erase(su);
-	previous.erase(su);
-	DELETE_LIST(activeActions[su]);
-	activeActions.erase(su);
-	moving.erase(su);
-	waiting.erase(su);
+	shuntingUnitStates.erase(su);
+	for(auto train: su->GetTrains()) trainStates.erase(train);
 	auto it = find(shuntingUnits.begin(), shuntingUnits.end(), su);
 	if (it != shuntingUnits.end())
 		shuntingUnits.erase(it);
 }
 
-const bool State::IsActive() {
+bool State::IsActive() const {
 	for (auto& su : shuntingUnits) {
 		if (HasActiveAction(su) || IsWaiting(su)) return true;
 	}
 	return false;
 }
 
-const bool State::IsAnyInactive() {
+bool State::IsAnyInactive() const {
 	if (shuntingUnits.size() == 0) return false;
 	for (auto& su : shuntingUnits) {
 		if (!HasActiveAction(su) && !IsWaiting(su)) return true;
@@ -156,16 +157,16 @@ const bool State::IsAnyInactive() {
 	return false;
 }
 
-void State::RemoveActiveAction(ShuntingUnit* su, const Action* action) {
-	auto& lst = activeActions.at(su);
-	auto it = find_if(lst.begin(), lst.end(), [action](Action* a) -> bool { return *a == *action; } );
+void State::RemoveActiveAction(const ShuntingUnit* su, const Action* action) {
+	auto& lst = shuntingUnitStates.at(su).activeActions;
+	auto it = find_if(lst.begin(), lst.end(), [action](const Action* a) -> bool { return *a == *action; } );
 	if (it != lst.end()) {
 		delete* it;
 		lst.remove(*it);
 	}
 }
 
-void State::addTasksToTrains(const map<Train*, vector<Task>>& tasks) {
+void State::addTasksToTrains(const map<const Train*, vector<Task>>& tasks) {
 	for (auto& it : tasks) {
 		for (auto& task : it.second) {
 			AddTaskToTrain(it.first, task);
@@ -173,48 +174,40 @@ void State::addTasksToTrains(const map<Train*, vector<Task>>& tasks) {
 	}
 }
 
-void State::RemoveTaskFromTrain(Train* tu, const Task& task) {
-	auto& lst = tasks.at(tu);
+void State::RemoveTaskFromTrain(const Train* tu, const Task& task) {
+	auto& lst = trainStates.at(tu).tasks;
 	auto it = find(lst.begin(), lst.end(), task);
 	if (it != lst.end())
 		lst.erase(it);
 }
 
-void State::RemoveActiveTaskFromTrain(Train* tu, Task* task) {
-	auto& lst = activeTasks.at(tu);
+void State::RemoveActiveTaskFromTrain(const Train* tu, const Task* task) {
+	auto& lst = trainStates.at(tu).activeTasks;
 	auto it = find(lst.begin(), lst.end(), task);
 	if (it != lst.end())
 		lst.erase(it);
 }
 
-int State::GetPositionOnTrack(ShuntingUnit* su) {
-	auto sus = GetOccupations(GetPosition(su));
+int State::GetPositionOnTrack(const ShuntingUnit* su) const {
+	auto& sus = GetOccupations(GetPosition(su));
 	auto it = find(sus.begin(), sus.end(), su);
 	return static_cast<int>(distance(sus.begin(), it));
 }
 
-bool State::CanMoveToSide(ShuntingUnit* su, Track* side) {
+bool State::CanMoveToSide(const ShuntingUnit* su, const Track* side) const {
 	auto park = GetPosition(su);
-	auto sus = GetOccupations(park);
+	auto& sus = GetOccupations(park);
 	if (park->IsASide(side))
 		return sus.front() == su;
 	return sus.back() == su;
 }
 
-vector<Train*> State::GetTrainUnitsInOrder(ShuntingUnit* su) {
+const vector<const Train*> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
 	auto trains = su->GetTrains();
 	auto previous = GetPrevious(su);
 	auto current = GetPosition(su);
 	if (previous == nullptr || current->IsASide(previous))
 		return trains;
-	vector<Train*>reverse (trains.rbegin(), trains.rend());
+	vector<const Train*>reverse (trains.rbegin(), trains.rend());
 	return reverse;
-}
-
-int State::GetDirection(ShuntingUnit* su) {
-	auto current = GetPosition(su);
-	auto previous = GetPrevious(su);
-	if (previous == nullptr) return 0;
-	else if (current->IsASide(previous)) return 1;
-	return -1;
 }

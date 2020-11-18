@@ -2,7 +2,7 @@
 #include "State.h"
 
 void ServiceAction::Start(State* state) const {
-	ShuntingUnit* su = GetShuntingUnit();
+	const ShuntingUnit* su = GetShuntingUnit();
 	auto tu = GetTrain();
 	auto ta = GetTask();
 	state->RemoveTaskFromTrain(tu, *ta);
@@ -18,20 +18,20 @@ void ServiceAction::Finish(State* state) const {
 	state->RemoveActiveTaskFromTrain(GetTrain(), GetTask());
 }
 
-string ServiceAction::toString() const {
+const string ServiceAction::toString() const {
 	return "Service task " + task->toString() + " to train " + GetTrain()->toString() + " of " + GetShuntingUnit()->toString()+  " at facility "+ facility->toString() ;
 }
 
-void ServiceActionGenerator::Generate(State* state, list<Action*>& out) const {
+void ServiceActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
 		if (state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su)) continue;
-		Track* tr = state->GetPosition(su);
-		auto fas = tr->GetFacilities();
-		for (Train* tu : su->GetTrains()) {
-			for (Task& task : state->GetTasksForTrain(tu)) {
-				for (Facility* fa : fas) {
-					Action* a = new ServiceAction(su, tu, &task, fa, vector<Employee*> {});
+		auto tr = state->GetPosition(su);
+		auto& fas = tr->GetFacilities();
+		for (auto tu : su->GetTrains()) {
+			for (const Task& task : state->GetTasksForTrain(tu)) {
+				for (auto fa : fas) {
+					Action* a = new ServiceAction(su, tu, &task, fa, vector<const Employee*> {});
 					out.push_back(a);
 				}
 			}

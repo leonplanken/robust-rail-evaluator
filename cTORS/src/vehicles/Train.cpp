@@ -19,7 +19,7 @@ bool Train::operator==(const Train& train) const {
 	return (id != -1 && id == train.id) || this == &train;
 }
 
-string Train::toString() {
+const string Train::toString() const {
 	return "(" + to_string(id) + ", " + type->toString() + ")";
 }
 

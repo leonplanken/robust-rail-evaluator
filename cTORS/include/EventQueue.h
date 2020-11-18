@@ -9,7 +9,7 @@ struct EventCompare
 };
 
 
-class EventQueue : public priority_queue < Event*, vector<Event*>, EventCompare> {
+class EventQueue : public priority_queue < const Event*, vector<const Event*>, EventCompare> {
 private:
 
 //TODO constructor, destructor, copy operator

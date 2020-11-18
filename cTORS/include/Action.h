@@ -13,7 +13,7 @@
 	void Start(State* state) const override; \
 	void Finish(State* state) const override; \
 	inline name* clone() const override { return new name(*this); } \
-	string toString() const override;
+	const string toString() const override;
 #endif
 
 using namespace std;
@@ -29,117 +29,132 @@ private:
 	static int newUID;
 protected:
 	const int uid;
-	ShuntingUnit* su;
-	int duration;
+	const ShuntingUnit* su;
+	const int duration;
+	const vector<const Employee*> employees;
+	const vector<const Track*> reserved;
 public:
 	Action() = delete;
-	Action(ShuntingUnit* su, int duration) : uid(newUID++), su(su), duration(duration) {};
-	Action(ShuntingUnit* su) : Action(su, -1) { };
+	Action(const ShuntingUnit* su, vector<const Track*> reserved, vector<const Employee*> employees, int duration) 
+		: uid(newUID++), su(su), reserved(reserved), employees(employees), duration(duration) {};
+	Action(const ShuntingUnit* su, const Employee* employee, int duration)
+		: Action(su, {}, vector<const Employee*> {employee}, duration) {};
+	Action(const ShuntingUnit* su, vector<const Track*> reserved, const Employee* employee, int duration) 
+		: Action(su, reserved, vector<const Employee*> {employee}, duration) {};
+	Action(const ShuntingUnit* su) : Action(su, {}, {}, -1) { };
 	Action(const Action& action) = default;
 	virtual ~Action() = default;
-	inline void SetDuration(int d) { duration = d; }
 	inline int GetDuration() const { return duration; }
-	inline ShuntingUnit* GetShuntingUnit() const { return su; }
+	inline const ShuntingUnit* GetShuntingUnit() const { return su; }
+	inline const vector<const Employee*>& GetEmployees() const { return employees; }
 	virtual void Start(State* state) const = 0;
 	virtual void Finish(State* state) const = 0;
 	virtual Action* clone() const = 0;
-	virtual string toString() const = 0;
+	virtual const string toString() const = 0;
 	inline const bool IsEqual(const Action& a) const { return uid == a.uid; }
 	inline virtual bool operator==(const Action& a) const { return IsEqual(a); }
 	inline virtual bool operator!=(const Action& a) const { return !IsEqual(a); }
-	inline virtual const vector<Track*> GetReservedTracks() const { return {}; }
+	inline const vector<const Track*>&  GetReservedTracks() const { return reserved; }
 };
 
 class ArriveAction : public Action { 
 private:
-	Incoming* incoming;
+	const Incoming* incoming;
 public:
 	ArriveAction() = delete;
-	ArriveAction(ShuntingUnit* su, int duration, Incoming* incoming) : Action(su, duration), incoming(incoming) {};
-	ArriveAction(ShuntingUnit* su, Incoming* incoming) : Action(su), incoming(incoming) {};
-	inline Track* GetDestinationTrack() const { return incoming->GetParkingTrack(); }
-	inline const vector<Track*> GetReservedTracks() const override { return (incoming->IsInstanding() ? vector<Track*>() : vector<Track*>({GetDestinationTrack()})); }
-	inline Incoming* GetIncoming() const { return incoming; }
+	ArriveAction(const ShuntingUnit* su, int duration, const Incoming* incoming) 
+		: Action(su, incoming->IsInstanding() ? vector<const Track*>() : vector<const Track*>({incoming->GetParkingTrack()}), 
+				{}, duration), incoming(incoming) {};
+	ArriveAction(const ShuntingUnit* su, const Incoming* incoming) : Action(su), incoming(incoming) {};
+	inline const Track* GetDestinationTrack() const { return incoming->GetParkingTrack(); }
+	inline const Incoming* GetIncoming() const { return incoming; }
 	ACTION_OVERRIDE(ArriveAction)
 };
 
 class ExitAction : public Action {
 private:
-	Outgoing* outgoing;
+	const Outgoing* outgoing;
 public:
 	ExitAction() = delete;
-	ExitAction(ShuntingUnit* su, int duration, Outgoing* outgoing) : Action(su, duration), outgoing(outgoing) {};
-	ExitAction(ShuntingUnit* su, Outgoing* outgoing) : Action(su), outgoing(outgoing) {};
-	inline Track* GetDestinationTrack() const { return outgoing->GetParkingTrack(); }
-	inline const vector<Track*> GetReservedTracks() const override { return (outgoing->IsInstanding() ? vector<Track*>() : vector<Track*>({ GetDestinationTrack() })); }
-	inline Outgoing* GetOutgoing() const { return outgoing; }
+	ExitAction(const ShuntingUnit* su, int duration, const Outgoing* outgoing) 
+		: Action(su, outgoing->IsInstanding() ? vector<const Track*>() : vector<const Track*>({ outgoing->GetParkingTrack() }), 
+			{}, duration), outgoing(outgoing) {};
+	ExitAction(const ShuntingUnit* su, const Outgoing* outgoing) : Action(su), outgoing(outgoing) {};
+	inline const Track* GetDestinationTrack() const { return outgoing->GetParkingTrack(); }
+	inline const Outgoing* GetOutgoing() const { return outgoing; }
 	ACTION_OVERRIDE(ExitAction)
 };
 
 class BeginMoveAction : public Action {
 public:
 	BeginMoveAction() = delete;
-	BeginMoveAction(ShuntingUnit* su, int duration) : Action(su, duration) {};
+	BeginMoveAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {};
 	ACTION_OVERRIDE(BeginMoveAction)
 };
 
 class EndMoveAction : public Action {
 public:
 	EndMoveAction() = delete;
-	EndMoveAction(ShuntingUnit* su, int duration) : Action(su, duration) {};
+	EndMoveAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {};
 	ACTION_OVERRIDE(EndMoveAction)
 };
 
 class MoveAction : public Action {
 private:
-	const vector<Track*> tracks;
-	const vector<Track*> reservedTracks;
+	const vector<const Track*> tracks;
 public:
 	MoveAction() = delete;
-	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks, int duration) : 
-		Action(su, duration), tracks(tracks), reservedTracks(vector<Track*>(tracks.begin()+1, tracks.end())) {};
-	MoveAction(ShuntingUnit* su, const vector<Track*> &tracks) : MoveAction(su, tracks, 0) {};
-	inline Track* GetDestinationTrack() const { return tracks.back(); }
-	inline Track* GetPreviousTrack() const { return tracks[tracks.size()-2]; }
-	inline const vector<Track*>& GetTracks() const { return tracks; }
-	inline const vector<Track*> GetReservedTracks() const override { return reservedTracks; }
+	MoveAction(const ShuntingUnit* su, const vector<const Track*> &tracks, int duration) : 
+		Action(su, vector<const Track*>(tracks.begin()+1, tracks.end()), {}, duration), tracks(tracks) {};
+	MoveAction(const ShuntingUnit* su, const vector<const Track*> &tracks) : MoveAction(su, tracks, 0) {};
+	inline const Track* GetDestinationTrack() const { return tracks.back(); }
+	inline const Track* GetPreviousTrack() const { return tracks[tracks.size()-2]; }
+	inline const vector<const Track*>& GetTracks() const { return tracks; }
 	ACTION_OVERRIDE(MoveAction)
 };
 
 class CombineAction : public Action {};
-class SplitAction : public Action {};
+class SplitAction : public Action {
+private: 
+	ShuntingUnit *suA, *suB;
+	int splitAt;
+	int position;
+	const Track* track;
+public:
+	SplitAction() = delete;
+	SplitAction(const ShuntingUnit* su, Track* track, const Employee* employee, int position, int split_at);
+	inline ShuntingUnit* GetASideShuntingUnit() const { return suA; }
+	inline ShuntingUnit* GetBSideShuntingUnit() const { return suB; }
+	ACTION_OVERRIDE(SplitAction)
+};
 
 class ServiceAction : public Action {
 private:
-	Train* train;
-	Facility* facility;
-	Task* task;
-	vector<Employee*> employees;
+	const Train * train;
+	const Facility* facility;
+	const Task* task;
 public:
 	ServiceAction() = delete;
-	ServiceAction(ShuntingUnit* su, Train* tu, Task* ta, Facility* fa, const vector<Employee*>& ems) :
-		Action(su, ta->duration), train(tu), task(ta), facility(fa), employees(ems) {}
-	inline Train* GetTrain() const { return train; }
-	inline Facility* GetFacility() const { return facility; }
-	inline Task* GetTask() const { return task; }
-	const inline vector<Employee*>& GetEmployees() const { return employees; }
+	ServiceAction(const ShuntingUnit* su, const Train* tu, const Task* ta, const Facility* fa, vector<const Employee*> employees) :
+		Action(su, {}, employees, ta->duration), train(tu), task(ta), facility(fa) {}
+	inline const Train* GetTrain() const { return train; }
+	inline const Facility* GetFacility() const { return facility; }
+	inline const Task* GetTask() const { return task; }
 	ACTION_OVERRIDE(ServiceAction)
 };
 
 class SetbackAction : public Action {
-private:
-	vector<Employee*> drivers;
 public:
 	SetbackAction() = delete;
-	SetbackAction(ShuntingUnit* su, vector<Employee*> drivers, int duration) : Action(su, duration), drivers(drivers) {}
-	const inline vector<Employee*>& GetDrivers() const { return drivers; }
+	SetbackAction(const ShuntingUnit* su, vector<const Employee*> drivers, int duration) : Action(su, {}, drivers, duration) {}
+	const inline vector<const Employee*>& GetDrivers() const { return GetEmployees(); }
 	ACTION_OVERRIDE(SetbackAction)
 };
 
 class WaitAction : public Action {
 public:
 	WaitAction() = delete;
-	WaitAction(ShuntingUnit* su, int duration) : Action(su, duration) {}
+	WaitAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {}
 	ACTION_OVERRIDE(WaitAction)
 };
 
@@ -153,8 +168,8 @@ public:
 		AddValidators();
 	}
 	~ActionValidator();
-	pair<bool, string> IsValid(State* state, Action* action) const;
-	void FilterValid(State* state, list<Action*>& actions) const;
+	pair<bool, string> IsValid(const State* state, const Action* action) const;
+	void FilterValid(const State* state, list<const Action*>& actions) const;
 };
 
 class ActionGenerator {
@@ -165,7 +180,7 @@ public:
 	ActionGenerator(const ActionGenerator& am) = delete;
 	ActionGenerator(const json& params, const Location* location) : location(location) {}
 	~ActionGenerator() = default;
-	virtual void Generate(State* state, list<Action*>& out) const = 0;
+	virtual void Generate(const State* state, list<const Action*>& out) const = 0;
 };
 
 class ActionManager {
@@ -182,7 +197,7 @@ public:
 		AddGenerators();
 	}
 	~ActionManager();
-	void Generate(State* state, list<Action*>& out) const;
+	void Generate(const State* state, list<const Action*>& out) const;
 
 };
 
@@ -190,7 +205,7 @@ public:
 #define OVERRIDE_ACTIONGENERATOR(name) \
 	name() = delete; \
 	name(const name& n) = delete; \
-	void Generate(State* state, list<Action*>& out) const override;
+	void Generate(const State* state, list<const Action*>& out) const override;
 #endif
 
 #ifndef DEFINE_ACTIONGENERATOR
@@ -208,13 +223,14 @@ DEFINE_ACTIONGENERATOR(BeginMoveActionGenerator)
 DEFINE_ACTIONGENERATOR(EndMoveActionGenerator)
 DEFINE_ACTIONGENERATOR(WaitActionGenerator)
 DEFINE_ACTIONGENERATOR(ServiceActionGenerator)
+DEFINE_ACTIONGENERATOR(SplitActionGenerator)
 
 class MoveActionGenerator : public ActionGenerator {
 private:
 	int noRoutingDuration, constantTime;
 	bool defaultTime, normTime, walkTime;
-	void GenerateMovesFrom(ShuntingUnit* su, const vector<Track*> &tracks,
-			Track* previous, int duration, list<Action*> &out) const;
+	void GenerateMovesFrom(const ShuntingUnit* su, const vector<const Track*> &tracks,
+			const Track* previous, int duration, list<const Action*> &out) const;
 public:
 	MoveActionGenerator(const json& params, const Location* location);
 	OVERRIDE_ACTIONGENERATOR(MoveActionGenerator)
@@ -224,7 +240,7 @@ class SetbackActionGenerator : public ActionGenerator {
 private:
 	bool defaultTime, normTime, walkTime;
 	int constantTime;
-	int GetDuration(State* state, ShuntingUnit* su, int numDrivers) const;
+	int GetDuration(const State* state, const ShuntingUnit* su, int numDrivers) const;
 public:
 	SetbackActionGenerator(const json& params, const Location* location);
 	OVERRIDE_ACTIONGENERATOR(SetbackActionGenerator)

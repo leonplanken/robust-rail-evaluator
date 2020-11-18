@@ -7,10 +7,10 @@ the scheduling period will be located in the right order on their track.
 
 */
 
-pair<bool, string> end_correct_order_on_track_rule::IsValid(State* state, Action* action) const {
+pair<bool, string> end_correct_order_on_track_rule::IsValid(const State* state, const Action* action) const {
 	if(state->GetTime() < state->GetEndTime())
 		return make_pair(true, "");
-	if (ExitAction* ea = dynamic_cast<ExitAction*>(action)) {
+	if (auto ea = dynamic_cast<const ExitAction*>(action)) {
 		auto su = ea->GetShuntingUnit();
 		auto parking = ea->GetOutgoing()->GetParkingTrack();
 		auto side = ea->GetOutgoing()->GetSideTrack();

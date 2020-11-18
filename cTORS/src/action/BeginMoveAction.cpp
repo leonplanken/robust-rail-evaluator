@@ -11,16 +11,16 @@ void BeginMoveAction::Finish(State* state) const {
 	state->RemoveActiveAction(su, this);
 }
 
-string BeginMoveAction::toString() const {
+const string BeginMoveAction::toString() const {
 	return "BeginMove " + su->toString();
 }
 
-void BeginMoveActionGenerator::Generate(State* state, list<Action*>& out) const {
+void BeginMoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	//TODO check employee availability, add duration to the action for walking distance
-	auto& sus = state->GetShuntingUnits();
-	for (auto su : sus) {
+	//auto& sus = state->GetShuntingUnits();
+	for (const auto [su, suState] : state->GetShuntingUnitStates()) {
 		if (!state->IsWaiting(su) && !state->IsMoving(su) && !state->HasActiveAction(su)) {
-			Action* a = new BeginMoveAction(su, su->GetStartUpTime(state->GetDirection(su)));
+			Action* a = new BeginMoveAction(su, su->GetStartUpTime(state->GetFrontTrain(su)));
 			out.push_back(a);
 		}
 	}
