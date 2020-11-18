@@ -17,11 +17,5 @@ build:
     - cd build
     - cmake ..
     - cmake --build .
-
-# run tests using the binary built before
-test:
-  stage: test
-  script:
-    - ctest --verbose
-  dependencies:
-    - build
+    - ctest
+  
