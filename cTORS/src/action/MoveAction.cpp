@@ -3,9 +3,12 @@
 
 void MoveAction::Start(State* state) const {
 	state->AddActiveAction(su, this);
-	auto track = GetDestinationTrack();
+	auto destination = GetDestinationTrack();
+	auto& suState = state->GetShuntingUnitState(su);
+	if(suState.inNeutral && suState.position->IsSameSide(suState.previous, destination))
+		state->SwitchFrontTrain(su);
 	auto previous = GetPreviousTrack();
-	state->MoveShuntingUnit(su, track, previous);
+	state->MoveShuntingUnit(su, destination, previous);
 	state->ReserveTracks(GetReservedTracks());
 }
 
@@ -50,9 +53,10 @@ void MoveActionGenerator::GenerateMovesFrom(const ShuntingUnit* su, const vector
 void MoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
-		if (!state->IsMoving(su) || state->HasActiveAction(su)) continue;
-		auto track = state->GetPosition(su);
-		auto previous = state->GetPrevious(su);
+		auto& suState = state->GetShuntingUnitState(su);
+		if (!suState.moving || suState.HasActiveAction()) continue;
+		auto track = suState.position;
+		auto previous = suState.inNeutral ? nullptr : suState.previous;
 		vector<const Track*> tracks{ track };
 		GenerateMovesFrom(su, tracks, previous, location->GetDurationByType(track), out);
 	}

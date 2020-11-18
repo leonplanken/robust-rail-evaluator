@@ -123,6 +123,7 @@ public:
 	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }
 	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { shuntingUnitStates.at(su).frontTrain = frontTrain; }
+	void SwitchFrontTrain(const ShuntingUnit* su);
 	
 	//Track Reservation
 	void ReserveTracks(const vector<const Track*>& tracks);

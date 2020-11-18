@@ -68,6 +68,10 @@ bool Track::IsBSide(const Track* t) const {
 	return false; 
 }
 
+bool Track::IsSameSide(const Track* t1, const Track* t2) const {
+	return (IsASide(t1) && IsASide(t2)) || (IsBSide(t1) && IsBSide(t2));
+}
+
 void from_json(const json& j, Track& t) {
 	j.at("id").get_to(t.id);
 	j.at("type").get_to(t.type);

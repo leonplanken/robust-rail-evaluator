@@ -211,3 +211,9 @@ const vector<const Train*> State::GetTrainUnitsInOrder(const ShuntingUnit* su) c
 	vector<const Train*>reverse (trains.rbegin(), trains.rend());
 	return reverse;
 }
+
+void State::SwitchFrontTrain(const ShuntingUnit* su) {
+	auto front = su->GetTrains().front();
+	auto back = su->GetTrains().back();
+	SetFrontTrain(su, GetFrontTrain(su) == front ? back : front);
+}

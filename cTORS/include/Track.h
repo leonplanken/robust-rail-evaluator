@@ -64,6 +64,7 @@ public:
 	
 	bool IsASide(const Track* t) const;
 	bool IsBSide(const Track* t) const;
+	bool IsSameSide(const Track* t1, const Track* t2) const;
 	inline const TrackPartType GetType() const { return type; }
 	
 	inline void AddFacility(const Facility* f) {

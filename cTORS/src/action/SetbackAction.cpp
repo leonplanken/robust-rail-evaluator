@@ -5,9 +5,7 @@ void SetbackAction::Start(State* state) const {
 	const ShuntingUnit* su = GetShuntingUnit();
 	const ShuntingUnitState& suState = state->GetShuntingUnitState(su);
 	state->SetPrevious(su, suState.position->GetOppositeSide(suState.previous));
-	auto front = su->GetTrains().front();
-	auto back = su->GetTrains().back();
-	state->SetFrontTrain(su, suState.frontTrain == front ? back : front);
+	state->SwitchFrontTrain(su);
 	for (auto e : GetDrivers()) {
 		//TODO
 	}
