@@ -26,10 +26,12 @@ public:
 	inline const string toString() const {
 		return "ShuntingUnit-" + to_string(id);
 	}
+	const string GetTrainString() const;
 
 	inline bool operator==(const ShuntingUnit& su) const { return (id == su.id); }
 	inline bool operator!=(const ShuntingUnit& su) const { return !(*this == su); }
 
+	inline int GetID() const {return id; }
 	inline double GetLength() const { return length; }
 	inline bool NeedsElectricity() const { return needsElectricity; }
 	inline size_t GetNumberOfTrains() const { return trains.size(); }

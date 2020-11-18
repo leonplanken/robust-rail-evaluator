@@ -116,15 +116,13 @@ public:
 class CombineAction : public Action {};
 class SplitAction : public Action {
 private: 
-	ShuntingUnit *suA, *suB;
-	int splitAt;
-	int position;
-	const Track* track;
+	const ShuntingUnit *suA, *suB;
 public:
 	SplitAction() = delete;
-	SplitAction(const ShuntingUnit* su, Track* track, const Employee* employee, int position, int split_at);
-	inline ShuntingUnit* GetASideShuntingUnit() const { return suA; }
-	inline ShuntingUnit* GetBSideShuntingUnit() const { return suB; }
+	SplitAction(const ShuntingUnit* su, const Track* track, int duration, const ShuntingUnit* suA, const ShuntingUnit* suB) : 
+		Action(su, {track}, {}, duration), suA(suA), suB(suB) {};
+	inline const ShuntingUnit* GetASideShuntingUnit() const { return suA; }
+	inline const ShuntingUnit* GetBSideShuntingUnit() const { return suB; }
 	ACTION_OVERRIDE(SplitAction)
 };
 

@@ -18,6 +18,16 @@ ShuntingUnit::~ShuntingUnit() {
 	DELETE_VECTOR(trains)
 }
 
+const string ShuntingUnit::GetTrainString() const {
+	string result = "";
+	bool first = true;
+	for(auto t: GetTrains()) {
+		result += (t->toString() + (first ? "" : "-"));
+		first = false;
+	}
+	return result;
+}
+
 ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
 	id(su.id), length(su.length) {
 	for (auto t : su.trains)

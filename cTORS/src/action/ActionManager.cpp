@@ -20,6 +20,7 @@ void ActionManager::AddGenerators() {
 	ADD_GENERATOR("wait", WaitActionGenerator);
 	ADD_GENERATOR("service", ServiceActionGenerator);
 	ADD_GENERATOR("set_back", SetbackActionGenerator);
+	ADD_GENERATOR("split", SplitActionGenerator);
 }
 
 void ActionManager::AddGenerator(string name, ActionGenerator* generator) {

@@ -71,11 +71,21 @@ void State::FinishAction(const Action* action) {
 	action->Finish(this);
 }
 
-void State::AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
+void State::AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
 	shuntingUnits.push_back(su);
 	shuntingUnitStates.emplace(su, ShuntingUnitState(track, previous, frontTrain));
 	for(auto train: su->GetTrains()) trainStates[train];
+}
+
+void State::AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
+	AddShuntingUnitToState(su, track, previous, frontTrain);
 	OccupyTrack(su, track, previous);
+}
+
+void State::AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous,
+		const Train* frontTrain, int positionOnTrack) {
+	AddShuntingUnitToState(su, track, previous, frontTrain);
+	InsertOnTrack(su, track, previous, positionOnTrack);
 }
 
 void State::MoveShuntingUnit(const ShuntingUnit* su, const Track* to, const Track* previous) {
@@ -94,9 +104,20 @@ void State::RemoveOccupation(const ShuntingUnit* su) {
 
 void State::OccupyTrack(const ShuntingUnit* su, const Track* track, const Track* previous) {
 	if(track->IsASide(previous))
-		trackStates[track].occupations.push_front(su);
+		InsertOnTrack(su, track, previous, 0);
 	else
-		trackStates[track].occupations.push_back(su);
+		InsertOnTrack(su, track, previous, trackStates[track].occupations.size());
+}
+
+void State::InsertOnTrack(const ShuntingUnit* su, const Track* track, const Track* previous, int positionOnTrack) {
+	auto& occ = trackStates[track].occupations;
+	if(positionOnTrack == occ.size())
+		occ.push_back(su);
+	else {
+		auto it = occ.begin();
+		advance(it, positionOnTrack);
+		occ.insert(it, su);
+	}
 	SetPosition(su, track);
 	SetPrevious(su, previous);
 }

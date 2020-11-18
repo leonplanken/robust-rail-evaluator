@@ -10,6 +10,7 @@ void MoveAction::Start(State* state) const {
 	auto previous = GetPreviousTrack();
 	state->MoveShuntingUnit(su, destination, previous);
 	state->ReserveTracks(GetReservedTracks());
+	state->SetInNeutral(su, false);
 }
 
 void MoveAction::Finish(State* state) const {

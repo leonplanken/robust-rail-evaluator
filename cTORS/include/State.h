@@ -120,8 +120,10 @@ public:
 	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
 	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
 	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->clone()); }
+	void AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }
+	void AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain, int positionOnTrack);
 	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { shuntingUnitStates.at(su).frontTrain = frontTrain; }
 	void SwitchFrontTrain(const ShuntingUnit* su);
 	
@@ -136,6 +138,7 @@ public:
 	//Moving
 	void MoveShuntingUnit(const ShuntingUnit* su, const Track* to, const Track* previous);
 	void OccupyTrack(const ShuntingUnit* su, const Track* park, const Track* previous);
+	void InsertOnTrack(const ShuntingUnit* su, const Track* park, const Track* previous, int positionOnTrack);
 	
 	//Remove
 	void RemoveIncoming(const Incoming* incoming);
