@@ -23,3 +23,5 @@ test:
   stage: test
   script:
     - ctest --verbose
+  dependencies:
+    - build
