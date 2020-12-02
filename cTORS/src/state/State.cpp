@@ -225,9 +225,9 @@ bool State::CanMoveToSide(const ShuntingUnit* su, const Track* side) const {
 
 const vector<const Train*> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
 	auto trains = su->GetTrains();
-	auto previous = GetPrevious(su);
-	auto current = GetPosition(su);
-	if (previous == nullptr || current->IsASide(previous))
+	auto suState = GetShuntingUnitState(su);
+	bool frontFirst = suState.frontTrain == trains.front();
+	if ((suState.previous == nullptr || suState.position->IsASide(suState.previous)) && frontFirst)
 		return trains;
 	vector<const Train*>reverse (trains.rbegin(), trains.rend());
 	return reverse;

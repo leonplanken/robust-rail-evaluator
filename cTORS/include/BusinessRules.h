@@ -56,3 +56,8 @@ DEFINE_BUSINESSRULE(correct_facility_rule)
 DEFINE_BUSINESSRULE(mandatory_service_task_rule)
 DEFINE_BUSINESSRULE(optional_service_task_rule)
 DEFINE_BUSINESSRULE(understaffed_rule)
+
+//Combine and split
+DEFINE_BUSINESSRULE(order_preserve_rule)
+DEFINE_BUSINESSRULE(park_combine_split_rule)
+DEFINE_BUSINESSRULE(setback_combine_split_rule)

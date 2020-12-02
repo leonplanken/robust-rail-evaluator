@@ -46,6 +46,7 @@ set(TORS_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/action/ServiceAction.cpp
 	${PROJECT_SOURCE_DIR}/action/SetbackAction.cpp
 	${PROJECT_SOURCE_DIR}/action/SplitAction.cpp
+	${PROJECT_SOURCE_DIR}/action/CombineAction.cpp
 	${PROJECT_SOURCE_DIR}/action/WaitAction.cpp
 	
 	${PROJECT_SOURCE_DIR}/rules/arrival_departure/end_correct_order_on_track_rule.cpp
@@ -53,6 +54,9 @@ set(TORS_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/rules/arrival_departure/out_correct_order_rule.cpp
 	${PROJECT_SOURCE_DIR}/rules/arrival_departure/out_correct_time_rule.cpp
 	${PROJECT_SOURCE_DIR}/rules/arrival_departure/out_correct_track_rule.cpp
+	${PROJECT_SOURCE_DIR}/rules/combine_and_split/order_preserve_rule.cpp
+	${PROJECT_SOURCE_DIR}/rules/combine_and_split/park_combine_split_rule.cpp
+	${PROJECT_SOURCE_DIR}/rules/combine_and_split/setback_combine_split_rule.cpp
 	${PROJECT_SOURCE_DIR}/rules/facility/available_facility_rule.cpp
 	${PROJECT_SOURCE_DIR}/rules/facility/capacity_facility_rule.cpp
 	${PROJECT_SOURCE_DIR}/rules/facility/disabled_facility_rule.cpp
@@ -97,7 +101,6 @@ set(TORS_SOURCE_FILES
 
 	# Includes
 	${PROJECT_INCLUDE_DIR}/Action.h
-	${PROJECT_INCLUDE_DIR}/ActionValidator.h
 	${PROJECT_INCLUDE_DIR}/BusinessRules.h
 	${PROJECT_INCLUDE_DIR}/Config.h
 	${PROJECT_INCLUDE_DIR}/Disturbance.h

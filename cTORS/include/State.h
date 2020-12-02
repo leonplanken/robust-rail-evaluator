@@ -15,6 +15,7 @@ struct ShuntingUnitState {
 	list<const Action*> activeActions;
 	bool moving, waiting, inNeutral;
 	const Train* frontTrain;
+	//The shunting unit's direction is described by previous and frontTrain.
 
 
 	ShuntingUnitState() = delete;

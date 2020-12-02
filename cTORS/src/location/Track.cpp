@@ -55,6 +55,7 @@ void Track::AssignNeighbors(vector<const Track*> aside, vector<const Track*> bsi
 }
 
 bool Track::IsASide(const Track* t) const {
+	if(t==nullptr) return false;
 	auto it = find(aSides.begin(), aSides.end(), t);
 	if(it != aSides.end())
 		return true;
@@ -62,6 +63,7 @@ bool Track::IsASide(const Track* t) const {
 }
 
 bool Track::IsBSide(const Track* t) const {
+	if(t==nullptr) return false;
 	auto it = find(bSides.begin(), bSides.end(), t);
 	if(it != bSides.end())
 		return true;
@@ -70,6 +72,10 @@ bool Track::IsBSide(const Track* t) const {
 
 bool Track::IsSameSide(const Track* t1, const Track* t2) const {
 	return (IsASide(t1) && IsASide(t2)) || (IsBSide(t1) && IsBSide(t2));
+}
+
+bool Track::IsNeighbor(const Track* t) const {
+	return t != nullptr && IsASide(t) || IsBSide(t);
 }
 
 void from_json(const json& j, Track& t) {

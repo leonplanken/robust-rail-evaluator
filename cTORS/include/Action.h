@@ -113,14 +113,32 @@ public:
 	ACTION_OVERRIDE(MoveAction)
 };
 
-class CombineAction : public Action {};
+class CombineAction : public Action {
+private:
+	const ShuntingUnit *rearSU, *combinedSU;
+	bool inNeutral;
+	int position;
+public:
+	CombineAction() = delete;
+	CombineAction(const ShuntingUnit* frontSU, const ShuntingUnit* rearSU, const ShuntingUnit& combinedSU,
+		const Track* track, int duration, bool inNeutral, int position) :
+		Action(frontSU, {track}, {}, duration), rearSU(rearSU), combinedSU(new ShuntingUnit(combinedSU)), inNeutral(inNeutral), position(position) {};
+	CombineAction(const CombineAction& ca) : CombineAction(ca.su, ca.rearSU, *ca.combinedSU, ca.reserved[0], ca.duration, ca.inNeutral, ca.position) {}
+	~CombineAction() override;
+	inline const ShuntingUnit* GetFrontShuntingUnit() const { return GetShuntingUnit(); }
+	inline const ShuntingUnit* GetRearShuntingUnit() const { return rearSU; }
+	inline const ShuntingUnit* GetCombinedShuntingUnit() const { return combinedSU; }
+	ACTION_OVERRIDE(CombineAction)
+};
 class SplitAction : public Action {
 private: 
 	const ShuntingUnit *suA, *suB;
 public:
 	SplitAction() = delete;
-	SplitAction(const ShuntingUnit* su, const Track* track, int duration, const ShuntingUnit* suA, const ShuntingUnit* suB) : 
-		Action(su, {track}, {}, duration), suA(suA), suB(suB) {};
+	SplitAction(const ShuntingUnit* su, const Track* track, int duration, const ShuntingUnit& suA, const ShuntingUnit& suB) : 
+		Action(su, {track}, {}, duration), suA(new ShuntingUnit(suA)), suB(new ShuntingUnit(suB)) {};
+	SplitAction(const SplitAction& sa) : SplitAction(sa.su, sa.reserved[0], sa.duration, *sa.suA, *sa.suB) {}
+	~SplitAction() override;
 	inline const ShuntingUnit* GetASideShuntingUnit() const { return suA; }
 	inline const ShuntingUnit* GetBSideShuntingUnit() const { return suB; }
 	ACTION_OVERRIDE(SplitAction)
@@ -222,6 +240,7 @@ DEFINE_ACTIONGENERATOR(EndMoveActionGenerator)
 DEFINE_ACTIONGENERATOR(WaitActionGenerator)
 DEFINE_ACTIONGENERATOR(ServiceActionGenerator)
 DEFINE_ACTIONGENERATOR(SplitActionGenerator)
+DEFINE_ACTIONGENERATOR(CombineActionGenerator)
 
 class MoveActionGenerator : public ActionGenerator {
 private:

@@ -48,6 +48,9 @@ void ActionValidator::AddValidators() {
 	//Employee
 
 	//Combine and Split
+	ADD_VALIDATOR(order_preserve_rule)
+	ADD_VALIDATOR(park_combine_split_rule)
+	ADD_VALIDATOR(setback_combine_split_rule)
 
 	//Matching
 }
