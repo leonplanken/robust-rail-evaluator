@@ -26,6 +26,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<ShuntingUnit>(m, "ShuntingUnit")
 		.def(py::init<int, vector<const Train*>>())
+		.def_property_readonly("id", &ShuntingUnit::GetID)
 		.def_property("train_units", &ShuntingUnit::GetTrains, &ShuntingUnit::SetTrains, py::return_value_policy::reference, py::keep_alive<1, 2>())
 		.def("get_length", &ShuntingUnit::GetLength)
 		.def("needs_electricity", &ShuntingUnit::NeedsElectricity)
@@ -120,6 +121,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("is_moving", &State::IsMoving, py::arg("shunting_unit"))
 		.def("is_waiting", &State::IsWaiting, py::arg("shunting_unit"))
 		.def("is_reserved", &State::IsReserved, py::arg("track"))
+		.def("is_in_neutral", &State::IsInNeutral, py::arg("shunting_unit"))
 		.def("get_shunting_units", &State::GetShuntingUnits, py::return_value_policy::reference)
 		.def("has_active_action", &State::HasActiveAction, py::arg("shunting_unit"))
 		.def("get_train_units_in_order", &State::GetTrainUnitsInOrder, py::arg("shunting_unit"), py::return_value_policy::move)
@@ -135,6 +137,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_shunting_unit", &Action::GetShuntingUnit, py::return_value_policy::reference)
 		.def("get_reserved_tracks", &Action::GetReservedTracks, py::return_value_policy::reference)
 		.def("get_duration", &Action::GetDuration)
+		.def("get_employees", &Action::GetEmployees, py::return_value_policy::reference)
 		.def("__equals__ ", &Action::operator==);
 	auto arriveAction = BIND_ACTION(ArriveAction);
 	BIND_ACTION(BeginMoveAction);
@@ -155,8 +158,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_outgoing", &ExitAction::GetOutgoing, py::return_value_policy::reference);
 	serviceAction.def("get_train", &ServiceAction::GetTrain, py::return_value_policy::reference)
 		.def("get_task", &ServiceAction::GetTask, py::return_value_policy::reference)
-		.def("get_facility", &ServiceAction::GetFacility, py::return_value_policy::reference)
-		.def("get_employees", &ServiceAction::GetEmployees, py::return_value_policy::reference);
+		.def("get_facility", &ServiceAction::GetFacility, py::return_value_policy::reference);
 	setbackAction.def("get_drivers", &SetbackAction::GetDrivers, py::return_value_policy::reference);
 	
 	////////////////////////////////////
@@ -170,7 +172,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<Location>(m, "Location")
 		.def("get_track_parts", &Location::GetTracks, py::return_value_policy::reference)
-		.def("get_track_by_id", &Location::getTrackByID, py::arg("id"), py::return_value_policy::reference);
+		.def("get_track_by_id", &Location::getTrackByID, py::arg("id"), py::return_value_policy::reference)
+		.def("get_facilities", &Location::GetFacilities, py::return_value_policy::reference);
 
 	py::enum_<TrackPartType>(m, "TrackPartType")
 		.value("RAILROAD", TrackPartType::Railroad)
@@ -183,8 +186,11 @@ PYBIND11_MODULE(pyTORS, m) {
 		.export_values();
 
 	py::class_<Facility>(m, "Facility")
+		.def_property_readonly("id", &Facility::GetID)
+		.def_property_readonly("type", &Facility::GetType)
 		.def("get_capacity", &Facility::GetCapacity)
 		.def("get_tasks", &Facility::GetTasks, py::return_value_policy::reference)
+		.def("get_tracks", &Facility::GetTracks, py::return_value_policy::reference)
 		.def("is_available", &Facility::IsAvailable, py::arg("start_time"), py::arg("duration"))
 		.def("executes_task", &Facility::ExecutesTask, py::arg("task"))
 		.def("__str__", &Facility::toString);
@@ -250,6 +256,23 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("end_session", &Engine::EndSession, py::arg("state"))
 		.def("get_location", &Engine::GetLocation, py::return_value_policy::reference)
 		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference);
+
+	////////////////////////////////////
+	//// Event                      ////
+	////////////////////////////////////
+	py::enum_<EventType>(m, "EventType") //ActionFinish, IncomingTrain, OutgoingTrain, DisturbanceBegin, DisturbanceEnd, Trigger, MoveUpdate
+		.value("ActionFinish", EventType::ActionFinish)
+		.value("IncomingTrain", EventType::IncomingTrain)
+		.value("OutgoingTrain", EventType::OutgoingTrain)
+		.value("DisturbanceBegin", EventType::DisturbanceBegin)
+		.value("DisturbanceEnd", EventType::DisturbanceEnd)
+		.value("Trigger", EventType::Trigger)
+		.value("MoveUpdate", EventType::MoveUpdate)
+		.export_values();
+	
+	py::class_<Event>(m, "Event")
+		.def("get_time", &Event::GetTime)
+		.def("get_type", &Event::GetType);
 
 	////////////////////////////////////
 	//// Exceptions                 ////

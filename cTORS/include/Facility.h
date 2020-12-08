@@ -25,14 +25,15 @@ public:
 	
 	inline int GetCapacity() const { return simultaneousUsageCount; }
 	const inline vector<string> &GetTasks() const { return tasks; }
+	const inline vector<Track*> &GetTracks() const { return tracks; }
 	bool ExecutesTask(const Task* task) const;
 	inline bool IsAvailable(int start, int duration) const { return start >= tStart && start + duration < tEnd; }
 	
 	void fromJSON(const json& j);
 	
-	inline const string toString() const {
-		return "Facility " + id;
-	}
+	inline const string toString() const { return "Facility " + id; }
+	inline const string& GetID() const { return id; }
+	inline const string& GetType() const { return type; }
 	
 	inline bool operator==(const Facility& t) const { return (id == t.id); }
 	inline bool operator!=(const Facility& t) const { return !(*this == t); }

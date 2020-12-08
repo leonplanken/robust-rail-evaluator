@@ -34,11 +34,10 @@ public:
 	Location(const Location& location) = default;
 	~Location();
 	
-	inline Track* getTrackByID(const string& id) const {
-		return trackIndex.at(id);
-	}
+	inline Track* getTrackByID(const string& id) const { return trackIndex.at(id); }
 
 	inline const vector<Track*>& GetTracks() const { return tracks; }
+	inline const vector<Facility*>& GetFacilities() const { return facilities; }
 
 	inline double GetDistance(const Track* from, const Track* to) const { return distanceMatrix.at({from, to}); }
 	inline int GetDurationByType(const Track* track) const { 
