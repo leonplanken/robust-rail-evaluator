@@ -49,3 +49,14 @@ inline void from_json(const json& j, ShuntingUnit& su) {
 	su.fromJSON(j);
 }
 
+struct ShuntingUnitHash {
+	std::size_t operator()(const ShuntingUnit* const & k) const {
+		return std::hash<int>()(k->GetID());
+	}
+};
+
+struct ShuntingUnitEquals {
+	bool operator()(const ShuntingUnit* const & lhs, const ShuntingUnit* const & rhs) const {
+		return lhs->GetID() == rhs->GetID();
+	}
+};

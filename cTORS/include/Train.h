@@ -50,8 +50,7 @@ struct Task {
 	bool operator!=(const Task& t) const { return !(*this == t); }
 };
 
-class Train
-{
+class Train {
 private:
 	int id;
 	TrainUnitType *type;
@@ -77,3 +76,15 @@ inline void from_json(const json& j, Train& t) {
 void from_json(const json& j, TrainUnitType& tt);
 
 void from_json(const json& j, Task& t);
+
+struct TrainHash {
+	std::size_t operator()(const Train* const & k) const {
+		return std::hash<int>()(k->GetID());
+	}
+};
+
+struct TrainEquals {
+	bool operator()(const Train* const & lhs, const Train* const & rhs) const {
+		return lhs->GetID() == rhs->GetID();
+	}
+};

@@ -95,7 +95,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_side_track", &TrainGoal::GetSideTrack, py::return_value_policy::reference)
 		.def("get_parking_track", &TrainGoal::GetParkingTrack, py::return_value_policy::reference);
 	py::class_<Incoming, TrainGoal>(m, "Incoming")
-		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int, map<const Train*, vector<Task>>>())
+		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int, unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>>())
 		.def("__str__", &Incoming::toString);
 	py::class_<Outgoing, TrainGoal>(m, "Outgoing")
 		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int>())

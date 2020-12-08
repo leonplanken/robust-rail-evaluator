@@ -10,7 +10,7 @@ void CombineAction::Start(State* state) const {
     auto frontTrain = suState.frontTrain;
     state->RemoveShuntingUnit(frontSU);
     state->RemoveShuntingUnit(rearSU);
-    auto combinedSU = new ShuntingUnit(*this->combinedSU);
+    auto combinedSU = new ShuntingUnit(this->combinedSU);
     
     state->AddShuntingUnitOnPosition(combinedSU, track, previous, frontTrain, position);
     state->SetInNeutral(combinedSU, inNeutral);
@@ -18,7 +18,7 @@ void CombineAction::Start(State* state) const {
 }
 
 void CombineAction::Finish(State* state) const {
-    state->RemoveActiveAction(combinedSU, this);
+    state->RemoveActiveAction(&combinedSU, this);
 }
 
 const string CombineAction::toString() const {
@@ -26,9 +26,6 @@ const string CombineAction::toString() const {
         + GetFrontShuntingUnit()->GetTrainString() + " and " +GetRearShuntingUnit()->GetTrainString();
 }
 
-CombineAction::~CombineAction() {
-	delete combinedSU;
-}
 
 void CombineActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	//TODO employees

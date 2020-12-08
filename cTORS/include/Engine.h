@@ -1,6 +1,6 @@
 #pragma once
 #include <list>
-#include <map>
+#include <unordered_map>
 #include "Utils.h"
 #include "State.h"
 #include "Scenario.h"
@@ -21,7 +21,7 @@ private:
 	Config config;
 	ActionValidator actionValidator;
 	ActionManager actionManager;
-	map<State*, list<const Action*>> stateActionMap;
+	unordered_map<State*, list<const Action*>> stateActionMap;
 
 	list<const Action*> &GetValidActions(State* state);
 	void ExecuteEvent(State* state, const Event* e);

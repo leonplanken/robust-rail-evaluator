@@ -1,9 +1,10 @@
 #pragma once
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <nlohmann/json.hpp>
 #include "Exceptions.h"
+#include "Utils.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -43,7 +44,7 @@ class Track {
 private:
 	vector<const Track*> aSides;
 	vector<const Track*> bSides;
-	map<const Track*, vector<const Track*>> next;
+	unordered_map<const Track*, vector<const Track*>> next;
 	vector<const Facility*> facilities;
 public:
 	string id;
@@ -90,10 +91,9 @@ public:
 	inline const Track* GetOppositeSide(const Track* previous) const { return GetNextTrackParts(previous).front(); }
 
 	inline double GetLength() const { return length; }
-
-	inline const string& toString() const { 
-		return name;
-	}
+	inline const string& toString() const { return name; }
+	inline const string& GetID() const { return id; }
+	
 	
 	inline bool operator==(const Track& t) const { return (id == t.id); }
 	inline bool operator!=(const Track& t) const { return !(*this == t); }

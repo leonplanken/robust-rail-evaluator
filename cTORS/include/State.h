@@ -1,6 +1,6 @@
 #pragma once
 #include <list>
-#include <map>
+#include <unordered_map>
 #include "Utils.h"
 #include "Event.h"
 #include "Action.h"
@@ -52,9 +52,9 @@ private:
 	vector<const Employee*> employees;
 	vector<const ShuntingUnit*> shuntingUnits;
 	
-	map<const ShuntingUnit*, ShuntingUnitState> shuntingUnitStates;
-	map<const Track*, TrackState> trackStates;
-	map<const Train*, TrainState> trainStates;
+	unordered_map<const ShuntingUnit*, ShuntingUnitState, ShuntingUnitHash, ShuntingUnitEquals> shuntingUnitStates;
+	unordered_map<const Track*, TrackState> trackStates;
+	unordered_map<const Train*, TrainState, TrainHash, TrainEquals> trainStates;
 
 	bool changed;
 public:
@@ -108,7 +108,7 @@ public:
 	inline const vector<Task>& GetTasksForTrain(const Train* tu) const { return trainStates.at(tu).tasks; }
 	inline const list<const Task*>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
 	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return shuntingUnitStates.at(su); }
-	inline const map<const ShuntingUnit*, ShuntingUnitState>& GetShuntingUnitStates() const { return shuntingUnitStates; }
+	inline const unordered_map<const ShuntingUnit*, ShuntingUnitState, ShuntingUnitHash, ShuntingUnitEquals>& GetShuntingUnitStates() const { return shuntingUnitStates; }
 
 	//Setters and Adders
 	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }
@@ -117,7 +117,7 @@ public:
 	inline void SetPosition(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).position = track; }
 	inline void SetPrevious(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).previous = track; }
 
-	void addTasksToTrains(const map<const Train*, vector<Task>>& tasks);
+	void addTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks);
 	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
 	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
 	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->clone()); }

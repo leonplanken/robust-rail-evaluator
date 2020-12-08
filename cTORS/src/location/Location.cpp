@@ -41,8 +41,8 @@ Location::~Location()
 }
 
 void Location::importTracksFromJSON(const json& j) {
-	map<Track*, vector<string>> aSides;
-	map<Track*, vector<string>> bSides;
+	unordered_map<Track*, vector<string>> aSides;
+	unordered_map<Track*, vector<string>> bSides;
 	for (auto& jit : j) {
 		Track* t = new Track();
 		jit.get_to(*t);

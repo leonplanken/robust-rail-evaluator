@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <exception>
+#include <unordered_map>
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include "Utils.h"
@@ -19,7 +20,7 @@ private:
 	
 	vector<Track*> tracks;
 	vector<Facility*> facilities;
-	map<pair<const Track*, const Track*>, double> distanceMatrix;
+	unordered_map<pair<const Track*, const Track*>, double> distanceMatrix;
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;

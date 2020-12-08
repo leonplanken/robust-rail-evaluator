@@ -30,3 +30,19 @@ std::vector<const T*> copy_of(const std::vector<const T*>& objs) {
         res[i] = new T(*objs[i]);
     return res;
 }
+
+template<class T>
+inline void hash_combine(std::size_t& s, const T& v)
+{
+    std::hash<T> h;
+    s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+}
+
+template <class T>
+struct std::hash<std::pair<T, T>> {
+    std::size_t operator() (const std::pair<T, T> &pair) const {
+        auto x = std::hash<T>{}(pair.first);
+        hash_combine(x, pair.second);
+        return x;
+    }
+};

@@ -11,8 +11,8 @@ void SplitAction::Start(State* state) const {
 	bool inNeutral = suState.inNeutral;
 	bool fromASide = track->IsASide(previous);
 	state->RemoveShuntingUnit(su);
-	auto suA = new ShuntingUnit(*this->suA);
-	auto suB = new ShuntingUnit(*this->suB);
+	auto suA = new ShuntingUnit(this->suA);
+	auto suB = new ShuntingUnit(this->suB);
 	state->AddShuntingUnitOnPosition(suA, track, previous, front ? suA->GetTrains().front() : suA->GetTrains().back(), positionOnTrack);
 	state->AddShuntingUnitOnPosition(suB, track, previous, front ? suB->GetTrains().front() : suB->GetTrains().back(), positionOnTrack + (fromASide ? 1 : 0));
 	state->SetInNeutral(suA, inNeutral);
@@ -23,17 +23,12 @@ void SplitAction::Start(State* state) const {
 }
 
 void SplitAction::Finish(State* state) const {
-	state->RemoveActiveAction(suA, this);
-	state->RemoveActiveAction(suB, this);
+	state->RemoveActiveAction(&suA, this);
+	state->RemoveActiveAction(&suB, this);
 }
 
 const string SplitAction::toString() const {
-	return "SplitAction " + GetShuntingUnit()->toString() + " into " + suA->GetTrainString() + " and " +suB->GetTrainString();
-}
-
-SplitAction::~SplitAction() {
-	delete suA;
-	delete suB;
+	return "SplitAction " + GetShuntingUnit()->toString() + " into " + suA.GetTrainString() + " and " +suB.GetTrainString();
 }
 
 void SplitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
