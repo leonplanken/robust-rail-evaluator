@@ -9,7 +9,14 @@ The basic project setup uses the structure provided by cmake. The subfolders are
 * TORS: The challenge environment, in python
 
 ## Installation
-To compile cTORS, cmake 3.11 (or higher) is required.
+To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
+```
+apt-get install cmake
+apt-get install python3-dev
+```
+For windows:
+ * download and install cmake: https://cmake.org/download/
+ * python header files already installed with python, see the include folder in your python folder.
 
 ### Build with setuptools
 You can build cTORS and the pyTORS library with the following command.
