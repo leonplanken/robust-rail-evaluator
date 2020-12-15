@@ -19,6 +19,7 @@ option(TORS_Install "Install CMake targets during install step." ON)
 ## create and configure the unit test target
 ##
 include(CTest) #adds option BUILD_TESTING (default ON)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 if(BUILD_TESTING AND TORS_BuildTests)
     enable_testing()
