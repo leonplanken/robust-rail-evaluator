@@ -62,15 +62,15 @@ class State(Resource):
                         "moving": state.is_moving(train),
                         "train_units": [tu.id for tu in train.get_trains()],
 			            "train_unit_types": [str(tu.type) for tu in train.train_units],
-                        "train_unit_tasks": [],#[", ".join([str(task) for task in tu.tasks]) for tu in train.train_units], TODO
+                        "train_unit_tasks": [", ".join([str(task) for task in state.get_tasks_for_train(tu)]) for tu in train.train_units],
                         "length": train.length
                     }
 
                     tracks[id].append(train_obj)
         return tracks
     
-    def get_reserved_tracks(self) -> List[ShuntingUnit]:
-        return []#current_app.state.get_reserved_tracks() TODO
+    def get_reserved_tracks(self) -> List[int]:
+        return [track.id for track in current_app.state.get_reserved_tracks()]
 
     def get_next_event(self) -> str:
         if current_app.state.peek_event():

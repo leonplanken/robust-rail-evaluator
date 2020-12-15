@@ -91,6 +91,7 @@ public:
 	inline const Track* GetPosition(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).position; }
 	inline const Track* GetPrevious(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).previous; }
 	inline const list<const ShuntingUnit*>& GetOccupations(const Track* track) const { return trackStates.at(track).occupations; }
+	const vector<const Track*> GetReservedTracks() const;
 	int GetPositionOnTrack(const ShuntingUnit* su) const;
 	inline size_t GetAmountOnTrack(const Track* track) const { return GetOccupations(track).size(); }
 	const vector<const Train*> GetTrainUnitsInOrder(const ShuntingUnit* su) const;

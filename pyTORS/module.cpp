@@ -117,6 +117,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_occupations", &State::GetOccupations, py::arg("track"), py::return_value_policy::reference)
 		.def("get_position_on_track", &State::GetPositionOnTrack, py::arg("shunting_unit"))
 		.def("get_amount_on_track", &State::GetAmountOnTrack, py::arg("track"))
+		.def("get_reserved_tracks", &State::GetReservedTracks, py::return_value_policy::move)
 		.def("can_move_to_side", &State::CanMoveToSide, py::arg("shunting_unit"), py::arg("track"))
 		.def("is_moving", &State::IsMoving, py::arg("shunting_unit"))
 		.def("is_waiting", &State::IsWaiting, py::arg("shunting_unit"))

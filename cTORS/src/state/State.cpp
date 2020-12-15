@@ -218,6 +218,14 @@ void State::RemoveActiveTaskFromTrain(const Train* tu, const Task* task) {
 		lst.erase(it);
 }
 
+const vector<const Track*> State::GetReservedTracks() const {
+	vector<const Track*> reserved;
+	for(auto& [track, trackState]: trackStates) {
+		if(trackState.reserved) reserved.emplace_back(track);
+	}
+	return reserved;
+}
+
 int State::GetPositionOnTrack(const ShuntingUnit* su) const {
 	auto& sus = GetOccupations(GetPosition(su));
 	auto it = find_if(sus.begin(), sus.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
