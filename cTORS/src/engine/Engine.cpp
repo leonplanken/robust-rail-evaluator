@@ -37,7 +37,7 @@ list<const Action*> &Engine::GetActions(State * state, Scenario * scenario) {
 		} else {
 			actions = GetValidActions(state);
 		}
-	}
+	} 
 	debug_out("Done getting actions. Found " << to_string(actions.size()) << " actions.");
 	return actions;
 }
@@ -78,13 +78,11 @@ void Engine::ExecuteImmediateEvents(State* state) {
 void Engine::ExecuteEvent(State* state, const Event* e) {
 	auto a = e->GetAction();
 	if (a != nullptr) {
-		//auto result = actionValidator.IsValid(state, a);
-		//if (!result.first)
-		//	throw ScenarioFailedException(result.second);
 		debug_out("\tFinishing action " + a->toString());
 		state->FinishAction(a);
 	}
 	state->SetTime(e->GetTime());
+	delete e;
 }
 
 State* Engine::StartSession(const Scenario& scenario) {
@@ -94,8 +92,8 @@ State* Engine::StartSession(const Scenario& scenario) {
 }
 
 void Engine::EndSession(State* state) {
-	auto actions = stateActionMap[state];
-	actions.clear();
+	auto& actions = stateActionMap[state];
+	DELETE_LIST(actions);
 	stateActionMap.erase(state);
 	delete state;
 }

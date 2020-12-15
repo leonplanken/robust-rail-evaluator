@@ -17,21 +17,25 @@ class Actions(Resource):
         actions = {}
         for idx, a in enumerate(current_app.engine.get_actions(current_app.state)):
             # get shunting units from action
-            shunting_units = [a.get_shunting_unit()]
-            #for uuid in a.shunting_unit_uuids:
-            #    shunting_units.append(str(uuid))
+            shunting_units = [a.shunting_unit] # add other shunting units with combine
+            shunting_units = [{
+                "uuid": str(su.id),
+                "id": str(su.id),
+                "train_units": "-".join([str(tu.type) for tu in su.train_units])
+            } for su in shunting_units]
             
 
             actions[idx] = {"type": a.__class__.__name__,
-                            "trains": [str(su) for su in shunting_units],
-                            "tracks": [str(t.id) for t in a.get_reserved_tracks()],
-                            "track_names": [str(t.name) for t in a.get_reserved_tracks()],
-                            "duration": a.get_duration(),
-                            "employees": [str(e) for e in a.get_employees()],
+                            "train_ids": [str(su["uuid"]) for su in shunting_units],                            
+                            "trains": shunting_units,
+                            "tracks": [str(t.id) for t in a.reserved_tracks],
+                            "track_names": [str(t.name) for t in a.reserved_tracks],
+                            "duration": a.duration,
+                            "employees": [str(e) for e in a.employees],
                             "reward": 0}
 
             if isinstance(a, ServiceAction):
-                actions[idx]["task"] = str(a.get_task())
+                actions[idx]["task"] = str(a.task)
 
         return Response(json.dumps(actions), mimetype='application/json')
 

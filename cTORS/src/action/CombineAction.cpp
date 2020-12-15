@@ -10,11 +10,10 @@ void CombineAction::Start(State* state) const {
     auto frontTrain = suState.frontTrain;
     state->RemoveShuntingUnit(frontSU);
     state->RemoveShuntingUnit(rearSU);
-    auto combinedSU = new ShuntingUnit(this->combinedSU);
     
-    state->AddShuntingUnitOnPosition(combinedSU, track, previous, frontTrain, position);
-    state->SetInNeutral(combinedSU, inNeutral);
-    state->AddActiveAction(combinedSU, this);
+    state->AddShuntingUnitOnPosition(&combinedSU, track, previous, frontTrain, position);
+    state->SetInNeutral(&combinedSU, inNeutral);
+    state->AddActiveAction(&combinedSU, this);
 }
 
 void CombineAction::Finish(State* state) const {
@@ -29,7 +28,6 @@ const string CombineAction::toString() const {
 
 void CombineActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	//TODO employees
-	auto& sus = state->GetShuntingUnits();
     for (auto track : location->GetTracks()) {
         auto sus = state->GetOccupations(track);
         if(sus.size() < 2) continue;
@@ -38,7 +36,7 @@ void CombineActionGenerator::Generate(const State* state, list<const Action*>& o
             auto suB = *next(it);
             auto& suStateA = state->GetShuntingUnitState(suA);
             auto& suStateB = state->GetShuntingUnitState(suB);
-            if(suStateA.HasActiveAction() || suStateB.HasActiveAction()) continue;
+            if(suStateA.HasActiveAction() || suStateB.HasActiveAction() || suStateA.moving || suStateB.moving || (suStateA.waiting && suStateB.waiting)) continue;
             int position = static_cast<int>(distance(sus.begin(), it));
             // In case both shunting units are in neutral, they can be combined in both directions
             bool neutral = suStateA.inNeutral && suStateB.inNeutral;

@@ -6,7 +6,9 @@ void WaitAction::Start(State* state) const {
 }
 
 void WaitAction::Finish(State* state) const {
-	state->SetWaiting(GetShuntingUnit(), false);
+	auto su = GetShuntingUnit();
+	if(state->HasShuntingUnit(su))
+		state->SetWaiting(su, false);
 }
 
 const string WaitAction::toString() const {

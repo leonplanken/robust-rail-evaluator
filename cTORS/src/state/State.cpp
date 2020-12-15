@@ -71,20 +71,23 @@ void State::FinishAction(const Action* action) {
 	action->Finish(this);
 }
 
-void State::AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
-	shuntingUnits.push_back(su);
-	shuntingUnitStates.emplace(su, ShuntingUnitState(track, previous, frontTrain));
-	for(auto train: su->GetTrains()) trainStates[train];
+const ShuntingUnit* State::AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
+	auto shuntingUnit = new ShuntingUnit(*su);
+	shuntingUnits.push_back(shuntingUnit);
+	auto& trains = shuntingUnit->GetTrains();
+	shuntingUnitStates.emplace(shuntingUnit, ShuntingUnitState(track, previous, trains.front() == frontTrain ? trains.front() : trains.back()));
+	for(auto train: shuntingUnit->GetTrains()) trainStates[train];
+	return shuntingUnit;
 }
 
 void State::AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
-	AddShuntingUnitToState(su, track, previous, frontTrain);
+	su = AddShuntingUnitToState(su, track, previous, frontTrain);
 	OccupyTrack(su, track, previous);
 }
 
 void State::AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous,
 		const Train* frontTrain, int positionOnTrack) {
-	AddShuntingUnitToState(su, track, previous, frontTrain);
+	su = AddShuntingUnitToState(su, track, previous, frontTrain);
 	InsertOnTrack(su, track, previous, positionOnTrack);
 }
 
@@ -96,9 +99,9 @@ void State::MoveShuntingUnit(const ShuntingUnit* su, const Track* to, const Trac
 void State::RemoveOccupation(const ShuntingUnit* su) {
 	const Track* current = GetPosition(su);
 	auto& occ = trackStates[current].occupations;
-	auto it = find(occ.begin(), occ.end(), su);
+	auto it = find_if(occ.begin(), occ.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
 	if (it != occ.end()) {
-		occ.remove(*it);
+		occ.erase(it);
 	}
 }
 
@@ -158,9 +161,16 @@ void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 	RemoveOccupation(su);
 	shuntingUnitStates.erase(su);
 	for(auto train: su->GetTrains()) trainStates.erase(train);
-	auto it = find(shuntingUnits.begin(), shuntingUnits.end(), su);
-	if (it != shuntingUnits.end())
+	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
+	if (it != shuntingUnits.end()) {
+		delete *it;
 		shuntingUnits.erase(it);
+	}
+}
+
+bool State::HasShuntingUnit(const ShuntingUnit* su) const {
+	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
+	return (it != shuntingUnits.end());
 }
 
 bool State::IsActive() const {
@@ -182,8 +192,7 @@ void State::RemoveActiveAction(const ShuntingUnit* su, const Action* action) {
 	auto& lst = shuntingUnitStates.at(su).activeActions;
 	auto it = find_if(lst.begin(), lst.end(), [action](const Action* a) -> bool { return *a == *action; } );
 	if (it != lst.end()) {
-		delete* it;
-		lst.remove(*it);
+		lst.erase(it);
 	}
 }
 
@@ -211,7 +220,7 @@ void State::RemoveActiveTaskFromTrain(const Train* tu, const Task* task) {
 
 int State::GetPositionOnTrack(const ShuntingUnit* su) const {
 	auto& sus = GetOccupations(GetPosition(su));
-	auto it = find(sus.begin(), sus.end(), su);
+	auto it = find_if(sus.begin(), sus.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
 	return static_cast<int>(distance(sus.begin(), it));
 }
 

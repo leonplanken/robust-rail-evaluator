@@ -39,7 +39,7 @@ public:
 	inline const EventQueue& GetDisturbances() const { return disturbances; }
 	inline const vector<const Event*>& GetDisturbanceVector() const { return disturbanceList; }
 	inline const vector<const Outgoing*>& GetOutgoingTrains() const { return outgoingTrains; }
-	inline const vector<const Incoming*>& GetIncomingTrains() const {	return incomingTrains; }
+	inline const vector<const Incoming*>& GetIncomingTrains() const { return incomingTrains; }
 	inline const vector<const Employee*>& GetEmployees() const { return employees; }
 	const size_t GetNumberOfTrains() const;
 

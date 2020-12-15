@@ -5,7 +5,6 @@ void ServiceAction::Start(State* state) const {
 	const ShuntingUnit* su = GetShuntingUnit();
 	auto tu = GetTrain();
 	auto ta = GetTask();
-	state->RemoveTaskFromTrain(tu, *ta);
 	state->AddActiveTaskToTrain(tu, ta);
 	for (auto e : GetEmployees()) {
 		//TODO
@@ -14,8 +13,11 @@ void ServiceAction::Start(State* state) const {
 }
 
 void ServiceAction::Finish(State* state) const {
+	auto tu = GetTrain();
+	auto ta = GetTask();
 	state->RemoveActiveAction(su, this);
-	state->RemoveActiveTaskFromTrain(GetTrain(), GetTask());
+	state->RemoveActiveTaskFromTrain(tu, ta);
+	state->RemoveTaskFromTrain(tu, *ta);
 }
 
 const string ServiceAction::toString() const {

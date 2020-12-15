@@ -16,8 +16,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set release build.
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
+	message(STATUS "Build type not specified: Use Release by default")
 endif ()
-
 
 #Fetch the JSON library
 FetchContent_Declare(json

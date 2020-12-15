@@ -19,8 +19,8 @@ function refresh_actions() {
             row.setAttribute("class", "action-item");
             row.setAttribute("id", key);
             row.setAttribute("onclick", "perform_action(" + key + ")");
-            row.setAttribute("onmouseover", "highlight_action(" + JSON.stringify(val.trains) + "," + JSON.stringify(val.tracks) + ")");
-            row.setAttribute("onmouseout", "dehighlight_action(" + JSON.stringify(val.trains) + "," + JSON.stringify(val.tracks) + ")");
+            row.setAttribute("onmouseover", "highlight_action(" + JSON.stringify(val.train_ids) + "," + JSON.stringify(val.tracks) + ")");
+            row.setAttribute("onmouseout", "dehighlight_action(" + JSON.stringify(val.train_ids) + "," + JSON.stringify(val.tracks) + ")");
             var action_id = row.insertCell(0);
             var action = row.insertCell(1);
             var trains = row.insertCell(2);
@@ -99,7 +99,7 @@ function get_trains(trains) {
     var result = '';
     $.each(trains, function (i, train) {
         result += (i > 0) ? ", " : '';
-        result += train.split("-")[1];
+        result += train['id'] + '[' + train['train_units'] + ']' //train.split("-")[0];
     });
 
     return result;
@@ -116,9 +116,14 @@ function highlight_action(trains, tracks) {
     $.each(trains, function (i, train) {
         set_obj_color("#train-" + train, 50);
     });
-
+	var facilities = $("[id^=facility-]");
     $.each(tracks, function (i, track) {
         set_obj_color("#track-" + track, 120);
+		$.each(facilities, function (j, facility) {
+			if(facility.id.endsWith("-"+track)) {
+				set_obj_color(facility, 50);
+			}
+		});
     });
 }
 
@@ -133,9 +138,14 @@ function dehighlight_action(trains, tracks) {
     $.each(trains, function (i, train) {
         restore_obj_color("#train-" + train);
     });
-
+	var facilities = $("[id^=facility-]");
     $.each(tracks, function (i, track) {
         restore_obj_color("#track-" + track);
+		$.each(facilities, function (j, facility) {
+			if(facility.id.endsWith(track)) {
+				restore_obj_color(facility);
+			}
+		});
     });
 }
 
@@ -147,8 +157,8 @@ function set_obj_color(id, amount) {
      * :param amount: amount to lighten/darken color
      * :type: int
      */
-    var obj = $(id);
-    if (obj.length) {
+	var obj = $(id);
+    if (obj.length && !obj.attr('org_color')) {
         var org_color = obj.attr('stroke');
         var color = change_color(org_color, amount);
         obj.attr({
@@ -165,11 +175,12 @@ function restore_obj_color(id) {
      * :type: string
      */
     var obj = $(id);
-    if (obj.length) {
+    if (obj.length && obj.attr('org_color')) {
         var color = obj.attr('org_color');
         obj.attr({
             stroke: color
         });
+		obj.removeAttr("org_color")
     }
 }
 

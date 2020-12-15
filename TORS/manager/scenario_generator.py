@@ -35,9 +35,9 @@ class ScenarioGenerator(ABC):
     
     def match_trains(self, scenario: Scenario) -> None:
         if self.match_outgoing_trains:
-            _match_trains(scenario.get_incoming_trains(), scenario.get_outgoing_trains())
+            _match_trains(scenario.incoming_trains, scenario.outgoing_trains)
         else:
-            for o in scenario.get_outgoing_trains():
+            for o in scenario.outgoing_trains:
                 for tu in o.shunting_unit.train_units:
                     tu.id = -1    
 
@@ -53,16 +53,16 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
         
     def initialize(self, scenario: Scenario, location: Location) -> None:
         super(ScenarioGeneratorFromScenario, self).initialize(scenario, location)
-        max_trains = scenario.get_number_of_trains()
+        max_trains = scenario.number_of_trains
         max_disturbances = len(scenario.get_disturbance_list())
-        max_workers = len(list(scenario.get_employees()))
+        max_workers = len(list(scenario.employees))
         self.n_trains = self._get_number(self.n_trains, max_trains)
         self.n_disturbances = self._get_number(self.n_disturbances, max_disturbances, min=0)
         self.n_workers = self._get_number(self.n_workers, max_workers)
         self.combination_generator = self._combination_generator()
         
     def _combination_generator(self):
-        max_trains = self.original_scenario.get_number_of_trains()
+        max_trains = self.original_scenario.number_of_trains
         combination_generator = itertools.combinations(range(max_trains), self.n_trains)
         combinations_left = self.n_combinations
         seen_combinations = 0
@@ -101,8 +101,8 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
 #         return _random_train_selection(incoming_trains, len(incoming_trains) - n_trains, self.n_combinations)
     
     def _select_trains(self, scenario):
-        incoming_shunting_units = [incoming.shunting_unit for incoming in scenario.get_incoming_trains()]
-        outgoing_shunting_units = [outgoing.shunting_unit for outgoing in scenario.get_outgoing_trains()] 
+        incoming_shunting_units = [incoming.shunting_unit for incoming in scenario.incoming_trains]
+        outgoing_shunting_units = [outgoing.shunting_unit for outgoing in scenario.outgoing_trains] 
         incoming_trains = [u for su in incoming_shunting_units for u in su.train_units] 
         outgoing_trains = [u for su in outgoing_shunting_units for u in su.train_units]
         
@@ -120,9 +120,9 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
             out_su = _find_matching_shunting_unit(mu, outgoing_shunting_units)
             _remove_from_shunting_unit(out_su, mu)
                 
-        scenario.set_incoming_trains([incoming for incoming in scenario.get_incoming_trains() if len(incoming.shunting_unit.train_units) > 0])
-        scenario.set_outgoing_trains([outgoing for outgoing in scenario.get_outgoing_trains() if len(outgoing.shunting_unit.train_units) > 0])
-        scenario.set_end_time(max([o.time for o in scenario.get_outgoing_trains()]))
+        scenario.set_incoming_trains([incoming for incoming in scenario.incoming_trains if len(incoming.shunting_unit.train_units) > 0])
+        scenario.set_outgoing_trains([outgoing for outgoing in scenario.outgoing_trains if len(outgoing.shunting_unit.train_units) > 0])
+        scenario.set_end_time(max([o.time for o in scenario.outgoing_trains]))
                         
         
     def _select_disturbances(self, scenario, n_disturbances):

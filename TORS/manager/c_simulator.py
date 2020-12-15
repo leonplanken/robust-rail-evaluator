@@ -21,13 +21,17 @@ class Simulator:
         self.org_scenario = self.engine.get_scenario()
         
     def reset(self):
-        self.print("S> Delete scenario")
-        del self.scenario
-        self.print("S> Generate scenario")
-        self.scenario = self.scenario_generator.generate_scenario()
         if not self.state is None:
             self.print("S> End previous session")
             self.engine.end_session(self.state)
+        self.print("S> Delete scenario")
+        del self.scenario
+
+        # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
+        # and also in the state, which is deleted when the state is deleted.
+
+        self.print("S> Generate scenario")
+        self.scenario = self.scenario_generator.generate_scenario()
         self.print("S> Start new session")
         self.state = self.engine.start_session(self.scenario)
         self.print("S> Started new session")
@@ -46,19 +50,13 @@ class Simulator:
         return self.state, next_actions
     
     def calculate_reward(self):
-        if len(self.state.get_incoming_trains()) == 0 and len(self.state.get_outgoing_trains()) == 0: return 1
+        if len(self.state.incoming_trains) == 0 and len(self.state.outgoing_trains) == 0: return 1
         result = min(0, ((self.state.time - self.state.start_time) / (self.state.end_time - self.state.start_time))-1)
-        #remaining_incoming = sum([len(incoming.shunting_unit.train_units) for incoming in self.state.get_incoming_trains()])
-        #result -= 0.5 * remaining_incoming / self.n_trains
-        #for outgoing in self.state.get_outgoing_trains():
-        #    if _has_matching_shunting_unit(outgoing.shunting_unit, self.state.get_shunting_units_on_track(outgoing.parking_track_id)):
-        #        result += 0.2 / self.n_trains
         return result         
     
     def apply_action(self, action):
         self.print("S [{}]> Applying action {}".format(self.state.time, str(action)))
         self.engine.apply_action(self.state, action)
-        
     def get_time(self):
         return self.state.time
     
@@ -69,7 +67,7 @@ class Simulator:
         return self.engine.get_location()
     
     def get_max_trains(self):
-        return self.engine.get_scenario().get_number_of_trains()
+        return self.engine.get_scenario().number_of_trains
     
     def set_n_trains(self, n):
         self.n_trains = n

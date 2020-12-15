@@ -11,15 +11,13 @@ void SplitAction::Start(State* state) const {
 	bool inNeutral = suState.inNeutral;
 	bool fromASide = track->IsASide(previous);
 	state->RemoveShuntingUnit(su);
-	auto suA = new ShuntingUnit(this->suA);
-	auto suB = new ShuntingUnit(this->suB);
-	state->AddShuntingUnitOnPosition(suA, track, previous, front ? suA->GetTrains().front() : suA->GetTrains().back(), positionOnTrack);
-	state->AddShuntingUnitOnPosition(suB, track, previous, front ? suB->GetTrains().front() : suB->GetTrains().back(), positionOnTrack + (fromASide ? 1 : 0));
-	state->SetInNeutral(suA, inNeutral);
-	state->SetInNeutral(suB, inNeutral);
+	state->AddShuntingUnitOnPosition(&suA, track, previous, front ? suA.GetTrains().front() : suA.GetTrains().back(), positionOnTrack);
+	state->AddShuntingUnitOnPosition(&suB, track, previous, front ? suB.GetTrains().front() : suB.GetTrains().back(), positionOnTrack + (fromASide ? 1 : 0));
+	state->SetInNeutral(&suA, inNeutral);
+	state->SetInNeutral(&suB, inNeutral);
 
-	state->AddActiveAction(suA, this);
-	state->AddActiveAction(suB, this);
+	state->AddActiveAction(&suA, this);
+	state->AddActiveAction(&suB, this);
 }
 
 void SplitAction::Finish(State* state) const {
@@ -39,8 +37,8 @@ void SplitActionGenerator::Generate(const State* state, list<const Action*>& out
 		auto size = su->GetTrains().size();
 		if (size <= 1 || suState.moving || suState.waiting || suState.HasActiveAction()) continue;
 		auto duration = suState.frontTrain->GetType()->splitDuration;
-		vector<const Train*> trains = copy_of(su->GetTrains());
 		for(int splitPosition = 1; splitPosition < size; splitPosition++) {
+			vector<const Train*> trains = copy_of(su->GetTrains());
 			ShuntingUnit suA = ShuntingUnit(su->GetID(), vector<const Train*>(trains.begin(), trains.begin() + splitPosition));
 			ShuntingUnit suB = ShuntingUnit(su->GetID()+1, vector<const Train*>(trains.begin()+splitPosition, trains.end()));
 			SplitAction* splitAction = new SplitAction(su, suState.position, duration, suA, suB);

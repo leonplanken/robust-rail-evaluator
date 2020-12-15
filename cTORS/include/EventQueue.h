@@ -10,10 +10,12 @@ struct EventCompare
 
 
 class EventQueue : public priority_queue < const Event*, vector<const Event*>, EventCompare> {
-private:
-
-//TODO constructor, destructor, copy operator
-	
-
+public:
+~EventQueue() {
+    while(size() > 0) {
+        delete top();
+        pop();
+    }
+}
 };
 

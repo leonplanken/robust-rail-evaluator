@@ -21,6 +21,7 @@ void ActionManager::AddGenerators() {
 	ADD_GENERATOR("service", ServiceActionGenerator);
 	ADD_GENERATOR("set_back", SetbackActionGenerator);
 	ADD_GENERATOR("split", SplitActionGenerator);
+	ADD_GENERATOR("combine", CombineActionGenerator);
 }
 
 void ActionManager::AddGenerator(string name, ActionGenerator* generator) {

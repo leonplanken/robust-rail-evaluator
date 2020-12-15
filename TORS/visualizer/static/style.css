@@ -63,7 +63,7 @@ h1, h2, h3 {
 /***********/
 /* actions */
 /***********/
-.actions-list {
+.actions-list .time-table-list {
     padding: 0;
     overflow: scroll;
     height: calc(100vh - 570px);
@@ -71,12 +71,12 @@ h1, h2, h3 {
     width: 100%;
 }
 
-#action-table {
+#action-table, #time-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#action-table td, #action-table th {
+#action-table td, #action-table th, #time-table td, #time-table th {
   border: 1px solid #ddd;
   padding: 8px;
 }
@@ -86,17 +86,39 @@ h1, h2, h3 {
     cursor: pointer;
 }
 
-#action-table i {
+#action-table i, #time-table i {
     float: left;
 }
 
+
+.collapsible {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #ccc;
+}
+
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+}
 
 /*************/
 /* scrollbar */
 /*************/
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {

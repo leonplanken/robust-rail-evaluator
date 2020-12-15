@@ -11,9 +11,7 @@ Train::Train(int id, TrainUnitType* type)
 
 Train::Train(const Train &train) : id(train.id), type(train.type), forcedMatch(train.forcedMatch) {}
 
-Train::~Train()
-{
-}
+Train::~Train() {}
 
 bool Train::operator==(const Train& train) const {
 	return (id != -1 && id == train.id) || this == &train;

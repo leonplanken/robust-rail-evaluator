@@ -100,6 +100,7 @@ public:
 	inline bool IsWaiting(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).waiting; }
 	inline bool IsInNeutral(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).inNeutral; }
 	inline const vector<const ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
+	bool HasShuntingUnit(const ShuntingUnit* su) const;
 	inline bool HasActiveAction(const ShuntingUnit* su) const { return GetActiveActions(su).size() > 0; }
 	inline const list<const Action*> &GetActiveActions(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).activeActions; }
 	bool IsActive() const;
@@ -121,7 +122,7 @@ public:
 	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
 	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
 	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->clone()); }
-	void AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
+	const ShuntingUnit* AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }
 	void AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain, int positionOnTrack);

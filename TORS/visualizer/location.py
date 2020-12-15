@@ -38,7 +38,7 @@ class Location(Resource):
         svg_document = svgwrite.Drawing("location.svg", size=(width, height))
 
         # Draw the base
-        for track in location.get_track_parts():
+        for track in location.track_parts:
             id = track.id
             coordinates = current_app.vis_config["coordinates"]
 
@@ -50,11 +50,11 @@ class Location(Resource):
                 self.draw_tracks(svg_document, scaled, track)
 
         # Draw the facilities
-        for facility in location.get_facilities():
+        for facility in location.facilities:
 
             if str(facility.id) in current_app.vis_config["facilities"]:
                 config = current_app.vis_config
-                for track in facility.get_tracks():
+                for track in facility.tracks:
                     track_coordinates = \
                         config["coordinates"][str(track.id)]
 
@@ -77,17 +77,17 @@ class Location(Resource):
         """
 
         if track.type == RAILROAD:
-            self.draw_railroad(document, coordinates, track.id)
+            self.draw_railroad(document, coordinates, track)
         elif track.type == BUMPER:
-            self.draw_bumper(document, coordinates, track.id)
+            self.draw_bumper(document, coordinates, track)
 
-    def draw_bumper(self, document: str, coordinates: List[List[int]], id: int):
+    def draw_bumper(self, document: str, coordinates: List[List[int]], track: Track):
         """
         Draw a bumper
 
         :param document: svg document
         :param coordinates: list of coordinates
-        :param id: the id of the bumper
+        :param track: the bumper track
         """
 
         x = coordinates[0][0]
@@ -98,27 +98,38 @@ class Location(Resource):
         points = "M" + str(x) + ' ' + str((y + 10)) + ' ' + str(x) + ' ' + str((y - 10))\
                  + "M" + str(x) + ' ' + str(y) + ' ' + str(x2) + ' ' + str(y2)
 
-        line = document.path(d=points, stroke="#121212", stroke_width=6,
-                             id="track-" + str(id), fill="none")
+        line = document.path(d=points, stroke="#121212", stroke_width=7,
+                             id="track-" + str(track.id), fill="none")
+        text = document.text(track.name, font_size=9, fill='#000', x=[(x+x2)/2], y=[(y-15)], text_anchor="middle")
 
         document.add(line)
+        document.add(text)
 
-    def draw_railroad(self, document: str, coordinates: List[List[int]], id: int):
+    def draw_railroad(self, document: str, coordinates: List[List[int]], track: Track):
         """
         Draw a railroad
 
         :param document: svg document
         :param coordinates: list of coordinates
-        :param id: the id of the railroad
+        :param track: the railroad track
         """
 
         points = "M" + ' '.join(str(r) for v in coordinates for r in v)
         line = document.path(d=points, stroke="#121212",
-                             stroke_width=6, id="track-" + str(id), fill="none")
+                             stroke_width=7, id="track-" + str(track.id), fill="none")
 
         document.add(line)
+        text = document.text("", font_size=9, fill='#fff')
 
-    def draw_facility(self, document: str, coordinates, facility: List[List[int]], track: Facility):
+        document.add(text)
+        textpath = document.textPath(path=line, text=track.name, startOffset='50%',
+                                     method='align', spacing='auto', text_anchor='middle',
+                                     alignment_baseline='central')
+
+        text.add(textpath)
+
+
+    def draw_facility(self, document: str, coordinates, facility: List[List[int]], track: Track):
         """
         Draw a facility
 
@@ -131,15 +142,15 @@ class Location(Resource):
 
         points = "M" + ' '.join(str(r) for v in coordinates for r in v)
         line = document.path(d=points, stroke=config["color"],
-                             stroke_width=18,
-                             id="facility-" + str(facility.id) + "-" + str(track),
+                             stroke_width=14,
+                             id="facility-" + str(facility.id) + "-" + str(track.id),
                              fill="none", stroke_linecap="round")
         document.add(line)
 
-        text = document.text("", font_size=12, fill='#fff')
+        text = document.text("", font_size=11, fill='#fff')
 
         document.add(text)
-        textpath = document.textPath(path=line, text=facility.type, startOffset='50%',
+        textpath = document.textPath(path=line, text=facility.type + " (" +track.name+")", startOffset='50%',
                                      method='align', spacing='auto', text_anchor='middle',
                                      alignment_baseline='central')
 
