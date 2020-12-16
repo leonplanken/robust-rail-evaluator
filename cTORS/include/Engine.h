@@ -37,5 +37,6 @@ public:
 	void EndSession(State* state);
 	inline const Location &GetLocation() const { return location; }
 	inline const Scenario& GetScenario() const { return originalScenario; }
+	inline void CalcShortestPaths() { location.CalcShortestPaths(true, 150); } //TODO read parameters from config file
 };
 

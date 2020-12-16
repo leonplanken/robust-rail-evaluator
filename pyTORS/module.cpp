@@ -173,7 +173,11 @@ PYBIND11_MODULE(pyTORS, m) {
 	py::class_<Location>(m, "Location")
 		.def_property_readonly("track_parts", &Location::GetTracks, py::return_value_policy::reference)
 		.def_property_readonly("facilities", &Location::GetFacilities, py::return_value_policy::reference)
-		.def("get_track_by_id", &Location::getTrackByID, py::arg("id"), py::return_value_policy::reference);
+		.def("get_track_by_id", &Location::getTrackByID, py::arg("id"), py::return_value_policy::reference)
+		.def("get_shortest_path", 
+			[](const Location& loc, const Track* f1, const Track* f2, const Track* t1, const Track* t2) {
+				return loc.GetShortestPath({f1,f2}, {t1, t2});
+			} , py::arg("from_previous"), py::arg("from_track"), py::arg("to_previous"), py::arg("to_track"), py::return_value_policy::reference);
 		
 
 	py::enum_<TrackPartType>(m, "TrackPartType")
@@ -217,6 +221,14 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("__str__", &Track::toString);
 
 	////////////////////////////////////
+	//// Route                      ////
+	////////////////////////////////////
+	py::class_<Path>(m, "Path")
+		.def_readonly("length", &Path::length)
+		.def_readonly("route", &Path::route, py::return_value_policy::reference)
+		.def("__str__", &Path::toString);
+
+	////////////////////////////////////
 	//// Scenario                   ////
 	////////////////////////////////////
 	py::class_<Scenario>(m, "Scenario")
@@ -256,7 +268,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		}, py::arg("scenario") = nullptr, py::return_value_policy::reference)
 		.def("end_session", &Engine::EndSession, py::arg("state"))
 		.def("get_location", &Engine::GetLocation, py::return_value_policy::reference)
-		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference);
+		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference)
+		.def("calc_shortest_paths", &Engine::CalcShortestPaths);
 
 	////////////////////////////////////
 	//// Event                      ////

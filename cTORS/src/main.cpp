@@ -4,6 +4,7 @@
 int main()
 {
 	Engine engine("data/Demo");
+	engine.CalcShortestPaths();
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
 	while (true) {

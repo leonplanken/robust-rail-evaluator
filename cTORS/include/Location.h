@@ -12,6 +12,17 @@
 #include "Utils.h"
 using json = nlohmann::json;
 using namespace std;
+#define MAX_PATH_LENGTH INT32_MAX
+
+struct Path {
+	list<const Track*> route;
+	int length;
+	Path() : length(MAX_PATH_LENGTH) {}
+	Path(list<const Track*> route, int length) : route(route), length(length) {}
+	string toString() const;
+};
+
+typedef pair<const Track*, const Track*> Position;
 
 class Location
 {
@@ -20,7 +31,8 @@ private:
 	
 	vector<Track*> tracks;
 	vector<Facility*> facilities;
-	unordered_map<pair<const Track*, const Track*>, double> distanceMatrix;
+	unordered_map<Position, double> distanceMatrix;
+	unordered_map<pair<Position, Position>, Path> shortestPath;
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
@@ -42,5 +54,8 @@ public:
 	inline double GetDistance(const Track* from, const Track* to) const { return distanceMatrix.at({from, to}); }
 	inline int GetDurationByType(const Track* track) const { 
 		return (track->GetType() == TrackPartType::Railroad && track->GetLength() == 0) ? 0  : moveDuration.at(track->GetType()); }
+	
+	void CalcShortestPaths(bool byType, int setbackTime);
+	inline Path GetShortestPath(const Position& from, const Position& to) const { return shortestPath.at({from, to}); }
 };
 
