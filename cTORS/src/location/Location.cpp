@@ -46,9 +46,12 @@ Location::~Location()
 /**
  * Calculate the shortest paths.
  * Param byType: whether the basic distance is based on track type, or on the distance matrix
- * Param setbackTime: The time used in the calculations to perform a setback
+ * Param type: The train type for which the shortest paths are calculated. 
  */
-void Location::CalcShortestPaths(bool byType, int setbackTime) {
+void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
+	auto setbackTime = type->setbackTime;
+	auto& shortestPath = this->shortestPath[setbackTime];
+	if(shortestPath.size() > 0) return;
 	#if DEBUG
 	auto begin = chrono::steady_clock::now();
 	#endif
@@ -66,6 +69,7 @@ void Location::CalcShortestPaths(bool byType, int setbackTime) {
 			shortestPath[{pos1,pos2}];
 		}
 	}
+	//Initialize all railroad to railroad distances
 	for(auto& pos: positions) {
 		list<Position> open({pos});
 		unordered_map<const Track*, const Track*> previous = {{pos.second, pos.first}};
@@ -90,6 +94,7 @@ void Location::CalcShortestPaths(bool byType, int setbackTime) {
 			}
 		}
 	}
+	//Initialize all set-back distances
 	for(auto& pos: positions) {
 		if(!pos.second->sawMovementAllowed) continue;
 		for(auto prev: pos.second->GetNextTrackParts(pos.first))

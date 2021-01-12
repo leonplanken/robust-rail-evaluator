@@ -1,7 +1,7 @@
 {
 	"data folder": "../data/Demo",
 	"verbose": 1,
-	"n_runs": 1000,
+	"n_runs": 100,
 	"generator": {
 		"class": "manager.scenario_generator.ScenarioGeneratorFromScenario",
 		"n_workers": 2,

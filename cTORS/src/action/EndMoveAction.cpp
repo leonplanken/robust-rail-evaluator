@@ -18,10 +18,10 @@ const string EndMoveAction::toString() const {
 
 void EndMoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto& sus = state->GetShuntingUnits();
-	for (auto su : sus) {
-		auto track = state->GetPosition(su);
-		if (state->IsMoving(su) && track->standingAllowed && !state->HasActiveAction(su)) {
-			Action* a = new EndMoveAction(su, su->GetStartUpTime(state->GetFrontTrain(su)));
+	for (auto& [su, suState]: state->GetShuntingUnitStates()) {
+		auto& track = suState.position;
+		if (suState.moving && !suState.waiting && track->standingAllowed && !suState.HasActiveAction()) {
+			Action* a = new EndMoveAction(su, su->GetStartUpTime(suState.frontTrain));
 			out.push_back(a);
 		}
 	}

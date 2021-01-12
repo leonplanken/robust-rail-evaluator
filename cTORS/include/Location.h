@@ -32,7 +32,8 @@ private:
 	vector<Track*> tracks;
 	vector<Facility*> facilities;
 	unordered_map<Position, double> distanceMatrix;
-	unordered_map<pair<Position, Position>, Path> shortestPath;
+	//A shortest path map for each setbackTime. The map is from (start_position, end_position) -> path
+	map<int, unordered_map<pair<Position, Position>, Path>> shortestPath;
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
@@ -46,7 +47,7 @@ public:
 	Location(const Location& location) = default;
 	~Location();
 	
-	inline Track* getTrackByID(const string& id) const { return trackIndex.at(id); }
+	inline Track* GetTrackByID(const string& id) const { return trackIndex.at(id); }
 
 	inline const vector<Track*>& GetTracks() const { return tracks; }
 	inline const vector<Facility*>& GetFacilities() const { return facilities; }
@@ -55,7 +56,8 @@ public:
 	inline int GetDurationByType(const Track* track) const { 
 		return (track->GetType() == TrackPartType::Railroad && track->GetLength() == 0) ? 0  : moveDuration.at(track->GetType()); }
 	
-	void CalcShortestPaths(bool byType, int setbackTime);
-	inline Path GetShortestPath(const Position& from, const Position& to) const { return shortestPath.at({from, to}); }
+	void CalcShortestPaths(bool byType, const TrainUnitType* type);
+	inline Path GetShortestPath(const TrainUnitType* type, const Position& from, const Position& to) const {
+		return shortestPath.at(type->setbackTime).at({from, to}); }
 };
 

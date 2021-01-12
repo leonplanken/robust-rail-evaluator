@@ -48,6 +48,29 @@ int ShuntingUnit::GetSetbackTime(const Train* const frontTrain, bool normTime, b
 		
 }
 
+bool ShuntingUnit::MatchesShuntingUnit(const ShuntingUnit* su) const {
+	auto& su1Trains = GetTrains();
+	auto& su2Trains = su->GetTrains();
+	if(su1Trains.size() != su2Trains.size()) return false;
+	bool leftValid = true;
+	bool rightValid = true;
+	for (int i = 0; i < su1Trains.size(); i++) {
+		auto exp = su1Trains.at(i);
+		auto left = su2Trains.at(i);
+		auto right = su2Trains.at(su2Trains.size() - 1 - i);
+		bool haveIDleft = (exp->GetID() != -1 && left->GetID() != -1);
+		bool haveIDright = (exp->GetID() != -1 && right->GetID() != -1);
+		if ((haveIDleft && exp->GetID() != left->GetID()) ||
+			(!haveIDleft && exp->GetType()->displayName != left->GetType()->displayName))
+			leftValid = false;
+		if ((haveIDright && exp->GetID() != right->GetID()) ||
+			(!haveIDright && exp->GetType()->displayName != right->GetType()->displayName))
+			rightValid = false;	
+		if(!leftValid && !rightValid) return false;
+	}
+	return true;
+}
+
 void ShuntingUnit::fromJSON(const json& j) {
 	id = stoi(j.at("id").get<string>());
 	for (auto jit : j.at("members")) {

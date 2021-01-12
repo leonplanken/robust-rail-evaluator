@@ -30,6 +30,7 @@ const string SplitAction::toString() const {
 }
 
 void SplitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	if(state->GetTime()==state->GetEndTime()) return;
 	//TODO employees
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {

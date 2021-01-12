@@ -27,7 +27,8 @@ const string CombineAction::toString() const {
 
 
 void CombineActionGenerator::Generate(const State* state, list<const Action*>& out) const {
-	//TODO employees
+	if(state->GetTime()==state->GetEndTime()) return;
+    //TODO employees
     for (auto track : location->GetTracks()) {
         auto sus = state->GetOccupations(track);
         if(sus.size() < 2) continue;

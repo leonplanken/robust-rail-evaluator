@@ -1,7 +1,7 @@
 {
 	"planner": {
-		"class": "planner.random_planner.RandomPlanner",
-		"comment1": "planner.goal_planner.GoalPlanner",
+		"comment1": "planner.random_planner.RandomPlanner",
+		"class": "planner.greedy_planner.GreedyPlanner",
 		"comment3": "planner.simple_rl_planner.SimpleRLPlanner",
 		"comment5": "planner.mapf_planner.MAPFPlanner",
 		"seed": 38,

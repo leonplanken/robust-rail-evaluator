@@ -34,6 +34,7 @@ int SetbackActionGenerator::GetDuration(const State* state, const ShuntingUnit* 
 }
 
 void SetbackActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
 	bool driver_mandatory = false;//TODO get value from config
 	for (auto su : sus) {

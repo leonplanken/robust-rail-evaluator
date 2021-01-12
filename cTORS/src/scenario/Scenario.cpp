@@ -61,7 +61,7 @@ void Scenario::importEmployeesFromJSON(const json& j, const Location& location) 
 		jit.get_to(*e);
 		string start = jit["startLocationId"].get<string>();
 		string end = jit["endLocationId"].get<string>();
-		e->AssignTracks(location.getTrackByID(start), location.getTrackByID(end));
+		e->AssignTracks(location.GetTrackByID(start), location.GetTrackByID(end));
 		employees.push_back(e);
 		debug_out("Imported Employee " << e->toString());
 	}
@@ -83,7 +83,7 @@ void Scenario::importShuntingUnitsFromJSON(const json& j, const Location& locati
 			jit.get_to(*inc);
 			string park = jit.at("parkingTrackPart").get<string>();
 			string side = jit.at("sideTrackPart").get<string>();
-			inc->assignTracks(location.getTrackByID(park), location.getTrackByID(side));
+			inc->assignTracks(location.GetTrackByID(park), location.GetTrackByID(side));
 			inc->setInstanding(in == "inStanding");
 			incomingTrains.push_back(inc);
 		}
@@ -94,7 +94,7 @@ void Scenario::importShuntingUnitsFromJSON(const json& j, const Location& locati
 			jit.get_to(*outg);
 			string park = jit.at("parkingTrackPart").get<string>();
 			string side = jit.at("sideTrackPart").get<string>();
-			outg->assignTracks(location.getTrackByID(park), location.getTrackByID(side));
+			outg->assignTracks(location.GetTrackByID(park), location.GetTrackByID(side));
 			outg->setInstanding(out == "outStanding");
 			outgoingTrains.push_back(outg);
 		}

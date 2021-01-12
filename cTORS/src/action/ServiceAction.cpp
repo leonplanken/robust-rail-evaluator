@@ -25,6 +25,7 @@ const string ServiceAction::toString() const {
 }
 
 void ServiceActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
 		if (state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su)) continue;

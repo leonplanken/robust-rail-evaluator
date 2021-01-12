@@ -43,6 +43,7 @@ public:
 		this->trains = trains;
 		UpdateValues();
 	}
+	bool MatchesShuntingUnit(const ShuntingUnit* su) const ;
 };
 
 inline void from_json(const json& j, ShuntingUnit& su) {

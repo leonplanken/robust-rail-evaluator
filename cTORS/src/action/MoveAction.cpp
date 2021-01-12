@@ -52,6 +52,7 @@ void MoveActionGenerator::GenerateMovesFrom(const ShuntingUnit* su, const vector
 }
 
 void MoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
 	for (auto su : sus) {
 		auto& suState = state->GetShuntingUnitState(su);

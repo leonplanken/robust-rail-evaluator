@@ -9,7 +9,8 @@
 #ifndef BIND_ACTION
 #define BIND_ACTION(name) \
 	py::class_<name, Action>(m, #name) \
-	.def("__str__", &name::toString);
+	.def("__str__", &name::toString) \
+	.def("__repr__", &name::toString);
 #endif
 
 
@@ -33,8 +34,11 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("number_of_trains", &ShuntingUnit::GetNumberOfTrains)
 		.def("get_trains", &ShuntingUnit::GetTrains, py::return_value_policy::reference)
 		.def("get_copy", [](const ShuntingUnit& su) { return new ShuntingUnit(su); }, py::return_value_policy::take_ownership)
+		.def("matches_shunting_unit", &ShuntingUnit::MatchesShuntingUnit, py::arg("su"))
 		.def("__str__", &ShuntingUnit::toString)
-		.def("__equals__", &ShuntingUnit::operator==, py::arg("other"));
+		.def("__repr__", &ShuntingUnit::toString)
+		.def("__eq__", &ShuntingUnit::operator==, py::arg("other"))
+		.def("__ne__", &ShuntingUnit::operator!=, py::arg("other"));
 		
 
 	////////////////////////////////////
@@ -46,9 +50,13 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("type", &Train::GetType, py::return_value_policy::reference)
 		.def("get_type", &Train::GetType, py::return_value_policy::reference)
 		.def("get_id", &Train::GetID)
+		.def("get_copy", [](const Train& tu) { return new Train(tu); }, py::return_value_policy::take_ownership)
 		.def("__str__", &Train::toString)
-		.def("__equals__", &Train::operator==, py::arg("other"))
-		.def("get_copy", [](const Train& tu) { return new Train(tu); }, py::return_value_policy::take_ownership);
+		.def("__repr__", &Train::toString)
+		.def("__eq__", &Train::operator==, py::arg("other"))
+		.def("__ne__", &Train::operator!=, py::arg("other"))
+		.def("__hash__", [](const Train* train) { return TrainHash()(train); });
+		
 
 	////////////////////////////////////
 	//// TrainUnitType              ////
@@ -70,7 +78,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_readonly("is_loco", &TrainUnitType::isLoco)
 		.def_readonly("needs_electricity", &TrainUnitType::needsElectricity)
 		.def("__str__", &TrainUnitType::toString)
-		.def("__equals__", &TrainUnitType::operator==);
+		.def("__repr__", &TrainUnitType::toString)
+		.def("__eq__", &TrainUnitType::operator==)
+		.def("__ne__", &TrainUnitType::operator!=);
 
 	////////////////////////////////////
 	//// Task                       ////
@@ -82,7 +92,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_readonly("duration", &Task::duration)
 		.def_readonly("skills", &Task::skills, py::return_value_policy::copy)
 		.def("__str__", &Task::toString)
-		.def("__equals__", &Task::operator==);
+		.def("__repr__", &Task::toString)
+		.def("__eq__", &Task::operator==)
+		.def("__ne__", &Task::operator!=);
 
 	////////////////////////////////////
 	//// Incoming, Outgoing         ////
@@ -96,10 +108,12 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("parking_track", &TrainGoal::GetParkingTrack, py::return_value_policy::reference);
 	py::class_<Incoming, TrainGoal>(m, "Incoming")
 		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int, unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>>())
-		.def("__str__", &Incoming::toString);
+		.def("__str__", &Incoming::toString)
+		.def("__repr__", &Incoming::toString);
 	py::class_<Outgoing, TrainGoal>(m, "Outgoing")
 		.def(py::init<int, const ShuntingUnit*, const Track*, const Track*, int, bool, int>())
-		.def("__str__", &Outgoing::toString);
+		.def("__str__", &Outgoing::toString)
+		.def("__repr__", &Outgoing::toString);
 
 	////////////////////////////////////
 	//// State                      ////
@@ -137,8 +151,10 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("reserved_tracks", &Action::GetReservedTracks, py::return_value_policy::reference)
 		.def_property_readonly("duration", &Action::GetDuration)
 		.def_property_readonly("employees", &Action::GetEmployees, py::return_value_policy::reference)
-		.def("__equals__ ", &Action::operator==)
-		.def("__str__", &Action::toString);
+		.def("__eq__ ", &Action::operator==)
+		.def("__ne__ ", &Action::operator!=)
+		.def("__str__", &Action::toString)
+		.def("__repr__", &Action::toString);
 	auto arriveAction = BIND_ACTION(ArriveAction);
 	BIND_ACTION(BeginMoveAction);
 	BIND_ACTION(EndMoveAction);
@@ -165,6 +181,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// Employee                   ////
 	////////////////////////////////////
 	py::class_<Employee>(m, "Employee")
+		.def("__repr__", &Employee::toString)
 		.def("__str__", &Employee::toString);
 
 	////////////////////////////////////
@@ -173,11 +190,12 @@ PYBIND11_MODULE(pyTORS, m) {
 	py::class_<Location>(m, "Location")
 		.def_property_readonly("track_parts", &Location::GetTracks, py::return_value_policy::reference)
 		.def_property_readonly("facilities", &Location::GetFacilities, py::return_value_policy::reference)
-		.def("get_track_by_id", &Location::getTrackByID, py::arg("id"), py::return_value_policy::reference)
+		.def("get_track_by_id", &Location::GetTrackByID, py::arg("id"), py::return_value_policy::reference)
+		.def("calc_shortest_paths", &Location::CalcShortestPaths, py::arg("byTrackType"), py::arg("trainUnitType"))
 		.def("get_shortest_path", 
-			[](const Location& loc, const Track* f1, const Track* f2, const Track* t1, const Track* t2) {
-				return loc.GetShortestPath({f1,f2}, {t1, t2});
-			} , py::arg("from_previous"), py::arg("from_track"), py::arg("to_previous"), py::arg("to_track"), py::return_value_policy::reference);
+			[](const Location& loc, const TrainUnitType* trainType, const Track* f1, const Track* f2, const Track* t1, const Track* t2) {
+				return loc.GetShortestPath(trainType, {f1,f2}, {t1, t2});
+			} , py::arg("trainType"), py::arg("from_previous"), py::arg("from_track"), py::arg("to_previous"), py::arg("to_track"), py::return_value_policy::reference);
 		
 
 	py::enum_<TrackPartType>(m, "TrackPartType")
@@ -198,6 +216,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("tracks", &Facility::GetTracks, py::return_value_policy::reference)
 		.def("is_available", &Facility::IsAvailable, py::arg("start_time"), py::arg("duration"))
 		.def("executes_task", &Facility::ExecutesTask, py::arg("task"))
+		.def("__repr__", &Facility::toString)
 		.def("__str__", &Facility::toString);
 
 	////////////////////////////////////
@@ -217,7 +236,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("is_a_side", &Track::IsASide, py::arg("track"))
 		.def("is_b_side", &Track::IsBSide, py::arg("track"))
 		.def("get_next_track_parts", &Track::GetNextTrackParts, py::arg("previous_track"), py::return_value_policy::reference)
-		.def("__equals__", &Track::operator==, py::arg("track"))
+		.def("__eq__", &Track::operator==, py::arg("track"))
+		.def("__ne__", &Track::operator!=, py::arg("track"))
+		.def("__repr__", &Track::toString)
 		.def("__str__", &Track::toString);
 
 	////////////////////////////////////
@@ -226,6 +247,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	py::class_<Path>(m, "Path")
 		.def_readonly("length", &Path::length)
 		.def_readonly("route", &Path::route, py::return_value_policy::reference)
+		.def("__repr__", &Path::toString)
 		.def("__str__", &Path::toString);
 
 	////////////////////////////////////

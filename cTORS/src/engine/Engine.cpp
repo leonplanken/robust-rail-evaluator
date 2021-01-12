@@ -97,3 +97,10 @@ void Engine::EndSession(State* state) {
 	stateActionMap.erase(state);
 	delete state;
 }
+
+void Engine::CalcShortestPaths() { 
+	bool byTrackType = true; //TODO read parameter for distance matrix from config file
+	for(const auto& [trainTypeName, trainType]: TrainUnitType::types) {
+		location.CalcShortestPaths(byTrackType, trainType);
+	}
+} 

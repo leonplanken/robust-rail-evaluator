@@ -51,8 +51,8 @@ class Simulator:
     
     def calculate_reward(self):
         if len(self.state.incoming_trains) == 0 and len(self.state.outgoing_trains) == 0: return 1
-        result = min(0, ((self.state.time - self.state.start_time) / (self.state.end_time - self.state.start_time))-1)
-        return result         
+        #result = min(0, ((self.state.time - self.state.start_time) / (self.state.end_time - self.state.start_time))-1)
+        return 0#result         
     
     def apply_action(self, action):
         self.print("S [{}]> Applying action {}".format(self.state.time, str(action)))

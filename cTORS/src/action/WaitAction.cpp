@@ -16,6 +16,7 @@ const string WaitAction::toString() const {
 }
 
 void WaitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
 	auto e = state->PeekEvent();
 	if (e == nullptr || e->GetTime() == state->GetTime()) return;
