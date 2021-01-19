@@ -34,8 +34,9 @@ h1, h2, h3 {
 .location {
     text-align:center;
     width: 100%;
-    height: 380px;
+    /*height: 380px;*/
     overflow: scroll;
+    clear: both;
 }
 
 .section {

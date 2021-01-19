@@ -3,56 +3,26 @@
 #include <string>
 using namespace std;
 
-class ScenarioFailedException : public exception
-{
-private:
-	const string message;
-public:
-	ScenarioFailedException() = default;
-	ScenarioFailedException(string message) : message(" " + message) {};
-	~ScenarioFailedException() = default;
-	inline virtual const char* what() const throw()  {
-		return ("The scenario failed."+ message).c_str();
-	}
+#ifndef DEFINE_EXCEPTION
+#define DEFINE_EXCEPTION(name, exp_str) \
+class name : public exception \
+{ \
+private: \
+	const string message; \
+public: \
+	name() = default; \
+	name(const string& message) : message(" " + message) {}; \
+	~name() = default; \
+	inline virtual const char* what() const throw()  { \
+		return (exp_str + message).c_str(); \
+	} \
 };
+#endif
 
-class InvalidLocationException : public exception
-{
-private:
-	string message;
-public:
-	InvalidLocationException() = default;
-	InvalidLocationException(string message) : message(" " + message) {};
-	~InvalidLocationException() = default;
-	inline virtual const char* what() const throw() {
-		return ("The location specified is invalid." + message).c_str();
-	}
-};
-
-class InvalidScenarioException : public exception
-{
-private:
-	string message;
-public:
-	InvalidScenarioException() = default;
-	InvalidScenarioException(string message) : message(" "+message) {};
-	~InvalidScenarioException() = default;
-	inline virtual const char* what() const throw() {
-		return ("The scenario specified is invalid." + message).c_str();
-	}
-};
-
-class InvalidConfigException :
-	public exception
-{
-private:
-	string message;
-public:
-	InvalidConfigException() = default;
-	InvalidConfigException(string message) : message(" "+message) {};
-	~InvalidConfigException() = default;
-	inline virtual const char* what() const throw() {
-		return ("The config file specified is invalid." + message).c_str();
-	}
-};
+DEFINE_EXCEPTION(ScenarioFailedException, 	"The scenario failed.")
+DEFINE_EXCEPTION(InvalidLocationException,	"The location specified is invalid.")
+DEFINE_EXCEPTION(InvalidScenarioException,	"The scenariio specified is invalid.")
+DEFINE_EXCEPTION(InvalidConfigException, 	"The config file specified is invalid.")
+DEFINE_EXCEPTION(InvalidActionException, 	"The action is invalid.")
+DEFINE_EXCEPTION(NonExistingPathException, 	"The path does not exist.")
 

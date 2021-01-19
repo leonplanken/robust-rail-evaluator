@@ -47,6 +47,11 @@ void Engine::ApplyAction(State* state, const Action* action) {
 	state->StartAction(action);
 }
 
+void Engine::ApplyAction(State* state, const SimpleAction& action) {
+	debug_out("\tApplying action " + action.toString());
+	actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
+}
+
 list<const Action*> &Engine::GetValidActions(State* state) {
 	debug_out("Starting GetValidActions");
 	if (state->IsChanged()) {

@@ -29,6 +29,22 @@ const string SplitAction::toString() const {
 	return "SplitAction " + GetShuntingUnit()->toString() + " into " + suA.GetTrainString() + " and " +suB.GetTrainString();
 }
 
+const Action* SplitActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto split = static_cast<const Split*>(&action);
+	auto su = split->GetShuntingUnit();
+	if(!state->HasShuntingUnit(su)) throw InvalidActionException("The shunting unit does not exist.");
+	auto suState = state->GetShuntingUnitState(su);
+	if(su->GetTrains().size() <= 1) throw InvalidActionException("The shunting unit consists of only one train unit.");
+	if(suState.moving || suState.waiting || suState.HasActiveAction()) throw InvalidActionException("The shunting unit is already occupied.");
+	auto duration = suState.frontTrain->GetType()->splitDuration;
+	auto splitPosition = split->GetSplitIndex();
+	if(splitPosition < 1 || splitPosition >= su->GetTrains().size()) throw InvalidActionException("The split index is invalid.");
+	vector<const Train*> trains = copy_of(su->GetTrains());
+	ShuntingUnit suA = ShuntingUnit(su->GetID(), vector<const Train*>(trains.begin(), trains.begin() + splitPosition));
+	ShuntingUnit suB = ShuntingUnit(su->GetID()+1, vector<const Train*>(trains.begin()+splitPosition, trains.end()));
+	return new SplitAction(su, suState.position, duration, suA, suB);
+}
+
 void SplitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
 	//TODO employees
@@ -39,11 +55,7 @@ void SplitActionGenerator::Generate(const State* state, list<const Action*>& out
 		if (size <= 1 || suState.moving || suState.waiting || suState.HasActiveAction()) continue;
 		auto duration = suState.frontTrain->GetType()->splitDuration;
 		for(int splitPosition = 1; splitPosition < size; splitPosition++) {
-			vector<const Train*> trains = copy_of(su->GetTrains());
-			ShuntingUnit suA = ShuntingUnit(su->GetID(), vector<const Train*>(trains.begin(), trains.begin() + splitPosition));
-			ShuntingUnit suB = ShuntingUnit(su->GetID()+1, vector<const Train*>(trains.begin()+splitPosition, trains.end()));
-			SplitAction* splitAction = new SplitAction(su, suState.position, duration, suA, suB);
-			out.push_back(splitAction);
+			out.push_back(Generate(state, Split(su, splitPosition)));
 		}
 	}
 }

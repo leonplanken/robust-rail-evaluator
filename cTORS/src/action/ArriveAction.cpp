@@ -25,6 +25,11 @@ const string ArriveAction::toString() const {
 	return "Arrive " + su->toString() + " at " + incoming->GetParkingTrack()->toString() + " at T" + to_string(incoming->GetTime());
 }
 
+const Action* ArriveActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto arrive = static_cast<const Arrive*>(&action);
+	return new ArriveAction(arrive->GetShuntingUnit(), 0, arrive->GetIncoming());
+}
+
 void ArriveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	auto incoming = state->GetIncomingTrains();
 	if (state->GetTime() == 0) { //First handle Instanding Units
@@ -36,16 +41,14 @@ void ArriveActionGenerator::Generate(const State* state, list<const Action*>& ou
 		}
 		for (auto in : incoming) {
 			if (in->IsInstanding() && in->GetTime() == 0 && in->GetStandingIndex() == min) {
-				Action* a = new ArriveAction(in->GetShuntingUnit(), 0, in);
-				out.push_back(a);
+				out.push_back(Generate(state, Arrive(in)));
 			}
 		}
 	} 
 	// Then handle the rest
 	for (auto in : incoming) {
 		if (!in->IsInstanding() && state->GetTime() >= in->GetTime()) {
-			Action* a = new ArriveAction(in->GetShuntingUnit(), 0, in);
-			out.push_back(a);
+			out.push_back(Generate(state, Arrive(in)));
 		}
 	}
 }

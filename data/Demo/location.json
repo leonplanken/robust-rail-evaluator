@@ -24,7 +24,7 @@
 			  "2"
 			],
 			"length": 600,
-			"name": "spoor_1",
+			"name": "rail_1",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
 			"isElectrified": true,
@@ -42,7 +42,7 @@
 			  "4"
 			],
 			"length": 0,
-			"name": "wissel_1",
+			"name": "switch_1",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
 			"isElectrified": true,
@@ -58,7 +58,7 @@
 			  "5"
 			],
 			"length": 450,
-			"name": "spoor_2",
+			"name": "rail_2",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
 			"isElectrified": true,
@@ -88,7 +88,7 @@
 			  "6"
 			],
 			"length": 50,
-			"name": "spoor_3",
+			"name": "rail_3",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
 			"isElectrified": true,
@@ -105,7 +105,7 @@
 			  "8"
 			],
 			"length": 0,
-			"name": "wissel_2",
+			"name": "switch_2",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
 			"isElectrified": true,
@@ -121,7 +121,7 @@
 			  "9"
 			],
 			"length": 500,
-			"name": "spoor_4",
+			"name": "rail_4",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
 			"isElectrified": true,
@@ -137,7 +137,7 @@
 			  "10"
 			],
 			"length": 350,
-			"name": "spoor_5",
+			"name": "rail_5",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
 			"isElectrified": true,
@@ -181,7 +181,7 @@
 			  "2"
 			],
 			"length": 600,
-			"name": "spoor_6",
+			"name": "rail_6",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
 			"isElectrified": true,
@@ -212,7 +212,7 @@
 			],
 			"taskTypes": [
 			  {
-				"other": "Binnenkant reiniging"
+				"other": "Cleaning inside"
 			  }
 			],
 			"simultaneousUsageCount": 1,

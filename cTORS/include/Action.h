@@ -1,6 +1,8 @@
 #pragma once
+#include <string>
 #include <list>
 #include <vector>
+#include <unordered_map>
 #include "ShuntingUnit.h"
 #include "TrainGoals.h"
 #include "Track.h"
@@ -170,6 +172,115 @@ public:
 	ACTION_OVERRIDE(WaitAction)
 };
 
+/////////////////////////////////////
+////// Simple Actcion Classes ///////
+/////////////////////////////////////
+
+class SimpleAction {
+private:
+	const ShuntingUnit *shuntingUnit;
+public:
+	SimpleAction() = delete;
+	SimpleAction(const ShuntingUnit* su) : shuntingUnit(su) {}
+	SimpleAction(const SimpleAction& action) = default;
+	inline const ShuntingUnit* GetShuntingUnit() const { return shuntingUnit; }
+	virtual const string toString() const = 0;
+	virtual const string GetGeneratorName() const = 0;
+};
+
+#ifndef SIMPLE_ACTION_DEFINE
+#define SIMPLE_ACTION_DEFINE(name, generator_name) \
+class name : public SimpleAction { \
+public: \
+	name() = delete; \
+	name(const ShuntingUnit* su) : SimpleAction(su) {} \
+	name(const name& action) = default; \
+	inline const string toString() const override { return #name ": "  + GetShuntingUnit()->toString(); } \
+	inline const string GetGeneratorName() const override { return generator_name; } \
+};
+#endif
+SIMPLE_ACTION_DEFINE(BeginMove, "begin_move")
+SIMPLE_ACTION_DEFINE(EndMove, "end_move")
+SIMPLE_ACTION_DEFINE(Wait, "wait")
+SIMPLE_ACTION_DEFINE(Setback, "set_back")
+
+class Service : public SimpleAction {
+private:
+	const Task* task;
+	const Train* train;
+	const Facility* facility;
+public:
+	Service() = delete;
+	Service(const ShuntingUnit* su, const Task* task, const Train* train, const Facility* facility)
+		: SimpleAction(su), task(task), train(train), facility(facility) {}
+	inline const Task* GetTask() const { return task; }
+	inline const Train* GetTrain() const { return train; }
+	inline const Facility* GetFacility() const { return facility; }
+	inline const string toString() const override {
+		return "Service: " + GetShuntingUnit()->toString() + " perform " + task->toString() + " on " + train->toString() + " at " +facility->toString();
+	}
+	inline const string GetGeneratorName() const override { return "service"; }
+};
+
+class Arrive : public SimpleAction {
+private:
+	const Incoming* incoming;
+public:
+	Arrive() = delete;
+	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incoming(inc) {}
+	inline const Incoming* GetIncoming() const { return incoming; }
+	inline const string toString() const override { return "Arrive: " + GetShuntingUnit()->toString(); }
+	inline const string GetGeneratorName() const override { return "arrive"; }
+};
+
+class Exit : public SimpleAction {
+private:
+	const Outgoing* outgoing;
+public:
+	Exit() = delete;
+	Exit(const Outgoing* out, const ShuntingUnit* su) : SimpleAction(su), outgoing(out) {}
+	inline const Outgoing* GetOutgoing() const { return outgoing; }
+	inline const string toString() const override { return "Exit: " + GetShuntingUnit()->toString(); }
+	inline const string GetGeneratorName() const override { return "exit"; }
+};
+
+class Move : public SimpleAction {
+private:
+	const Track* destination;
+public:
+	Move() = delete;
+	Move(const ShuntingUnit* su, const Track* destination) : SimpleAction(su), destination(destination) {}
+	inline const Track* GetDestination() const { return destination; }
+	inline const string toString() const override { return "Move: " + GetShuntingUnit()->toString() + " to " +destination->toString(); }
+	inline const string GetGeneratorName() const override { return "move"; }
+};
+
+class Split : public SimpleAction {
+private:
+	const int splitIndex;
+public:
+	Split() = delete;
+	Split(const ShuntingUnit* su, const int splitIndex) : SimpleAction(su), splitIndex(splitIndex) {}
+	inline const int GetSplitIndex() const { return splitIndex; }
+	inline const string toString() const override { return "Split: " + GetShuntingUnit()->toString() + " at position " +to_string(splitIndex); }
+	inline const string GetGeneratorName() const override { return "split"; }
+};
+
+class Combine : public SimpleAction {
+private:
+	const ShuntingUnit* secondShuntingUnit;
+public:
+	Combine() = delete;
+	Combine(const ShuntingUnit* su, const ShuntingUnit* secondShuntingUnit) : SimpleAction(su), secondShuntingUnit(secondShuntingUnit) {}
+	inline const ShuntingUnit* GetSecondShuntingUnit() const { return secondShuntingUnit; }
+	inline const string toString() const override { return "Combine: " + GetShuntingUnit()->toString() + " and " + secondShuntingUnit->toString(); }
+	inline const string GetGeneratorName() const override { return "combine"; }
+};
+
+///////////////////////////////
+////// Action Validator ///////
+///////////////////////////////
+
 class ActionValidator {
 private:
 	vector<BusinessRule*> validators;
@@ -184,6 +295,10 @@ public:
 	void FilterValid(const State* state, list<const Action*>& actions) const;
 };
 
+///////////////////////////////
+////// Action Generator ///////
+///////////////////////////////
+
 class ActionGenerator {
 protected:
 	const Location* location;
@@ -193,15 +308,16 @@ public:
 	ActionGenerator(const json& params, const Location* location) : location(location) {}
 	~ActionGenerator() = default;
 	virtual void Generate(const State* state, list<const Action*>& out) const = 0;
+	virtual const Action* Generate(const State* state, const SimpleAction& action) const = 0;
 };
 
 class ActionManager {
 private:
-	vector<ActionGenerator*> generators;
+	unordered_map<string,const ActionGenerator*> generators;
 	const Config* config;
 	const Location* location;
 	void AddGenerators();
-	void AddGenerator(string name, ActionGenerator* generator);
+	void AddGenerator(const string& name, const ActionGenerator* generator);
 public:
 	ActionManager() = delete;
 	ActionManager(const ActionManager& am) = delete;
@@ -210,14 +326,15 @@ public:
 	}
 	~ActionManager();
 	void Generate(const State* state, list<const Action*>& out) const;
-
+	inline const ActionGenerator* GetGenerator(const string& name) const { return generators.at(name); }
 };
 
 #ifndef OVERRIDE_ACTIONGENERATOR
 #define OVERRIDE_ACTIONGENERATOR(name) \
 	name() = delete; \
 	name(const name& n) = delete; \
-	void Generate(const State* state, list<const Action*>& out) const override;
+	void Generate(const State* state, list<const Action*>& out) const override; \
+	const Action* Generate(const State* state, const SimpleAction& action) const override;
 #endif
 
 #ifndef DEFINE_ACTIONGENERATOR

@@ -24,6 +24,11 @@ const string ServiceAction::toString() const {
 	return "Service task " + task->toString() + " to train " + GetTrain()->toString() + " of " + GetShuntingUnit()->toString()+  " at facility "+ facility->toString() ;
 }
 
+const Action* ServiceActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto service = static_cast<const Service*>(&action);
+	return new ServiceAction(service->GetShuntingUnit(), service->GetTrain(), service->GetTask(), service->GetFacility(), vector<const Employee*> {});
+}
+
 void ServiceActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
@@ -34,8 +39,7 @@ void ServiceActionGenerator::Generate(const State* state, list<const Action*>& o
 		for (auto tu : su->GetTrains()) {
 			for (const Task& task : state->GetTasksForTrain(tu)) {
 				for (auto fa : fas) {
-					Action* a = new ServiceAction(su, tu, &task, fa, vector<const Employee*> {});
-					out.push_back(a);
+					out.push_back(Generate(state, Service(su, &task, tu, fa)));
 				}
 			}
 		}

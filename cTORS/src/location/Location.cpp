@@ -29,6 +29,7 @@ Location::Location(const string &folderName) {
 		moveDuration[TrackPartType::HalfEnglishSwitch] = 2 * movementSwitchCoefficient;
 		moveDuration[TrackPartType::InterSection] = 0;
 		moveDuration[TrackPartType::Bumper] = 0;
+		CalcNeighboringPaths(true); // TODO read parameter from config file
 	}
 	catch (exception& e) {
 		cout << "Error in loading location: " << e.what() << "\n";
@@ -43,19 +44,7 @@ Location::~Location()
 	trackIndex.clear();
 }
 
-/**
- * Calculate the shortest paths.
- * Param byType: whether the basic distance is based on track type, or on the distance matrix
- * Param type: The train type for which the shortest paths are calculated. 
- */
-void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
-	auto setbackTime = type->setbackTime;
-	auto& shortestPath = this->shortestPath[setbackTime];
-	if(shortestPath.size() > 0) return;
-	#if DEBUG
-	auto begin = chrono::steady_clock::now();
-	#endif
-	//Get a list of all possible start and end positions
+list<Position> GetAllPositions(const vector<Track*>& tracks) {
 	list<Position> positions;
 	for(auto track: tracks) {
 		if(track->type!=TrackPartType::Railroad) continue;
@@ -63,16 +52,16 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 			positions.push_back({neighbor, track});
 		}
 	}
-	//Initialize the distance matrix
-	for(auto& pos1: positions) {
-		for(auto& pos2: positions) {
-			shortestPath[{pos1,pos2}];
-		}
-	}
-	//Initialize all railroad to railroad distances
+	return positions;
+}
+
+void Location::CalcNeighboringPaths(bool byType) {
+	if(neighborPaths.size() > 0) return;
+	auto positions = GetAllPositions(tracks);
 	for(auto& pos: positions) {
 		list<Position> open({pos});
 		unordered_map<const Track*, const Track*> previous = {{pos.second, pos.first}};
+		neighborPaths[pos];
 		while(open.size() > 0) {
 			auto current = open.front();
 			open.pop_front();
@@ -86,7 +75,8 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 						length += byType ? GetDurationByType(route.front()) : GetDistance(prev, route.front());
 						route.push_front(prev);
 					}
-					shortestPath[{pos, dest}] = Path(route, length);
+					neighborPaths[pos][dest] = Path(route, length);
+					cout << "Found a path from " << pos.first->toString()  << ">" << pos.second->toString() << " to " << dest.first->toString()  << ">" << dest.second->toString() << endl;
 				} else {
 					open.push_back({current.second, next});
 					previous[next] = current.second;
@@ -94,6 +84,32 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 			}
 		}
 	}
+}
+
+/**
+ * Calculate the shortest paths.
+ * Param byType: whether the basic distance is based on track type, or on the distance matrix
+ * Param type: The train type for which the shortest paths are calculated. 
+ */
+void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
+	auto setbackTime = type->setbackTime;
+	auto& shortestPath = this->shortestPath[setbackTime];
+	if(shortestPath.size() > 0) return;
+	#if DEBUG
+	auto begin = chrono::steady_clock::now();
+	#endif
+	auto positions = GetAllPositions(tracks);
+	//Initialize the distance matrix
+	for(auto& pos1: positions) {
+		for(auto& pos2: positions) {
+			shortestPath[{pos1,pos2}];
+		}
+	}
+	//Initialize all railroad to railroad distances
+	CalcNeighboringPaths(byType);
+	for(auto& [pos, paths]: neighborPaths)
+		for(auto& [dest, path]: paths)
+			shortestPath[{pos, dest}] = path;
 	//Initialize all set-back distances
 	for(auto& pos: positions) {
 		if(!pos.second->sawMovementAllowed) continue;
@@ -131,6 +147,16 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "[ms]" << " // "
 		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "[s]");
 	#endif
+}
+
+const Path& Location::GetNeighborPath(const Position& from, const Track* destination) const {
+	auto& prev_list = from.first == nullptr ? from.second->GetNeighbors() : vector<const Track*>({from.first});
+	for(auto& prev: prev_list) {
+		for(auto& [dest, path]: neighborPaths.at({prev, from.second})) {
+			if(dest.second == destination) return path;
+		}
+	}
+	throw NonExistingPathException("Could not find path from " +from.second->toString() + " to " + destination->toString());
 }
 
 void Location::importTracksFromJSON(const json& j) {

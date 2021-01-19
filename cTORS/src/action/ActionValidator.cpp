@@ -5,7 +5,7 @@
 #define ADD_VALIDATOR(validator) \
 if (config->IsBusinessRuleActive(#validator)) { \
 	validators.push_back(new validator(config)); \
-}
+} 
 #endif
 
 ActionValidator::~ActionValidator() {

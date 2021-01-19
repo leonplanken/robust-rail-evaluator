@@ -20,6 +20,7 @@ struct Path {
 	Path() : length(MAX_PATH_LENGTH) {}
 	Path(list<const Track*> route, int length) : route(route), length(length) {}
 	string toString() const;
+	inline const Track* GetDestination() const { return route.back(); }
 };
 
 typedef pair<const Track*, const Track*> Position;
@@ -34,6 +35,8 @@ private:
 	unordered_map<Position, double> distanceMatrix;
 	//A shortest path map for each setbackTime. The map is from (start_position, end_position) -> path
 	map<int, unordered_map<pair<Position, Position>, Path>> shortestPath;
+	// Path from a Railroad position to all neighboring RailRoad positions
+	unordered_map<Position, unordered_map<Position, Path>> neighborPaths;
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
@@ -56,8 +59,11 @@ public:
 	inline int GetDurationByType(const Track* track) const { 
 		return (track->GetType() == TrackPartType::Railroad && track->GetLength() == 0) ? 0  : moveDuration.at(track->GetType()); }
 	
+	void CalcNeighboringPaths(bool byType);
 	void CalcShortestPaths(bool byType, const TrainUnitType* type);
 	inline Path GetShortestPath(const TrainUnitType* type, const Position& from, const Position& to) const {
 		return shortestPath.at(type->setbackTime).at({from, to}); }
+	inline const unordered_map<Position,Path>& GetNeighboringPaths(const Position& from) const { return neighborPaths.at(from); }
+	const Path& GetNeighborPath(const Position& from, const Track* destination) const;
 };
 

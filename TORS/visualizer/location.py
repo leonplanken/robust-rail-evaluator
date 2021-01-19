@@ -119,7 +119,7 @@ class Location(Resource):
                              stroke_width=7, id="track-" + str(track.id), fill="none")
 
         document.add(line)
-        text = document.text("", font_size=9, fill='#fff')
+        text = document.text("", font_size=9, fill='#fff', dy="3")
 
         document.add(text)
         textpath = document.textPath(path=line, text=track.name, startOffset='50%',
@@ -147,7 +147,7 @@ class Location(Resource):
                              fill="none", stroke_linecap="round")
         document.add(line)
 
-        text = document.text("", font_size=11, fill='#fff')
+        text = document.text("", font_size=11, fill='#fff', dy="3")
 
         document.add(text)
         textpath = document.textPath(path=line, text=facility.type + " (" +track.name+")", startOffset='50%',

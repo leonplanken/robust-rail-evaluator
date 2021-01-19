@@ -32,6 +32,7 @@ public:
 	~Engine();
 	list<const Action*> &GetActions(State* state, Scenario* scenario = nullptr);
 	void ApplyAction(State* state, const Action* action);
+	void ApplyAction(State* state, const SimpleAction& action);
 	State *StartSession(const Scenario& scenario);
 	inline State *StartSession() { return StartSession(originalScenario); }
 	void EndSession(State* state);

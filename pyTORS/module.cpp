@@ -13,6 +13,14 @@
 	.def("__repr__", &name::toString);
 #endif
 
+#ifndef BIND_SIMPLE_ACTION
+#define BIND_SIMPLE_ACTION(name) \
+	py::class_<name, SimpleAction>(m, #name) \
+	.def(py::init<const ShuntingUnit*>()) \
+	.def("__str__", &name::toString) \
+	.def("__repr__", &name::toString);
+#endif
+
 
 namespace py = pybind11;
 using namespace std;
@@ -178,6 +186,50 @@ PYBIND11_MODULE(pyTORS, m) {
 	setbackAction.def_property_readonly("drivers", &SetbackAction::GetDrivers, py::return_value_policy::reference);
 	
 	////////////////////////////////////
+	//// Simple Action              ////
+	////////////////////////////////////
+	py::class_<SimpleAction>(m, "SimpleAction")
+		.def_property_readonly("shunting_unit", &SimpleAction::GetShuntingUnit, py::return_value_policy::reference)
+		.def("__str__", &SimpleAction::toString)
+		.def("__repr__", &SimpleAction::toString);
+	BIND_SIMPLE_ACTION(BeginMove);
+	BIND_SIMPLE_ACTION(EndMove);
+	BIND_SIMPLE_ACTION(Wait);
+	BIND_SIMPLE_ACTION(Setback);
+	py::class_<Service, SimpleAction>(m, "Service")
+		.def(py::init<const ShuntingUnit*, const Task*, const Train*, const Facility*>())
+		.def_property_readonly("task", &Service::GetTask, py::return_value_policy::reference)
+		.def_property_readonly("train", &Service::GetTrain, py::return_value_policy::reference)
+		.def_property_readonly("facility", &Service::GetFacility, py::return_value_policy::reference)
+		.def("__str__", &Service::toString)
+		.def("__repr__", &Service::toString);
+	py::class_<Arrive, SimpleAction>(m, "Arrive")
+		.def(py::init<const Incoming*>())
+		.def_property_readonly("incoming", &Arrive::GetIncoming, py::return_value_policy::reference)
+		.def("__str__", &Arrive::toString)
+		.def("__repr__", &Arrive::toString);
+	py::class_<Exit, SimpleAction>(m, "Exit")
+		.def(py::init<const Outgoing*, const ShuntingUnit*>())
+		.def_property_readonly("outgoing", &Exit::GetOutgoing, py::return_value_policy::reference)
+		.def("__str__", &Exit::toString)
+		.def("__repr__", &Exit::toString);
+	py::class_<Move, SimpleAction>(m, "Move")
+		.def(py::init<const ShuntingUnit*, const Track*>())
+		.def_property_readonly("destination", &Move::GetDestination, py::return_value_policy::reference)
+		.def("__str__", &Move::toString)
+		.def("__repr__", &Move::toString);
+	py::class_<Split, SimpleAction>(m, "Split")
+		.def(py::init<const ShuntingUnit*, const int>())
+		.def_property_readonly("split_index", &Split::GetSplitIndex)
+		.def("__str__", &Split::toString)
+		.def("__repr__", &Split::toString);
+	py::class_<Combine, SimpleAction>(m, "Combine")
+		.def(py::init<const ShuntingUnit*, const ShuntingUnit*>())
+		.def_property_readonly("second_shunting_unit", &Combine::GetSecondShuntingUnit, py::return_value_policy::reference)
+		.def("__str__", &Combine::toString)
+		.def("__repr__", &Combine::toString);
+
+	////////////////////////////////////
 	//// Employee                   ////
 	////////////////////////////////////
 	py::class_<Employee>(m, "Employee")
@@ -282,7 +334,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	py::class_<Engine>(m, "Engine")
 		.def(py::init<const std::string&>())
 		.def("get_actions", &Engine::GetActions, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
-		.def("apply_action", &Engine::ApplyAction, py::arg("state"), py::arg("action"))
+		.def("apply_action", static_cast<void (Engine::*)(State*, const SimpleAction&)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action", static_cast<void (Engine::*)(State*, const Action*)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
 		.def("start_session", 
 			[](Engine& e, Scenario *scenario) -> State* { 
 				if (scenario == nullptr) return e.StartSession();
@@ -314,5 +367,6 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// Exceptions                 ////
 	////////////////////////////////////
 	py::register_exception<ScenarioFailedException>(m, "ScenarioFailedError");
+	py::register_exception<InvalidActionException>(m, "InvalidActionError");
 }
 

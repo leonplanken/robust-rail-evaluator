@@ -25,18 +25,18 @@ function refresh_actions() {
             var action = row.insertCell(1);
             var trains = row.insertCell(2);
             var tracks = row.insertCell(3);
-            var employees = row.insertCell(4);
-            var duration = row.insertCell(5);
-            var reward = row.insertCell(6);
+            //var employees = row.insertCell(4);
+            var duration = row.insertCell(4);
+            //var reward = row.insertCell(6);
 
             // Set content for each cell
             action_id.appendChild(document.createTextNode(key));
             action.appendChild(document.createTextNode(get_action(key, val)));
             trains.appendChild(document.createTextNode(get_trains(val.trains)));
             tracks.appendChild(document.createTextNode(get_tracks(val.track_names)));
-            employees.appendChild(document.createTextNode(val.employees));
+            //employees.appendChild(document.createTextNode(val.employees));
             duration.appendChild(document.createTextNode(val.duration));
-            reward.appendChild(document.createTextNode(val.reward));
+            //reward.appendChild(document.createTextNode(val.reward));
         });
 
     });
@@ -65,9 +65,9 @@ function add_table_header(table) {
         "<th style='min-width: 150px'><i class='material-icons'>touch_app</i> Action</th>\n" +
         "<th style='min-width: 70px'><i class='material-icons'>train</i> Trains</th>\n" +
         "<th style='min-width: 70px'><i class='material-icons'>directions</i> Tracks</th>\n" +
-        "<th style='min-width: 110px'><i class='material-icons'>person</i> Employees</th>\n" +
+        //"<th style='min-width: 110px'><i class='material-icons'>person</i> Employees</th>\n" +
         "<th style='min-width: 100px'><i class='material-icons'>watch_later</i> Duration</th>\n" +
-        "<th style='min-width: 90px'><i class='material-icons'>star</i> Reward</th>\n" +
+        //"<th style='min-width: 90px'><i class='material-icons'>star</i> Reward</th>\n" +
         "</tr>"
 }
 
