@@ -122,12 +122,13 @@ ctest
 ```
 
 ## Contributors
-Mathijs M. de Weerdt: Conceptualization, Supervision, Project administration, Funding acquisition, Writing - review & editing
-Bob Huisman: Conceptualization
-Koos van der Linden: Software, Writing - Original draft
-Jesse Mulderij: Writing - Original draft
-Marjan van den Akker: Supervision of the bachelor team
-Han Hoogeveen: Supervision of the bachelor team
-Joris den Ouden: Conceptualization, Supervision of the bachelor team
-Demian de Ruijter: Conceptualization, Supervision of the bachelor team
-Bachelor-team, consisting of Dennis Arets, Sjoerd Crooijmans, Richard Dirven, Luuk Glorie, Jonathan den Herder, Jens Heuseveldt, Thijs van der Horst, Hanno Ottens, Loriana Pascual, Marco van de Weerthof, Kasper Zwijsen: Software, Visualization 
+Mathijs M. de Weerdt: Conceptualization, Supervision, Project administration, Funding acquisition, Writing - review & editing\
+Bob Huisman: Conceptualization\
+Koos van der Linden: Software, Writing - Original draft\
+Jesse Mulderij: Writing - Original draft\
+Marjan van den Akker: Supervision of the bachelor team\
+Han Hoogeveen: Supervision of the bachelor team\
+Joris den Ouden: Conceptualization, Supervision of the bachelor team\
+Demian de Ruijter: Conceptualization, Supervision of the bachelor team\
+Bachelor-team, consisting of Dennis Arets, Sjoerd Crooijmans, Richard Dirven, Luuk Glorie, Jonathan den Herder, Jens Heuseveldt, Thijs van der Horst, Hanno Ottens, Loriana Pascual, Marco van de Weerthof, Kasper Zwijsen: Software, Visualization
+
