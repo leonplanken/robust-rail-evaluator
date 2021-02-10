@@ -1,4 +1,5 @@
 import gym
+import importlib
 from gym import spaces
 from rl.conv import TORSConverter
 from pyTORS import Engine, Action
@@ -13,6 +14,7 @@ class TORSEnv(gym.Env):
         self.location = self.engine.get_location()
         self.org_scenario = self.engine.get_scenario()
         self.scenario_generator = self._get_generator(1)
+        self.scenario_generator.initialize(self.org_scenario, self.location)
         self.state = None
         self.scenario = None
         self.converter = self._get_converter()
@@ -54,19 +56,19 @@ class TORSEnv(gym.Env):
 
     def _reset(self):
         if not self.state is None:
-            self.print("S> End previous session")
+            self.print("TE> End previous session")
             self.engine.end_session(self.state)
-        self.print("S> Delete scenario")
+        self.print("TE> Delete scenario")
         del self.scenario
 
         # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
         # and also in the state, which is deleted when the state is deleted.
 
-        self.print("S> Generate scenario")
+        self.print("TE> Generate scenario")
         self.scenario = self.scenario_generator.generate_scenario()
-        self.print("S> Start new session")
+        self.print("TE> Start new session")
         self.state = self.engine.start_session(self.scenario)
-        self.print("S> Started new session")
+        self.print("TE> Started new session")
         self.result = 0
 
     def _get_generator(self, n_trains):
@@ -82,11 +84,14 @@ class TORSEnv(gym.Env):
 
     def _get_converter(self):
         converter_str = self.config.converter['class']
-        converter_lst = converter.split('.')
-        _module = importlib.import_module(".".join(converter[:-1]))
+        converter_lst = converter_str.split('.')
+        _module = importlib.import_module(".".join(converter_lst[:-1]))
         _class = getattr(_module, converter_lst[-1])
         config = self.config.converter.copy()
         del config['class']
         if converter_str in self.config:
             config.update(self.config[converter_str])
         return _class(self.location, **config)
+	
+    def print(self, text):
+    	print(text)

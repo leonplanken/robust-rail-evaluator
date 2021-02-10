@@ -8,7 +8,7 @@ A class to convert the TORS state to a data tuple
 """
 class ITORSConvertor:
     def __init__(self, location, *args, **kwargs):
-        self.lcation = location
+        self.location = location
     """
     Convert a TORS state object to a data object, e.g. a tuple or a custom data object
     """
@@ -133,16 +133,20 @@ class TORSConverter(ITORSConvertor):
         return chain(
             self.convert_time(state, inc.time),
             self.convert_track_position(inc.parking_track),
-            self.convert_trains(inc.shunting_unit.trains)
+            self.convert_trains(inc.shunting_unit.train_units)
         )
 
     def convert_outgoing(self, state, out):
         return chain(
             self.convert_time(state, out.time),
             self.convert_track_position(out.parking_track),
-            self.convert_trains(out.shunting_unit.trains)
+            self.convert_trains(out.shunting_unit.train_units)
         )
 
+    
+    def convert_shunting_units(self, state):
+    	return pad(chain.from_iterable((self.convert_su(state, su) for su in state.shunting_units)), self.n_trains * self.su_size)
+    
     def convert_su(self, state, su):
         return chain(
             [
@@ -172,14 +176,14 @@ class TORSConverter(ITORSConvertor):
         return chain.from_iterable((self.convert_track(state, track) for track in self.tracks))
 
     def convert_track(self, state, track):
-        sus_list = state.get_shunting_units()
+        sus_list = state.shunting_units
         sus = state.get_occupations(track)
         if len(sus) > 1:
             positions = [state.get_position_on_track(su)+0.01*i for i,su in enumerate(sus)]
             shunting_units = list(zip(*sorted(zip(positions, sus))))[1]
         return pad(chain.from_iterable(
-            (get_index(len(sus_list), sus_list.index(su)) for su in sus),
-            self.n_trains * self.n_trains))
+            (get_index(len(sus_list), sus_list.index(su)) for su in sus)),
+            self.n_trains * self.n_trains)
 
     def convert_track_position(self, track):
         return get_index(len(self.tracks), self.track_map[track])
