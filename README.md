@@ -14,6 +14,7 @@ To compile cTORS, cmake 3.11 (or higher) is required and the python development 
 apt-get install cmake
 apt-get install python3-dev
 ```
+
 For windows:
  * download and install cmake: https://cmake.org/download/
  * python header files already installed with python, see the include folder in your python folder.
@@ -21,6 +22,7 @@ For windows:
 ### Build with setuptools
 You can build cTORS and the pyTORS library with the following command.
 ```sh
+mkdir build
 python setup.py build
 python setup.py install
 ```
@@ -33,7 +35,7 @@ cd build
 cmake ..
 cmake --build .
 ```
-
+This has been tested with gcc 9.3. Older versions may not support the c++17 standard. 
 
 # Basic usage
 
@@ -77,7 +79,7 @@ cd TORS/visualizer
 export FLASK_APP=main.py
 export FLASK_ENV=development
 export FLASK_RUN_PORT=5000
-flask run
+python -m flask run
 ```
 
 
