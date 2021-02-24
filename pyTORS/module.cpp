@@ -168,8 +168,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	BIND_ACTION(EndMoveAction);
 	auto moveAction = BIND_ACTION(MoveAction);
 	auto exitAction = BIND_ACTION(ExitAction);
-	BIND_ACTION(CombineAction);
-	BIND_ACTION(SplitAction);
+	auto combineAction = BIND_ACTION(CombineAction);
+	auto splitAction = BIND_ACTION(SplitAction);
 	auto serviceAction = BIND_ACTION(ServiceAction);
 	auto setbackAction = BIND_ACTION(SetbackAction);
 	BIND_ACTION(WaitAction);
@@ -184,6 +184,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("task", &ServiceAction::GetTask, py::return_value_policy::reference)
 		.def_property_readonly("facility", &ServiceAction::GetFacility, py::return_value_policy::reference);
 	setbackAction.def_property_readonly("drivers", &SetbackAction::GetDrivers, py::return_value_policy::reference);
+	splitAction.def_property_readonly("split_index", &SplitAction::GetSplitIndex);
+	combineAction.def_property_readonly("get_front_shunting_unit", &CombineAction::GetFrontShuntingUnit, py::return_value_policy::reference)
+		.def_property_readonly("get_rear_shunting_unit", &CombineAction::GetRearShuntingUnit, py::return_value_policy::reference);
 	
 	////////////////////////////////////
 	//// Simple Action              ////

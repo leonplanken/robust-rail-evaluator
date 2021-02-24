@@ -139,6 +139,7 @@ public:
 		Action(su, {track}, {}, duration), suA(suA), suB(suB) {};
 	inline const ShuntingUnit* GetASideShuntingUnit() const { return &suA; }
 	inline const ShuntingUnit* GetBSideShuntingUnit() const { return &suB; }
+	inline const int GetSplitIndex() const { return GetASideShuntingUnit()->GetTrains().size(); }
 	ACTION_OVERRIDE(SplitAction)
 };
 

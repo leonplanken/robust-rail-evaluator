@@ -48,8 +48,23 @@ void Engine::ApplyAction(State* state, const Action* action) {
 }
 
 void Engine::ApplyAction(State* state, const SimpleAction& action) {
-	debug_out("\tApplying action " + action.toString());
-	actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
+	const Action* _action;
+	try {
+		debug_out("\tApplying action " + action.toString());
+		_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
+	} catch(exception& e) {
+		throw InvalidActionException("Error in generating action (" + action.toString() + "): " + e.what());
+	}
+	auto is_valid = actionValidator.IsValid(state, _action);
+	if(!is_valid.first) {
+		delete _action;
+		throw InvalidActionException(is_valid.second);
+	}
+	try {
+		ApplyAction(state, _action);
+	} catch(exception& e) {
+		throw InvalidActionException("Error in applying action (" + _action->toString() + "): " + e.what());
+	}
 }
 
 list<const Action*> &Engine::GetValidActions(State* state) {
