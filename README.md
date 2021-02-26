@@ -37,6 +37,13 @@ cmake --build .
 ```
 This has been tested with gcc 9.3. Older versions may not support the c++17 standard. 
 
+### Alternative: build with docker
+You can also run TORS in a docker container. To build and run the container, run:
+```sh
+docker build -t tors-base .
+docker run --network="host" --rm -it tors-base /bin/bash
+```
+
 # Basic usage
 
 ## Run the challenge environment
@@ -73,7 +80,11 @@ engine.end_session(state)
 
 ## Running the visualizer
 
-The visualizer runs as a flask server. Install the dependencies in `requirements` first. Now flask can be run by running the commands:
+The visualizer runs as a flask server. Install the dependencies in `TORS/requirements-visualizer` first.
+```sh
+pip install -r TORS/requirements-visualizer
+```
+Now flask can be run by running the commands:
 ```sh
 cd TORS/visualizer
 export FLASK_APP=main.py
@@ -82,7 +93,20 @@ export FLASK_RUN_PORT=5000
 python -m flask run
 ```
 
-
+## Running the example RL-agent with gym
+The repository also includes example code that wraps cTORS in a gym-environment and uses an RL implementation from stable-baselines3 to learn a policy. To run this example, first install the requirements:
+```sh
+pip install -r TORS/requirements-gym
+```
+Then run:
+```sh
+cd TORS
+python run_gym.py
+```
+You can check the learning progress using tensorboard:
+```sh
+tensorboard --logdir ./log_tensorboard/
+```
 
 ## Configuration
 TORS can be configured through configuration files. Seperate configuration exists for

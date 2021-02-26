@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.1.2
+FROM gcc
 
 # docker build -t tors-base .
 # docker run --network="host" --rm -it tors-base /bin/bash
@@ -15,49 +15,44 @@ ENV DEBIAN_FRONTEND noninteractive
 # switch to bash within the container so ROS sourcing is easy in build commands
 SHELL ["/bin/bash", "-c"]
 
+#Install Git, curl and make
 RUN apt-get update && \
-    apt-get install -y git curl make && \
+    apt-get install -y make autoconf && \
+    apt-get install -y cmake && \
+    apt-get install -y python3-dev python3-pip && \
     apt-get clean
 
-ADD https://cmake.org/files/v3.16/cmake-3.16.3-Linux-x86_64.sh /cmake-3.16.3-Linux-x86_64.sh
-RUN mkdir /opt/cmake
-RUN sh /cmake-3.16.3-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
-RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-RUN cmake --version
-
-RUN python -m pip install --upgrade pip
-RUN python -m pip install gym stable_baselines
-
-# Update GCC to v9
-RUN    apt-get update \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends software-properties-common \
-	&& add-apt-repository ppa:ubuntu-toolchain-r/test \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-		build-essential \
-		gcc-9 \
-		g++-9 \
-		gcc-9-multilib \
-		g++-9-multilib \
-		xutils-dev \
-		patch \
-		git \
-		python3 \
-		python3-pip \
-		libpulse-dev \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
-
-RUN    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 10 \
-	&& update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20 \
-	&& update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 10 \
-	&& update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
-	
+#Build cTORS
 RUN mkdir /ctors
 COPY . /ctors
 WORKDIR /ctors
-RUN mkdir build
-RUN python setup.py build
-RUN python setup.py install
-RUN mkdir agents
+RUN mkdir agents && \
+    mkdir TORS/log_tensorboard && \
+    mkdir build
+RUN python3 setup.py install
 
+#install requirements
+RUN python3 -m pip install -r TORS/requirements
+RUN python3 -m pip install -r TORS/requirements-gym --no-cache-dir #--no-cache-dir to prevent out of memory errors
+RUN python3 -m pip install -r TORS/requirements-visualizer
+
+WORKDIR /ctors/TORS/visualizer
+RUN export FLASK_APP=main.py && \
+    export FLASK_ENV=development && \
+    export FLASK_RUN_PORT=5005
+
+WORKDIR /ctors
+
+#Run run.py
+#WORKDIR /ctors/TORS
+#RUN python3 run.py
+
+#Run run_gym.py
+#WORKDIR /ctors/TORS
+#RUN python3 run_gym.py
+
+#Run visualizer
+#WORKDIR /ctors/TORS/visualizer
+#RUN python3 -m flask run
+    
 

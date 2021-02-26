@@ -29,6 +29,7 @@ def create_app() -> Flask:
     with app.app_context():
         app.engine = Engine(data_path)
         app.state = app.engine.start_session()
+        app.engine.step(app.state)
         load_config(app)
 
     return app
