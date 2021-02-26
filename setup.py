@@ -61,7 +61,7 @@ class CMakeBuild(build_ext):
 setup(
     name='pyTORS',
     version='0.1',
-    author='Koos van der Linden',
+    author='Delft University of Technology',
     author_email='J.G.M.vanderLinden@tudelft.nl',
     description='A python wrapper for the cTORS library',
     long_description='',
