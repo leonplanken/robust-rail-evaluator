@@ -73,10 +73,6 @@ void MoveActionGenerator::Generate(const State* state, list<const Action*>& out)
 		auto previous = suState.inNeutral ? nullptr : suState.previous;
 		auto& previous_list = suState.inNeutral ? track->GetNeighbors() : vector<const Track*>({previous});
 		for(auto& previous: previous_list) {
-			if(previous!=nullptr)
-				cout << "Get paths from " << previous->toString() << "->" <<track->toString() << "." << endl;
-			else
-				cout << "Get paths from " << track->toString() << "." << endl;
 			auto& paths = location->GetNeighboringPaths({previous, track});
 			for(auto& [dest, path]: paths) {
 				out.push_back(Generate(state, Move(su, dest.second)));

@@ -76,7 +76,7 @@ void Location::CalcNeighboringPaths(bool byType) {
 						route.push_front(prev);
 					}
 					neighborPaths[pos][dest] = Path(route, length);
-					cout << "Found a path from " << pos.first->toString()  << ">" << pos.second->toString() << " to " << dest.first->toString()  << ">" << dest.second->toString() << endl;
+					debug_out("Found a path from " << pos.first->toString()  << ">" << pos.second->toString() << " to " << dest.first->toString()  << ">" << dest.second->toString());
 				} else {
 					open.push_back({current.second, next});
 					previous[next] = current.second;
