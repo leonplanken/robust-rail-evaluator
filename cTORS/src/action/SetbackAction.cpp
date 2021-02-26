@@ -10,6 +10,7 @@ void SetbackAction::Start(State* state) const {
 		//TODO
 	}
 	state->AddActiveAction(su, this);
+	state->SetBeginMoving(su, false);
 }
 
 void SetbackAction::Finish(State* state) const {

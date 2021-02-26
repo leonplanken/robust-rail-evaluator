@@ -185,8 +185,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("facility", &ServiceAction::GetFacility, py::return_value_policy::reference);
 	setbackAction.def_property_readonly("drivers", &SetbackAction::GetDrivers, py::return_value_policy::reference);
 	splitAction.def_property_readonly("split_index", &SplitAction::GetSplitIndex);
-	combineAction.def_property_readonly("get_front_shunting_unit", &CombineAction::GetFrontShuntingUnit, py::return_value_policy::reference)
-		.def_property_readonly("get_rear_shunting_unit", &CombineAction::GetRearShuntingUnit, py::return_value_policy::reference);
+	combineAction.def_property_readonly("front_shunting_unit", &CombineAction::GetFrontShuntingUnit, py::return_value_policy::reference)
+		.def_property_readonly("rear_shunting_unit", &CombineAction::GetRearShuntingUnit, py::return_value_policy::reference);
 	
 	////////////////////////////////////
 	//// Simple Action              ////
@@ -336,7 +336,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<Engine>(m, "Engine")
 		.def(py::init<const std::string&>())
-		.def("get_actions", &Engine::GetActions, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
+		.def("step", &Engine::Step, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
+		.def("get_valid_actions", &Engine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
 		.def("apply_action", static_cast<void (Engine::*)(State*, const SimpleAction&)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
 		.def("apply_action", static_cast<void (Engine::*)(State*, const Action*)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
 		.def("start_session", 

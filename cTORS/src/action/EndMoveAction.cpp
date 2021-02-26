@@ -26,7 +26,7 @@ void EndMoveActionGenerator::Generate(const State* state, list<const Action*>& o
 	auto& sus = state->GetShuntingUnits();
 	for (auto& [su, suState]: state->GetShuntingUnitStates()) {
 		auto& track = suState.position;
-		if (suState.moving && !suState.waiting && track->standingAllowed && !suState.HasActiveAction()) {
+		if (suState.moving && !suState.beginMoving && !suState.waiting && track->standingAllowed && !suState.HasActiveAction()) {
 			out.push_back(Generate(state, EndMove(su)));
 		}
 	}

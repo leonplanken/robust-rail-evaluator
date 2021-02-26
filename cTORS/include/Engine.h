@@ -23,14 +23,14 @@ private:
 	ActionManager actionManager;
 	unordered_map<State*, list<const Action*>> stateActionMap;
 
-	list<const Action*> &GetValidActions(State* state);
 	void ExecuteEvent(State* state, const Event* e);
 	void ExecuteImmediateEvents(State * state);
 public:
 	Engine() = delete;
 	Engine(const string &path);
 	~Engine();
-	list<const Action*> &GetActions(State* state, Scenario* scenario = nullptr);
+	list<const Action*> &GetValidActions(State* state);
+	list<const Action*> &Step(State* state, Scenario* scenario = nullptr);
 	void ApplyAction(State* state, const Action* action);
 	void ApplyAction(State* state, const SimpleAction& action);
 	State *StartSession(const Scenario& scenario);

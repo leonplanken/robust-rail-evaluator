@@ -15,7 +15,7 @@ class Actions(Resource):
         """
 
         actions = {}
-        for idx, a in enumerate(current_app.engine.get_actions(current_app.state)):
+        for idx, a in enumerate(current_app.engine.get_valid_actions(current_app.state)):
             # get shunting units from action
             shunting_units = [a.shunting_unit] # add other shunting units with combine
             shunting_units = [{
@@ -45,6 +45,7 @@ class Actions(Resource):
         """
 
         action_id = int(request.args["action"])
-        action = current_app.engine.get_actions(current_app.state)[action_id]
+        action = current_app.engine.get_valid_actions(current_app.state)[action_id]
 
         current_app.engine.apply_action(current_app.state, action)
+        current_app.engine.step(current_app.state)

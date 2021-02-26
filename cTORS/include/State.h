@@ -13,18 +13,18 @@ struct ShuntingUnitState {
 	const Track* position;
 	const Track* previous;
 	list<const Action*> activeActions;
-	bool moving, waiting, inNeutral;
+	bool moving, waiting, inNeutral, beginMoving;
 	const Train* frontTrain;
 	//The shunting unit's direction is described by previous and frontTrain.
 
 
 	ShuntingUnitState() = delete;
 	ShuntingUnitState(const ShuntingUnitState& suState) : position(suState.position), previous(suState.previous),
-		moving(suState.moving), waiting(suState.waiting), inNeutral(suState.inNeutral), frontTrain(suState.frontTrain) {
+		moving(suState.moving), waiting(suState.waiting), inNeutral(suState.inNeutral), beginMoving(suState.beginMoving), frontTrain(suState.frontTrain) {
 			for(auto action: suState.activeActions) activeActions.emplace_back(action->clone());
 		}
 	ShuntingUnitState(const Track* position, const Track* previous, const Train* frontTrain) 
-		: position(position), previous(previous), moving(false), waiting(false), inNeutral(true), frontTrain(frontTrain) {}
+		: position(position), previous(previous), moving(false), waiting(false), inNeutral(true), beginMoving(false), frontTrain(frontTrain) {}
 	~ShuntingUnitState() {
 		DELETE_LIST(activeActions);
 	}
@@ -100,6 +100,7 @@ public:
 	inline bool IsReserved(const Track* track) const { return trackStates.at(track).reserved; }
 	inline bool IsWaiting(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).waiting; }
 	inline bool IsInNeutral(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).inNeutral; }
+	inline bool IsBeginMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).beginMoving; }
 	inline const vector<const ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
 	bool HasShuntingUnit(const ShuntingUnit* su) const;
 	inline bool HasActiveAction(const ShuntingUnit* su) const { return GetActiveActions(su).size() > 0; }
@@ -116,6 +117,7 @@ public:
 	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }
 	inline void SetWaiting(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).waiting = b; }
 	inline void SetInNeutral(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).inNeutral = b; }
+	inline void SetBeginMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).beginMoving = b; }
 	inline void SetPosition(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).position = track; }
 	inline void SetPrevious(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).previous = track; }
 

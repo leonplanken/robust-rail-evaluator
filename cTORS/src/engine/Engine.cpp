@@ -12,7 +12,7 @@ Engine::~Engine() {
 	stateActionMap.clear();
 }
 
-list<const Action*> &Engine::GetActions(State * state, Scenario * scenario) {
+list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
 	ExecuteImmediateEvents(state);
 	auto& actions = GetValidActions(state);
 	debug_out("Got valid actions succesfully");

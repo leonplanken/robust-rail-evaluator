@@ -11,6 +11,7 @@ void MoveAction::Start(State* state) const {
 	state->MoveShuntingUnit(su, destination, previous);
 	state->ReserveTracks(GetReservedTracks());
 	state->SetInNeutral(su, false);
+	state->SetBeginMoving(su, false);
 }
 
 void MoveAction::Finish(State* state) const {

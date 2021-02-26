@@ -30,17 +30,14 @@ class Simulator:
         # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
         # and also in the state, which is deleted when the state is deleted.
 
-        self.print("S> Generate scenario")
         self.scenario = self.scenario_generator.generate_scenario()
-        self.print("S> Start new session")
         self.state = self.engine.start_session(self.scenario)
-        self.print("S> Started new session")
         self.result = 0
     
     def get_state(self):
         try:
             self.print("S [{}]> Get actions".format(self.state.time))
-            next_actions = self.engine.get_actions(self.state)
+            next_actions = self.engine.step(self.state)
             #next_actions = [(a[0], a[1]) for a in next_actions]
         except ScenarioFailedError:
             next_actions = []

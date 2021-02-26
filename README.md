@@ -65,7 +65,7 @@ from pyTORS import Engine
 engine = Engine("data/Demo")
 state = engine.start_session()
 
-actions = engine.get_actions(state)
+actions = engine.step(state)
 engine.apply_action(actions[0])
 
 engine.end_session(state)

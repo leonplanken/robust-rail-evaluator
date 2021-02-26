@@ -9,7 +9,7 @@ int main()
 	cout << "\nBeginning of session\n";
 	while (true) {
 		try {
-			auto& actions = engine.GetActions(state);
+			auto& actions = engine.Step(state);
 			cout << "[T = "  + to_string(state->GetTime()) + "]\tChoosing from " << actions.size() << " actions.\n";
 			if (actions.size() == 0) break;
 			const Action* a;

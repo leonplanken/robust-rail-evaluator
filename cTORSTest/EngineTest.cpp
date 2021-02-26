@@ -27,7 +27,7 @@ namespace cTORSTest
 				CHECK(!state->HasActiveAction(su));
 			}
 			SUBCASE("Test get actions") {
-				list<const Action*> &actions = engine.GetActions(state);
+				list<const Action*> &actions = engine.Step(state);
 				CHECK(actions.size() > 0);
 				auto a = actions.front();
 				engine.ApplyAction(state, a);
@@ -53,7 +53,7 @@ namespace cTORSTest
 			int counter = 0;
 			while(true) {
 				try{
-					list<const Action*> &actions = engine.GetActions(st2);
+					list<const Action*> &actions = engine.Step(st2);
 					if(actions.size() == 0) break;
 					auto it = actions.begin();
 					advance(it, counter++ % actions.size());
