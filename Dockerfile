@@ -22,24 +22,29 @@ RUN apt-get update && \
     apt-get install -y python3-dev python3-pip && \
     apt-get clean
 
-#Build cTORS
+#Copy ctors folder
 RUN mkdir /ctors
 COPY . /ctors
 WORKDIR /ctors
-RUN mkdir agents && \
-    mkdir TORS/log_tensorboard && \
-    mkdir build
-RUN python3 setup.py install
+
 
 #install requirements
 RUN python3 -m pip install -r TORS/requirements
 RUN python3 -m pip install -r TORS/requirements-gym --no-cache-dir #--no-cache-dir to prevent out of memory errors
 RUN python3 -m pip install -r TORS/requirements-visualizer
 
+
+#Build cTORS
+RUN mkdir agents && \
+    mkdir TORS/log_tensorboard && \
+    mkdir build
+RUN python3 setup.py install
+
+#Configure visualizer
 WORKDIR /ctors/TORS/visualizer
-RUN export FLASK_APP=main.py && \
-    export FLASK_ENV=development && \
-    export FLASK_RUN_PORT=5005
+ENV FLASK_APP main.py
+ENV FLASK_ENV development
+ENV FLASK_RUN_PORT=5005
 
 WORKDIR /ctors
 
