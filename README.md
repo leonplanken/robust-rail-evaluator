@@ -1,3 +1,6 @@
+# THIS REPOSITORY HAS BEEN MOVED TO https://github.com/AlgTUDelft/cTORS
+
+
 # Treinonderhoud- en -rangeersimulator (TORS)
 This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
 
