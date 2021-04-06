@@ -1,0 +1,102 @@
+// This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software and Game project course 2016 semester 2 & 2017 semester 2
+// ©Copyright Utrecht University (Department of Information and Computing Sciences)
+syntax = "proto3";
+package tors_proto;
+
+import "ActionType.proto";
+import "Task.proto";
+
+// Train that leaves at the end of or during a scenario
+message OutgoingTrain {
+    // Unique identifier for the outgoing train
+    int32 id = 1;
+
+    // Time of departure
+    uint64 time = 2;
+
+    // Shunting unit that represents the outgoing train
+    ShuntingUnit shuntingUnit = 3;
+
+    // Track the outgoing train leaves over
+    uint64 sideTrackId = 4;
+
+    // Track the outgoing train has to park before leaving
+    uint64 parkingTrackId = 5;
+
+    // If the outgoing train will remain on site when the scenario ends
+    bool isOutstanding = 6;
+
+    // Index of shunting unit, counting from the A-side
+    int32 standingIndex = 7;
+
+    // For outstanding trains, so they can leave from other tracks than the parking track
+    bool canDepartFromAnyTrack = 8;
+}
+
+// Train that comes in at the start of or during a scenario
+message IncomingTrain {
+    // Unique identifier for the incoming train
+    int32 id = 1;
+
+    // Time the incoming train arrives
+    uint64 time = 2;
+
+    // The shunting unit that represents the incoming train
+    ShuntingUnit shuntingUnit = 3;
+
+    // The track the train arrives at
+    int32 parkingTrackId = 4;
+
+    // The track that the incoming train arrives over
+    int32 sideTrackId = 5;
+
+    // If the incoming train stands on the terrain at the start of the scenario or not
+    bool isInstanding = 6;
+
+    // Position on the track where the incoming train arrives
+    int32 standingIndex = 7;
+}
+
+// Shunting unit is a combination of train units.
+//   All actions (except for service actions)
+//   are specified on a ShuntingUnit's uniqueId
+message ShuntingUnit {
+    // ID given by scenario
+    string id = 1;
+    // UUID assigned by TORS
+    string uniqueId = 2;
+
+    // Current direction
+    int32 direction = 3;
+
+    // If SU is in neutral position
+    bool inNeutral = 4;
+
+    // The index of the first train unit,
+    //   when seen in driving direction
+    int32 frontTrainUnit = 5;
+
+    // List of train units that are contained in this SU
+    repeated TrainUnit trainUnits = 6;
+
+    // List of currently active actions
+    repeated ActionType activeActions = 7;
+
+    // Matched outgoing train
+    OutgoingTrain outgoingMatch = 8;
+}
+
+// TrainUnit with the list of active tasks
+message TrainUnit {
+    // A unique identifier of the unit
+    string id = 1;
+
+    // The displayName of the TrainUnitType
+    string typeDisplayName = 2;
+
+    // Tasks for this train unit
+    repeated Task tasks = 3;
+
+    // Currently active tasks
+    repeated string activeTasks = 4;
+}

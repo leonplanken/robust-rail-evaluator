@@ -1,0 +1,90 @@
+/*
+This program has been developed by students from the bachelor Computer Science
+at Utrecht University within the Software and Game project course in 2019
+(c) Copyright Utrecht University (Department of Information and Computing Sciences)
+*/
+
+syntax = "proto3";
+
+package tors_proto;
+import "State.proto";
+import "Action.proto";
+
+service TORS_RPC {
+    // Initialize the engine
+    rpc Initialize(InitializeRequest) returns (Empty);
+
+    // Get the start state
+    rpc StartState(Empty) returns (State);
+
+    // Set the next actions, and get the possibly changed state
+    rpc SetNext(State) returns (State);
+
+    // Get a stream of the next actions
+    rpc GetNext(Empty) returns (stream ActionTuple);
+
+    // Get all valid actions
+    rpc ValidActions(State) returns (stream ActionTuple);
+
+    // Get all possible actions
+    rpc PossibleActions(State) returns (stream Action);
+
+    // Apply an action
+    rpc Apply(ApplyRequest) returns (State);
+
+    // Select a cached action
+    rpc Select(SelectRequest) returns (State);
+
+    // Check if the scenario is complete
+    rpc ScenarioComplete(State) returns (BoolResponse);
+
+    // Validate an action
+    rpc ValidateAction(ValidateActionRequest) returns (ValidateActionResponse);
+}
+
+// Request for initializing the engine
+message SelectRequest {
+    int32 choice = 1;
+    State state = 2;
+}
+
+// Request for initializing the engine
+message InitializeRequest {
+    string path = 1;
+    bool fixConfig = 2;
+}
+
+// Tuple of reward and action
+message ActionTuple {
+    int32 reward = 1;
+    Action action = 2;
+}
+
+// Action validation request
+message ValidateActionRequest {
+    State state = 1;
+    Action action = 2;
+}
+
+// Action validation response
+message ValidateActionResponse {
+    bool valid = 1;
+    int32 reward = 2;
+}
+
+// Request for applying an action
+message ApplyRequest {
+    Action action = 1;
+    State state = 2;
+}
+
+// Boolean response
+message BoolResponse {
+    bool value = 1;
+}
+
+// Empty message for void/parameterless functions
+message Empty {
+
+}
+

@@ -1,10 +1,11 @@
 #pragma once
+#ifndef STATE_H
+#define STATE_H
 #include <list>
 #include <unordered_map>
 #include "Utils.h"
 #include "Event.h"
 #include "Action.h"
-#include "EventQueue.h"
 #include "Scenario.h"
 #include "TrainGoals.h"
 using namespace std;
@@ -155,3 +156,4 @@ public:
 	void RemoveActiveTaskFromTrain(const Train* tu, const Task* task);
 };
 
+#endif

@@ -1,4 +1,6 @@
 #pragma once
+#ifndef ACTION_H
+#define ACTION_H
 #include <string>
 #include <list>
 #include <vector>
@@ -118,13 +120,15 @@ public:
 class CombineAction : public Action {
 private:
 	const ShuntingUnit *rearSU, combinedSU;
+	const string suString;
 	bool inNeutral;
 	int position;
 public:
 	CombineAction() = delete;
 	CombineAction(const ShuntingUnit* frontSU, const ShuntingUnit* rearSU, const ShuntingUnit& combinedSU,
 		const Track* track, int duration, bool inNeutral, int position) :
-		Action(frontSU, {track}, {}, duration), rearSU(rearSU), combinedSU(combinedSU), inNeutral(inNeutral), position(position) {};
+		Action(frontSU, {track}, {}, duration), rearSU(rearSU), combinedSU(combinedSU),
+		inNeutral(inNeutral), position(position), suString(frontSU->GetTrainString() + " and " +rearSU->GetTrainString()) {};
 	inline const ShuntingUnit* GetFrontShuntingUnit() const { return GetShuntingUnit(); }
 	inline const ShuntingUnit* GetRearShuntingUnit() const { return rearSU; }
 	inline const ShuntingUnit* GetCombinedShuntingUnit() const { return &combinedSU; }
@@ -379,3 +383,4 @@ public:
 
 
 
+#endif

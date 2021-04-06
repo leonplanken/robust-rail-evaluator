@@ -54,7 +54,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<Train>(m, "Train")
 		.def(py::init<int, TrainUnitType*>())
-		.def_property("id", &Train::GetID, &Train::SetID)
+		.def_property_readonly("id", &Train::GetID)
 		.def_property_readonly("type", &Train::GetType, py::return_value_policy::reference)
 		.def("get_type", &Train::GetType, py::return_value_policy::reference)
 		.def("get_id", &Train::GetID)

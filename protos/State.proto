@@ -1,0 +1,53 @@
+// This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software and Game project course 2016 semester 2 & 2017 semester 2
+// ©Copyright Utrecht University (Department of Information and Computing Sciences)
+syntax = "proto3";
+package tors_proto;
+
+import "Employee.proto";
+import "Vehicles.proto";
+
+// Complete state object
+message State {
+    uint64 time = 1;
+    uint64 startTime = 2;
+    uint64 endTime = 3;
+    repeated ShuntingUnit shuntingUnits = 4;
+    repeated Employee employees = 5;
+    repeated ReservedTrack reservedTracks = 6;
+    repeated ShuntingUnitPosition shuntingUnitPositions = 7;
+    repeated OccupiedTrack occupiedTracks = 8;
+    repeated ShuntingUnit arrivingTrains = 9;
+    repeated OutgoingTrain outgoingTrains = 10;
+    repeated IncomingTrain incomingTrains = 11;
+}
+
+// A track that is reserved by the movement of a train
+message ReservedTrack {
+    // Id of the reserved track
+    int32 trackId = 1;
+
+    // Shunting units reserving the track
+    repeated string shuntingUnitIds = 2;
+}
+
+// A track that is reserved by the movement of a train
+message ShuntingUnitPosition {
+    // Id of the shunting unit
+    string shuntingUnitUuid = 1;
+
+    // Id of the track where the shunting unit is currently standing
+    int32 currentTrackId = 2;
+
+    // Id of the previous track
+    int32 previousTrackId = 3;
+}
+
+
+// A track that is occupied by a train
+message OccupiedTrack {
+    // Id of the occupied track
+    int32 trackId = 1;
+
+    // Shunting units occupying the track
+    repeated string shuntingUnitIds = 2;
+}

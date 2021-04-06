@@ -5,6 +5,19 @@ ShuntingUnit::ShuntingUnit(int id, vector<const Train*> trains) : id(id), trains
 	UpdateValues();
 }
 
+template<class PBT>
+vector<const Train*> ConvertPBTrains(const PBList<PBT> trains) {
+	vector<const Train*> out;
+	for(auto& train: trains) {
+		out.push_back(new Train(train));
+	}
+	return out;
+}
+
+ShuntingUnit::ShuntingUnit(const PBShuntingUnit& pb_su) : ShuntingUnit(stoi(pb_su.id()), ConvertPBTrains(pb_su.trainunits())) {}
+
+ShuntingUnit::ShuntingUnit(const PBTrainGoal& pb_tg) : ShuntingUnit(stoi(pb_tg.id()), ConvertPBTrains(pb_tg.members())) {}
+
 void ShuntingUnit::UpdateValues() {
 	length = 0;
 	needsElectricity = false;
@@ -69,14 +82,4 @@ bool ShuntingUnit::MatchesShuntingUnit(const ShuntingUnit* su) const {
 		if(!leftValid && !rightValid) return false;
 	}
 	return true;
-}
-
-void ShuntingUnit::fromJSON(const json& j) {
-	id = stoi(j.at("id").get<string>());
-	for (auto jit : j.at("members")) {
-		Train* t = new Train();
-		jit.get_to(*t);
-		trains.push_back(t);
-	}
-	UpdateValues();
 }

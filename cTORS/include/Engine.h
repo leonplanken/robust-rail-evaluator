@@ -1,4 +1,6 @@
 #pragma once
+#ifndef ENGINE_H
+#define ENGINE_H
 #include <list>
 #include <unordered_map>
 #include "Utils.h"
@@ -41,3 +43,4 @@ public:
 	void CalcShortestPaths(); 
 };
 
+#endif

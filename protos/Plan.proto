@@ -1,0 +1,171 @@
+// This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software and Game project course 2016 semester 2 & 2017 semester 2
+// ©Copyright Utrecht University (Department of Information and Computing Sciences)
+
+
+syntax = "proto3";
+
+package algo_iface;
+option java_package = "nl.ns.maindev.protobuf";
+
+import "Location.proto";
+import "Scenario.proto";
+
+// This message contains the result of a shunting algorithm.
+// When using this to send plans to the algorithm we send two
+// Plan messages: the first one is the old Plan we got from the
+// algorithm in the first place and the second one is the new 
+// modified Plan
+message Plan {
+    // All vertices contained in this graph
+    // This is contained in a map, such that we can 
+    // maintain a tree structure in the Protobuf.
+    // We reference to this map when defining the
+    // start- and endpoint of an edge 
+    // (which is encoded as a uint64, the unique identifier)
+    map<uint64, STNVertex> vertices = 1;
+
+    // All edges contained in this graph, again
+    // contained in a map. We reference to edges in
+    // vertices in the same manner as we reference to
+    // vertices from edges, such that the uint64 is a
+    // unique identifier for this edge
+    map<uint64, STNEdge> edges = 2;
+
+    // All actions used in this planning
+    // They are indexed and referred to in the
+    // same manner as vertices and edges
+    // One difference is that this is a int64 instead
+    // of a uint64 to allow for a -1 value for null
+    // reference in STNVertex
+    map<int64, Action> actions = 3;
+
+    // The conflicts in this plan.
+    repeated Conflict conflicts = 4;
+
+    // Set to true if constraints for the members of staff have been added to 
+    // the STN and if the members of staff have been added to the action resources.
+    bool personnelAdded = 5;
+	
+	// The matching between the incoming and outgoing trains
+	repeated STNMatch matching = 6;
+}
+
+message STNMatch {
+    // The train unit involved in this matching
+    string trainUnitId = 1;
+
+    // The outgoing or outstanding train this train unit is part of
+    string trainOutId = 2;
+
+    // The position the train unit has in the outgoing train
+    uint32 position = 3;
+}
+
+// Represents a single Vertex in the STN
+message STNVertex {
+    // Specifies which edges are connected to this vertex
+    // This contains both incoming and outgoing edges, 
+    // since the edges will define their starting and ending
+    // points individually
+    repeated uint64 edges = 1;
+
+    // enum for various types of vertices
+    enum STNVertexType {
+        ZERO = 0; // this vertex is the zero vertex
+        STARTING = 1; // defines this vertex as the starting node of an action 
+        ENDING = 2; // this vertex is the ending node of an action
+    }
+
+    // Defines what kind of vertex this is
+    STNVertexType type = 2;
+
+    // Specifies the action this Vertex is bound to
+    // This can be left unassigned when using STNVertexType.ZERO, 
+    // since a zero vertex does not have any action associated with it
+    int64 actionId = 3;
+}
+
+// Represents an edge in the STN
+message STNEdge {
+    // Defines 
+    uint64 source = 1;
+
+    // Defines what vertex this connection points to
+    uint64 destination = 2;
+
+    // Defines the weight associated with this edge. 
+    sint64 weight = 3;
+
+    // Denotes whether the precendence of this edge is fixed,
+    bool isFixed = 4;
+}
+
+// A single Action
+message Action {
+    // The time it takes to do this action.
+    // Times are in seconds since the epoch.
+    uint64 Duration = 1;
+
+    // The type of this action (e.g. cleaning, moving, waiting)
+    TaskType taskType = 2;
+
+    // The ShuntingUnit to which this Action applies
+    ShuntingUnit shuntingUnit = 3;
+
+    // The TrackPart ID on which this Action occurs.
+    // If taskType = Move, then trackPart specifies the move source,
+    // and the resources specify the path.
+    uint64 location = 4;
+
+    // Other resources besides the TrackPart involved with the Action.
+    // For example for taskType = InternalCleaning there could be
+    // a CleaningPlatform Facility Resource.
+    repeated Resource resources = 5;
+
+    // Train units involved in this Action
+    // If not specified, all train units are involved.
+    repeated string trainUnitIds = 6;
+}
+
+// A conflict in the plan
+message Conflict {
+    enum ConflictType {
+        // A train departs from the shunting yard behind schedule.
+        DepartureDelay = 0; 
+        // A train is moved from the arrival track behind schedule.
+        ArrivalDelay = 1; 
+        // The total sum of trains parked simultaneously on the track exceeds the actual track length.
+        TrackCapacityViolation = 2;
+        // A train moves through another train.
+        Collision = 3;
+        // One of the tasks in the scenario is not completed in the plan.
+        TaskNotScheduled = 4;
+        // A movement has no valid path.
+        NoMovementPath = 5;
+        // A train departs in the wrong composition.
+        DepartureComposition = 6;
+        // No valid matching is found.
+        Matching = 7;
+        // The capacity of a facility is exceeded.
+        FacilityCapacityViolation = 8;
+    }
+
+    // The type of the conflict.
+    ConflictType type = 1;
+
+    // The action IDs involved in the conflict. This referes to the unique identifiers
+    // used in Plan.actions
+    repeated uint64 actions = 2;
+
+    // The error message.
+    string message = 3;
+
+    // The Trains involved in the conflict.
+    // Depending on the type of the conflict, this field might be empty.
+    repeated Train trains = 4;
+
+    // The resources involved in the conflict. This uses Resource.name as reference
+    // (such that a resource with name "res" is referred to as resources=["res"]
+    // Depending on the type of the conflict, this field might be empty.
+    repeated string resources = 5;
+}

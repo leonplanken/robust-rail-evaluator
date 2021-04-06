@@ -1,28 +1,28 @@
 #pragma once
+#ifndef SHUNTING_UNIT_H
+#define SHUNTING_UNIT_H
 #include <vector>
-#include <nlohmann/json.hpp>
 #include "Train.h"
 #include "Track.h"
 #include "Utils.h"
 using namespace std;
-using json = nlohmann::json;
-
 class Action;
 
 class ShuntingUnit {
 private:
-	int id;
+	const int id;
 	vector<const Train*> trains;
 	double length;
 	bool needsElectricity;
 	void UpdateValues();
 public:
-	ShuntingUnit() = default;
+	ShuntingUnit() = delete;
 	ShuntingUnit(int id, vector<const Train*> trains);
+	ShuntingUnit(const PBShuntingUnit& pb_su);
+	ShuntingUnit(const PBTrainGoal& pb_tg);
 	ShuntingUnit(const ShuntingUnit& su);
 	~ShuntingUnit();
-	void fromJSON(const json& j);
-
+	
 	inline const string toString() const {
 		return "ShuntingUnit-" + to_string(id);
 	}
@@ -46,10 +46,6 @@ public:
 	bool MatchesShuntingUnit(const ShuntingUnit* su) const ;
 };
 
-inline void from_json(const json& j, ShuntingUnit& su) {
-	su.fromJSON(j);
-}
-
 struct ShuntingUnitHash {
 	std::size_t operator()(const ShuntingUnit* const & k) const {
 		return std::hash<int>()(k->GetID());
@@ -61,3 +57,5 @@ struct ShuntingUnitEquals {
 		return lhs->GetID() == rhs->GetID();
 	}
 };
+
+#endif

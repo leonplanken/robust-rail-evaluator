@@ -1,9 +1,11 @@
 #pragma once
+#ifndef SCENARIO_H
+#define SCENARIO_H
 #include <list>
 #include <string>
 #include <filesystem>
 #include <fstream>
-#include "EventQueue.h"
+#include "Event.h"
 #include "Location.h"
 #include "Exceptions.h"
 #include "Employee.h"
@@ -11,7 +13,6 @@
 #include "Utils.h"
 namespace fs = std::filesystem;
 using namespace std;
-using json = nlohmann::json;
 
 class Scenario
 {
@@ -25,8 +26,8 @@ private:
 	vector<const Outgoing*> outgoingTrains;
 	vector<const Event*> disturbanceList;
 
-	void importEmployeesFromJSON(const json& j, const Location& location);
-	void importShuntingUnitsFromJSON(const json& j, const Location& location);
+	void ImportEmployees(const PBScenario& pb_scenario, const Location& location);
+	void ImportShuntingUnits(const PBScenario& pb_scenario, const Location& location);
 
 public:
 	Scenario();
@@ -56,3 +57,4 @@ public:
 	inline void AddEmployee(const Employee* employee) { employees.push_back(employee); }
 };
 
+#endif

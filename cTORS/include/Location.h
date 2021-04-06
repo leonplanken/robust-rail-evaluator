@@ -1,16 +1,16 @@
 #pragma once
+#ifndef LOCATION_H
+#define LOCATION_H
 #include <vector>
 #include <fstream>
 #include <exception>
 #include <unordered_map>
-#include <nlohmann/json.hpp>
 #include <filesystem>
 #include "Utils.h"
 #include "Track.h"
 #include "Facility.h"
 #include "Exceptions.h"
 #include "Utils.h"
-using json = nlohmann::json;
 using namespace std;
 #define MAX_PATH_LENGTH INT32_MAX
 
@@ -41,9 +41,9 @@ private:
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
 	
-	void importTracksFromJSON(const json& j);
-	void importFacilitiesFromJSON(const json& j);
-	void importDistanceMatrix(const json& j);
+	void ImportTracks(const PBLocation& pb_location);
+	void ImportFacilities(const PBLocation& pb_location);
+	void ImportDistanceMatrix(const PBLocation& pb_location);
 public:
 	Location() = delete;
 	Location(const string &path);
@@ -67,3 +67,4 @@ public:
 	const Path& GetNeighborPath(const Position& from, const Track* destination) const;
 };
 
+#endif

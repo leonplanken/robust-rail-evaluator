@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package algo_iface;
+option java_package = "nl.ns.maindev.protobuf";
+
+import "Location.proto";
+
+message POSPlan {
+    // The actions in the plan
+    repeated POSAction actions = 1;
+    // The matching between the incoming and outgoing trains
+    repeated POSMatch matching = 2;
+    // The edges of the precedence graph
+    repeated POSPrecedenceConstraint graph = 3;
+    bool feasible = 4;
+}
+
+message POSMatch {
+    // The train unit involved in this matching
+    string trainUnitId = 1;
+
+    // The outgoing or outstanding train this train unit is part of
+    string trainOutId = 2;
+
+    // The position the train unit has in the outgoing train
+    uint32 position = 3;
+}
+
+message POSAction {
+    // Suggested starting time in seconds since the epoch
+    uint64 suggestedStartingTime = 1;
+
+    // Suggested finishing time in seconds since the epoch
+    uint64 suggestedFinishingTime = 2;
+
+    // Minimum duration of the task
+    uint64 minimumDuration = 3;
+
+    // The train units involved in this action
+    repeated string trainUnitIds = 4;
+
+    // An action can either be a movement or a task
+    oneof action {
+        // Set this field if the action is a movement
+        POSMovement movement = 5;
+
+        // Set this field if the action is a task
+        POSTask task = 6;
+
+        // Set this field if the action is a break activity
+        POSBreak break = 7;
+    }
+
+    // ID for use in precedence graph
+    uint64 id = 8;
+
+    // The IDs of the staff members assigned to this task
+    repeated uint64 staffIds = 9;
+}
+
+message POSMovement {
+    // The IDs of the pieces of infrastructure traversed in the movement, including origin and destination
+    repeated uint64 path = 1;
+
+    // The departure side
+    Side fromSide = 2;
+
+    // The arrival side
+    Side toSide = 3;
+
+    // Indicates the position in the linked list used by HIP to evaluate the movements.
+    double order = 4;
+}
+
+message POSTask {
+    // The type of task, e.g. split, combine, reversal, arrive, etc.
+    TaskType type = 1;
+    // The ID of the location at which the task is performed
+    uint64 location = 2;
+    // The facilities assigned to the task
+    repeated POSFacility facilities = 3;
+    // The arrival side
+    Side arrivalSide = 4;
+    // The arrival direction
+    Side arrivalDirection = 5;
+    // The departure side
+    Side departureSide = 6;
+    // The train units being serviced
+    repeated string trainUnitIds = 7;
+}
+
+message POSFacility {
+    // The id of the facility, as given in the location.
+    uint64 id = 1;
+    // The index of the instance of the facility.
+    int32 index = 2;
+}
+
+message POSBreak {
+}
+
+message POSPrecedenceConstraint {
+    // The ID of the task to be performed first
+    uint64 preActionId = 1;
+    // The ID of the task to be performed second
+    uint64 postActionId = 2;
+    // The minimum amount of time between the end time of the first task and the start time of the second task
+    double minimumTimeLag = 3;
+}

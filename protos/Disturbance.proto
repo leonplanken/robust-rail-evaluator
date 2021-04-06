@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+option optimize_for = SPEED;
+option java_package = "nl.ns.maindev.protobuf";
+
+package algo_iface;
+
+import "Location.proto";
+import "PartialOrderSchedule.proto";
+import "Scenario.proto";
+import "Utilities.proto";
+
+message DisturbanceScenario {
+    repeated Disturbance disturbances = 1;
+}
+
+message Disturbance {
+    /** A description for the disturbance */
+    string description = 1;
+
+    /** Gives the moment when the disturbance will be announced to the model */
+    DisturbanceAnnouncement announcement = 2;
+
+    /** The disturbance itself */
+    oneof disturbance {
+        DeletionDisturbance deleteDisturbance = 3;
+        ModificationDisturbance modificationDisturbance = 4;
+    }
+}
+
+message DisturbanceAnnouncement {
+    /** The time in seconds since the anchor since the start of the given action */
+    uint64 timeSinceStart = 1;
+
+    /** Represents a constant point in time, such as the epoch */
+    enum ConstantTimePoint {
+        /** The start of the planning period */
+        EPOCH = 0;
+    };
+
+    /** The point in time to which timeSinceStart is relative */
+    oneof anchor {
+        /** The start time of the action serves as the anchor */
+        uint64 action = 2;
+        /** A constant, such as the epoch serves as the anchor */
+        ConstantTimePoint constantTimePoint = 3;
+    }
+}
+
+/**
+ * Gives the subject of the disturbance, i.e. the id of the object on which the change
+ * will occur.
+ */
+message DisturbanceSubject {
+    oneof subject {
+        string trainUnit = 1;
+        string trainId = 2;
+        uint64 actionId = 3;
+        uint64 facilityId = 4;
+        uint64 staffId = 5;
+        string nonServiceTrafficId = 6;
+    }
+}
+
+/**
+ * Gives the changeset of the disturbance, i.e. the object containing the changes
+ */
+ message DisturbanceChangeset {
+    oneof subject {
+        TrainUnit trainUnit = 1;
+        Train train = 2;
+        POSAction action = 3;
+        Facility facility = 4;
+        MemberOfStaff staff = 5;
+        DisabledTrackPart nonServiceTraffic = 6;
+    }
+}
+
+/** Deletes the given subject from the problem or solution */
+message DeletionDisturbance {
+    DisturbanceSubject subject = 1;
+}
+
+/** Modifies the given subject using the values in changeset */
+message ModificationDisturbance {
+    /**
+     * The existing object which should be changed
+     */
+    DisturbanceSubject subject = 1;
+    /**
+     * Object containing the new property values. Must be of the same type
+     * as subject. Only the properties that contain a new value should be
+     * set on this object, properties with the default value are skipped.
+     */
+    DisturbanceChangeset changeset = 2;
+}

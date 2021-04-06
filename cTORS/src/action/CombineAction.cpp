@@ -21,8 +21,7 @@ void CombineAction::Finish(State* state) const {
 }
 
 const string CombineAction::toString() const {
-	return "CombineAction " + GetCombinedShuntingUnit()->toString() + " from  "
-        + GetFrontShuntingUnit()->GetTrainString() + " and " +GetRearShuntingUnit()->GetTrainString();
+	return "CombineAction " + GetCombinedShuntingUnit()->toString() + " from  " + suString;
 }
 
 const Action* CombineActionGenerator::Generate(const State* state, const SimpleAction& action) const {

@@ -30,6 +30,8 @@ if(NOT json_POPULATED)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+find_package(Protobuf REQUIRED)
+
 # Headers
 set(PROJECT_SOURCE_DIR "src")
 set(PROJECT_INCLUDE_DIR "include")
@@ -86,13 +88,10 @@ set(TORS_SOURCE_FILES
 	
 	${PROJECT_SOURCE_DIR}/scenario/Disturbance.cpp
 	${PROJECT_SOURCE_DIR}/scenario/Event.cpp
-	${PROJECT_SOURCE_DIR}/scenario/EventQueue.cpp
 	${PROJECT_SOURCE_DIR}/scenario/Scenario.cpp
 	
 	${PROJECT_SOURCE_DIR}/state/State.cpp
 	
-	${PROJECT_SOURCE_DIR}/vehicles/Incoming.cpp
-	${PROJECT_SOURCE_DIR}/vehicles/Outgoing.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/ShuntingUnit.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/Train.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/TrainGoal.cpp
@@ -107,10 +106,10 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Employee.h
 	${PROJECT_INCLUDE_DIR}/Engine.h
 	${PROJECT_INCLUDE_DIR}/Event.h
-	${PROJECT_INCLUDE_DIR}/EventQueue.h
 	${PROJECT_INCLUDE_DIR}/Exceptions.h
 	${PROJECT_INCLUDE_DIR}/Facility.h
 	${PROJECT_INCLUDE_DIR}/Location.h
+	${PROJECT_INCLUDE_DIR}/Proto.h
 	${PROJECT_INCLUDE_DIR}/Scenario.h
 	${PROJECT_INCLUDE_DIR}/ShuntingUnit.h
 	${PROJECT_INCLUDE_DIR}/State.h
@@ -120,10 +119,34 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Utils.h
 )
 
-add_library(cTORS SHARED ${TORS_SOURCE_FILES})
+#include_directories(${PROTOBUF_INCLUDE_DIRS})
+#include_directories(${CMAKE_CURRENT_BINARY_DIR})
+set(PROTOS_DIR "../protos")
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+	${PROTOS_DIR}/Task.proto
+	${PROTOS_DIR}/Employee.proto
+	${PROTOS_DIR}/ActionType.proto
+	${PROTOS_DIR}/Vehicles.proto
+	${PROTOS_DIR}/Action.proto
+	${PROTOS_DIR}/Utilities.proto
+	${PROTOS_DIR}/Location.proto
+	${PROTOS_DIR}/TrainUnitTypes.proto
+	${PROTOS_DIR}/State.proto
+	${PROTOS_DIR}/Scenario.proto
+	${PROTOS_DIR}/PartialOrderSchedule.proto
+	${PROTOS_DIR}/Disturbance.proto
+	${PROTOS_DIR}/Plan.proto
+	${PROTOS_DIR}/TORS_RPC.proto
+)
+
+add_library(cTORS SHARED ${TORS_SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+
 
 target_include_directories(cTORS PUBLIC ${PROJECT_INCLUDE_DIR})
+target_include_directories(cTORS PUBLIC ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(cTORS PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(cTORS PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(cTORS PUBLIC ${PROTOBUF_LIBRARIES})
 
 
 

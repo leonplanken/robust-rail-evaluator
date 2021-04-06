@@ -1,0 +1,42 @@
+// This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software and Game project course 2016 semester 2 & 2017 semester 2
+// ©Copyright Utrecht University (Department of Information and Computing Sciences)
+syntax = "proto3";
+package tors_proto;
+
+import "Task.proto";
+
+// A human working at the service site
+message Employee {
+        // A unique ID which is referenced by other messages
+    uint64 id = 1;
+
+    // The type of staff, e.g. engineer, cleaning team, etc.e
+    string type = 2;
+
+    // The skills the member of staff possesses.
+    repeated string skills = 3;
+
+    // The time intervals during which the member of staff is present
+    repeated Interval shifts = 4;
+
+    // The time intervals in which breaks must take place.
+    repeated Interval breakWindows = 5;
+
+    // The duration of the break in seconds.
+    double breakDuration = 6;
+
+    // The location (trackpart) of the member of staff at the start of the shift
+    uint64 startLocationId = 7;
+
+    // The location (trackpart) of the member of staff at the end of the shift
+    uint64 endLocationId = 8;
+
+    // Indicates whether the member of staff can move trains
+    bool canMoveTrains = 9;
+
+    // The name of the staff member
+    string name = 10;
+
+    // The employees schedule
+    repeated ScheduledTask schedule = 11;
+}
