@@ -24,6 +24,7 @@ build:
     - ldconfig
        
   script:
+    - cd ${CI_PROJECT_DIR}
     - mkdir build
     - cd build
     - cmake ..
