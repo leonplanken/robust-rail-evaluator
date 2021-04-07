@@ -16,7 +16,7 @@ build:
     - cd /protobuf
     - curl -L -o protobuf.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.15.6/protobuf-cpp-3.15.6.zip 
     - unzip protobuf.zip
-    - cd /protobuf/protobuf-3.15-6
+    - cd /protobuf/protobuf-3.15.6
     - ./configure
     - make
     - make check || true
