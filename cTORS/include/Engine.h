@@ -11,8 +11,11 @@
 #include "Location.h"
 #include "Exceptions.h"
 #include "Config.h"
+#include "Plan.h"
 
 using namespace std;
+
+class POSPlan;
 
 class Engine
 {
@@ -24,6 +27,7 @@ private:
 	ActionValidator actionValidator;
 	ActionManager actionManager;
 	unordered_map<State*, list<const Action*>> stateActionMap;
+	unordered_map<State*, POSPlan*> schedules;
 
 	void ExecuteEvent(State* state, const Event* e);
 	void ExecuteImmediateEvents(State * state);
@@ -35,12 +39,15 @@ public:
 	list<const Action*> &Step(State* state, Scenario* scenario = nullptr);
 	void ApplyAction(State* state, const Action* action);
 	void ApplyAction(State* state, const SimpleAction& action);
+	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
 	State *StartSession(const Scenario& scenario);
 	inline State *StartSession() { return StartSession(originalScenario); }
 	void EndSession(State* state);
-	inline const Location &GetLocation() const { return location; }
+	inline const Location& GetLocation() const { return location; }
 	inline const Scenario& GetScenario() const { return originalScenario; }
-	void CalcShortestPaths(); 
+	void CalcShortestPaths();
+	const Path GetPath(const State* state, const Move& move) const;
+	POSPlan* GetPlan(State* state) const { return schedules.at(state); }
 };
 
 #endif

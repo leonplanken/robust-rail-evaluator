@@ -31,35 +31,19 @@ MoveActionGenerator::MoveActionGenerator(const json& params, const Location* loc
 	params.at("walk_time").get_to(walkTime);
 }
 
-// void MoveActionGenerator::GenerateMovesFrom(const ShuntingUnit* su, const vector<const Track*> &tracks,
-// 									const Track* previous, int duration, list<const Action*> &out) const {
-// 	auto track = tracks.back();
-// 	vector<const Track*> nexts;
-// 	if (previous == nullptr)
-// 		nexts = track->GetNeighbors();
-// 	else
-// 		nexts = track->GetNextTrackParts(previous);
-// 	for (auto next : nexts) {
-// 		int newDuration = duration + location->GetDurationByType(next);
-// 		vector<const Track*> newTracks = tracks;
-// 		newTracks.push_back(next);
-// 		if (next->GetType() == TrackPartType::Railroad) {
-// 			Action* a = new MoveAction(su, newTracks, newDuration);
-// 			out.push_back(a);
-// 		} else {
-// 			GenerateMovesFrom(su, newTracks, track, newDuration, out);
-// 		}
-// 	}
-// }
-
-const Action* MoveActionGenerator::Generate(const State* state, const SimpleAction& action) const {
-	auto move = static_cast<const Move*>(&action);
-	auto su = move->GetShuntingUnit();
+const Path& MoveActionGenerator::GeneratePath(const State* state, const Move& move) const {
+	auto su = state->GetMatchingShuntingUnit(&move.GetShuntingUnit());
 	if(!state->HasShuntingUnit(su)) throw InvalidActionException("The shunting unit does not exist.");
 	auto& suState  = state->GetShuntingUnitState(su);
 	if(!suState.moving || suState.HasActiveAction()) throw InvalidActionException("The shunting unit is already active.");
 	auto previous = suState.inNeutral ? nullptr : suState.previous;
-	auto& path = location->GetNeighborPath({previous, suState.position}, move->GetDestination());
+	return location->GetNeighborPath({previous, suState.position}, move.GetDestination()); 
+}
+
+const Action* MoveActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto move = static_cast<const Move*>(&action);
+	auto su = state->GetMatchingShuntingUnit(&action.GetShuntingUnit());
+	auto& path = GeneratePath(state, *move);
 	return new MoveAction(su, vector<const Track*>(path.route.begin(), path.route.end()), path.length);
 }
 
@@ -75,7 +59,7 @@ void MoveActionGenerator::Generate(const State* state, list<const Action*>& out)
 		for(auto& previous: previous_list) {
 			auto& paths = location->GetNeighboringPaths({previous, track});
 			for(auto& [dest, path]: paths) {
-				out.push_back(Generate(state, Move(su, dest.second)));
+				out.push_back(Generate(state, Move(*su, dest.second)));
 			}
 		}
 	}

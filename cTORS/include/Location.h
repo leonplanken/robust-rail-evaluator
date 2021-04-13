@@ -54,6 +54,7 @@ public:
 
 	inline const vector<Track*>& GetTracks() const { return tracks; }
 	inline const vector<Facility*>& GetFacilities() const { return facilities; }
+	const Facility* GetFacilityByID(int id) const;
 
 	inline double GetDistance(const Track* from, const Track* to) const { return distanceMatrix.at({from, to}); }
 	inline int GetDurationByType(const Track* track) const { 

@@ -16,7 +16,7 @@
 #ifndef BIND_SIMPLE_ACTION
 #define BIND_SIMPLE_ACTION(name) \
 	py::class_<name, SimpleAction>(m, #name) \
-	.def(py::init<const ShuntingUnit*>()) \
+	.def(py::init<const ShuntingUnit>()) \
 	.def("__str__", &name::toString) \
 	.def("__repr__", &name::toString);
 #endif
@@ -200,7 +200,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	BIND_SIMPLE_ACTION(Wait);
 	BIND_SIMPLE_ACTION(Setback);
 	py::class_<Service, SimpleAction>(m, "Service")
-		.def(py::init<const ShuntingUnit*, const Task*, const Train*, const Facility*>())
+		.def(py::init<const ShuntingUnit, const Task*, const Train*, const Facility*>())
 		.def_property_readonly("task", &Service::GetTask, py::return_value_policy::reference)
 		.def_property_readonly("train", &Service::GetTrain, py::return_value_policy::reference)
 		.def_property_readonly("facility", &Service::GetFacility, py::return_value_policy::reference)
@@ -212,22 +212,22 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("__str__", &Arrive::toString)
 		.def("__repr__", &Arrive::toString);
 	py::class_<Exit, SimpleAction>(m, "Exit")
-		.def(py::init<const Outgoing*, const ShuntingUnit*>())
+		.def(py::init<const Outgoing*, const ShuntingUnit>())
 		.def_property_readonly("outgoing", &Exit::GetOutgoing, py::return_value_policy::reference)
 		.def("__str__", &Exit::toString)
 		.def("__repr__", &Exit::toString);
 	py::class_<Move, SimpleAction>(m, "Move")
-		.def(py::init<const ShuntingUnit*, const Track*>())
+		.def(py::init<const ShuntingUnit, const Track*>())
 		.def_property_readonly("destination", &Move::GetDestination, py::return_value_policy::reference)
 		.def("__str__", &Move::toString)
 		.def("__repr__", &Move::toString);
 	py::class_<Split, SimpleAction>(m, "Split")
-		.def(py::init<const ShuntingUnit*, const int>())
+		.def(py::init<const ShuntingUnit, const int>())
 		.def_property_readonly("split_index", &Split::GetSplitIndex)
 		.def("__str__", &Split::toString)
 		.def("__repr__", &Split::toString);
 	py::class_<Combine, SimpleAction>(m, "Combine")
-		.def(py::init<const ShuntingUnit*, const ShuntingUnit*>())
+		.def(py::init<const ShuntingUnit, const ShuntingUnit>())
 		.def_property_readonly("second_shunting_unit", &Combine::GetSecondShuntingUnit, py::return_value_policy::reference)
 		.def("__str__", &Combine::toString)
 		.def("__repr__", &Combine::toString);
@@ -348,6 +348,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("end_session", &Engine::EndSession, py::arg("state"))
 		.def("get_location", &Engine::GetLocation, py::return_value_policy::reference)
 		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference)
+		.def("get_plan", &Engine::GetPlan, py::arg("state"), py::return_value_policy::copy)
+		.def("get_path", &Engine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
 		.def("calc_shortest_paths", &Engine::CalcShortestPaths);
 
 	////////////////////////////////////
@@ -366,6 +368,13 @@ PYBIND11_MODULE(pyTORS, m) {
 	py::class_<Event>(m, "Event")
 		.def_property_readonly("time", &Event::GetTime)
 		.def_property_readonly("type", &Event::GetType);
+
+	////////////////////////////////////
+	//// POSPlan                    ////
+	////////////////////////////////////
+	py::class_<POSPlan>(m, "POSPlan")
+		.def_property_readonly("actions", &POSPlan::GetActions, py::return_value_policy::reference)
+		.def("serialize_to_file", &POSPlan::SerializeToFile, py::arg("engine"), py::arg("scenario"), py::arg("file_name"));
 
 	////////////////////////////////////
 	//// Exceptions                 ////

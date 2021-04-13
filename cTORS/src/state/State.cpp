@@ -169,8 +169,16 @@ void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 }
 
 bool State::HasShuntingUnit(const ShuntingUnit* su) const {
-	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
-	return (it != shuntingUnits.end());
+	auto it2 = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
+	return (it2 != shuntingUnits.end());
+}
+
+const ShuntingUnit* State::GetMatchingShuntingUnit(const ShuntingUnit* su) const {
+	auto it = shuntingUnitStates.find(su);
+	if(it != shuntingUnitStates.end()) return it->first;
+	auto it2 = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return su->MatchesShuntingUnit(s); });
+	if(it2 != shuntingUnits.end()) return *it2;
+	throw runtime_error("Shunting unit " + su->toString() + " not found.");
 }
 
 bool State::IsActive() const {

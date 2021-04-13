@@ -17,7 +17,7 @@ const string EndMoveAction::toString() const {
 }
 
 const Action* EndMoveActionGenerator::Generate(const State* state, const SimpleAction& action) const {
-	auto su = action.GetShuntingUnit();
+	auto su = state->GetMatchingShuntingUnit(&action.GetShuntingUnit());
 	auto suState = state->GetShuntingUnitState(su);
 	return new EndMoveAction(su, su->GetStartUpTime(suState.frontTrain));
 }
@@ -27,7 +27,7 @@ void EndMoveActionGenerator::Generate(const State* state, list<const Action*>& o
 	for (auto& [su, suState]: state->GetShuntingUnitStates()) {
 		auto& track = suState.position;
 		if (suState.moving && !suState.beginMoving && !suState.waiting && track->standingAllowed && !suState.HasActiveAction()) {
-			out.push_back(Generate(state, EndMove(su)));
+			out.push_back(Generate(state, EndMove(*su)));
 		}
 	}
 }

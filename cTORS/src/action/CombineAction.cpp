@@ -26,8 +26,8 @@ const string CombineAction::toString() const {
 
 const Action* CombineActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto combine = static_cast<const Combine*>(&action);
-	auto frontSU = combine->GetShuntingUnit();
-    auto rearSU = combine->GetSecondShuntingUnit();
+	auto frontSU = state->GetMatchingShuntingUnit(&combine->GetShuntingUnit());
+    auto rearSU = state->GetMatchingShuntingUnit(&combine->GetSecondShuntingUnit());
     auto frontTrains = copy_of(frontSU->GetTrains());
     auto rearTrains = copy_of(rearSU->GetTrains());
     auto duration = state->GetFrontTrain(frontSU)->GetType()->combineDuration;
@@ -68,7 +68,7 @@ void CombineActionGenerator::Generate(const State* state, list<const Action*>& o
                 frontSU = suB;
                 rearSU = suA;
             } else continue;
-			out.push_back(Generate(state, Combine(frontSU, rearSU)));
+			out.push_back(Generate(state, Combine(*frontSU, *rearSU)));
         }
     }
 }

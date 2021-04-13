@@ -41,6 +41,20 @@ const string ShuntingUnit::GetTrainString() const {
 	return result;
 }
 
+const Train* ShuntingUnit::GetTrainByID(int id) const {
+	for(auto t: trains) {
+		if(t->GetID()==id) return t;
+	}
+	return nullptr;
+}
+
+int ShuntingUnit::GetTrainIndexByID(int id) const {
+	for(size_t i=0; i<trains.size(); i++) {
+		if(trains.at(i)->GetID()==id) return i;
+	}
+	return -1;
+}
+
 ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
 	id(su.id), length(su.length) {
 	for (auto t : su.trains)

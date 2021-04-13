@@ -8,8 +8,15 @@ Engine::Engine(const string &path) : path(path), location(Location(path)),
 
 
 Engine::~Engine() {
+	for(auto& [name, type]: TrainUnitType::types) {
+		delete type;	
+	}
 	TrainUnitType::types.clear();
+	for(auto& [state, action_list]: stateActionMap) {
+		EndSession(state);
+	}
 	stateActionMap.clear();
+	schedules.clear();
 }
 
 list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
@@ -44,10 +51,16 @@ list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
 
 void Engine::ApplyAction(State* state, const Action* action) {
 	debug_out("\tApplying action " + action->toString());
+	int startTime = state->GetTime();
+	auto sa = action->CreateSimple();
 	state->StartAction(action);
+	int endTime = state->GetTime();
+	POSAction posaction(startTime, endTime, endTime-startTime, sa);
+	schedules[state]->AddAction(posaction);
 }
 
 void Engine::ApplyAction(State* state, const SimpleAction& action) {
+	
 	const Action* _action;
 	try {
 		debug_out("\tApplying action " + action.toString());
@@ -105,16 +118,41 @@ void Engine::ExecuteEvent(State* state, const Event* e) {
 	delete e;
 }
 
+bool Engine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
+	auto state = StartSession(scenario);
+	auto it = plan.GetActions().begin();
+    while(it != plan.GetActions().end()) {
+        try {
+            Step(state);
+            if(state->GetTime() >= it->GetSuggestedStart()) {
+                ApplyAction(state, *(it->GetAction()));
+                it++;
+            }
+        } catch (ScenarioFailedException e) {
+			cout << "Scenario failed.\n";
+			return false;
+			break;
+		}
+    }
+	bool result = (state->GetShuntingUnits().size() == 0);
+	EndSession(state);
+	return result;
+}
+
 State* Engine::StartSession(const Scenario& scenario) {
 	State* state = new State(scenario, location.GetTracks());
 	stateActionMap[state];
+	schedules[state] = new POSPlan();
 	return state;
 }
 
 void Engine::EndSession(State* state) {
 	auto& actions = stateActionMap[state];
+	auto& schedule = schedules[state];
 	DELETE_LIST(actions);
+	delete schedule;
 	stateActionMap.erase(state);
+	schedules.erase(state);
 	delete state;
 }
 
@@ -124,3 +162,8 @@ void Engine::CalcShortestPaths() {
 		location.CalcShortestPaths(byTrackType, trainType);
 	}
 } 
+
+const Path Engine::GetPath(const State* state, const Move& move) const {
+	static auto moveGenerator = static_cast<const MoveActionGenerator*>(actionManager.GetGenerator(move.GetGeneratorName()));
+	return moveGenerator->GeneratePath(state, move);
+}

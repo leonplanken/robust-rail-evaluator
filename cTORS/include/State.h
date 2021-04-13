@@ -22,7 +22,7 @@ struct ShuntingUnitState {
 	ShuntingUnitState() = delete;
 	ShuntingUnitState(const ShuntingUnitState& suState) : position(suState.position), previous(suState.previous),
 		moving(suState.moving), waiting(suState.waiting), inNeutral(suState.inNeutral), beginMoving(suState.beginMoving), frontTrain(suState.frontTrain) {
-			for(auto action: suState.activeActions) activeActions.emplace_back(action->clone());
+			for(auto action: suState.activeActions) activeActions.emplace_back(action->Clone());
 		}
 	ShuntingUnitState(const Track* position, const Track* previous, const Train* frontTrain) 
 		: position(position), previous(previous), moving(false), waiting(false), inNeutral(true), beginMoving(false), frontTrain(frontTrain) {}
@@ -104,6 +104,7 @@ public:
 	inline bool IsBeginMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).beginMoving; }
 	inline const vector<const ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
 	bool HasShuntingUnit(const ShuntingUnit* su) const;
+	const ShuntingUnit* GetMatchingShuntingUnit(const ShuntingUnit* su) const;
 	inline bool HasActiveAction(const ShuntingUnit* su) const { return GetActiveActions(su).size() > 0; }
 	inline const list<const Action*> &GetActiveActions(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).activeActions; }
 	bool IsActive() const;
@@ -125,7 +126,7 @@ public:
 	void addTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks);
 	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
 	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
-	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->clone()); }
+	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->Clone()); }
 	const ShuntingUnit* AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }

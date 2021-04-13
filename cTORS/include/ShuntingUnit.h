@@ -44,6 +44,8 @@ public:
 		UpdateValues();
 	}
 	bool MatchesShuntingUnit(const ShuntingUnit* su) const ;
+	const Train* GetTrainByID(int id) const;
+	int GetTrainIndexByID(int id) const;
 };
 
 struct ShuntingUnitHash {

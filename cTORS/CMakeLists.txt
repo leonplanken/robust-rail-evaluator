@@ -81,6 +81,7 @@ set(TORS_SOURCE_FILES
 
 	${PROJECT_SOURCE_DIR}/engine/Config.cpp
 	${PROJECT_SOURCE_DIR}/engine/Engine.cpp
+	${PROJECT_SOURCE_DIR}/engine/Plan.cpp
 
 	${PROJECT_SOURCE_DIR}/location/Facility.cpp
 	${PROJECT_SOURCE_DIR}/location/Location.cpp
@@ -109,6 +110,7 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Exceptions.h
 	${PROJECT_INCLUDE_DIR}/Facility.h
 	${PROJECT_INCLUDE_DIR}/Location.h
+	${PROJECT_INCLUDE_DIR}/Plan.h
 	${PROJECT_INCLUDE_DIR}/Proto.h
 	${PROJECT_INCLUDE_DIR}/Scenario.h
 	${PROJECT_INCLUDE_DIR}/ShuntingUnit.h

@@ -106,3 +106,9 @@ class TORSEnv(gym.Env):
 	
     def print(self, text):
     	print(text)
+
+    def write_to_file(self, filename):
+        print("Get Plan")
+        plan = self.engine.get_plan(self.state)
+        print("Serialize plan")
+        plan.serialize_to_file(self.engine, self.scenario, filename)

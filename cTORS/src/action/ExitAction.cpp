@@ -24,7 +24,8 @@ const string ExitAction::toString() const {
 
 const Action* ExitActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto exit = static_cast<const Exit*>(&action);
-	return new ExitAction(exit->GetShuntingUnit(), 0, exit->GetOutgoing());
+	auto su = state->GetMatchingShuntingUnit(&action.GetShuntingUnit());
+	return new ExitAction(su, 0, exit->GetOutgoing());
 }
 
 void ExitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
@@ -42,7 +43,7 @@ void ExitActionGenerator::Generate(const State* state, list<const Action*>& out)
 			if (state->HasActiveAction(su)) continue;
 			if (su->GetNumberOfTrains() != ou->GetShuntingUnit()->GetNumberOfTrains()) continue;
 			if (state->GetPosition(su) != ou->GetParkingTrack()) continue;
-			out.push_back(Generate(state, Exit(ou, su)));
+			out.push_back(Generate(state, Exit(ou, *su)));
 		}
 	}
 }

@@ -2,9 +2,7 @@
 
 const string Scenario::scenarioFileString = "scenario.json";
 
-Scenario::Scenario() : startTime(0), endTime(0)
-{
-}
+Scenario::Scenario() : startTime(0), endTime(0) {}
 
 Scenario::Scenario(string folderName, const Location& location) {
 	try {
@@ -50,6 +48,43 @@ const size_t Scenario::GetNumberOfTrains() const {
 	for (auto inc : incomingTrains)
 		res += inc->GetShuntingUnit()->GetNumberOfTrains();
 	return res;
+}
+
+const Train* Scenario::GetTrainByID(int id) const {
+	for(auto inc : incomingTrains) {
+		for(auto t: inc->GetShuntingUnit()->GetTrains()) {
+			if(t->GetID() == id) return t;
+		}
+	}
+	return nullptr;
+}
+
+const Incoming* Scenario::GetIncomingBySU(const ShuntingUnit* su) const {
+	for(auto inc : incomingTrains) {
+		if(inc->GetShuntingUnit()->MatchesShuntingUnit(su)) return inc;
+	}
+	return nullptr;
+}
+
+const Outgoing* Scenario::GetOutgoingBySU(const ShuntingUnit* su) const {
+	for(auto out : outgoingTrains) {
+		if(out->GetShuntingUnit()->MatchesShuntingUnit(su)) return out;
+	}
+	return nullptr;
+}
+
+const Incoming* Scenario::GetIncomingByTrain(const Train* train) const {
+	for(auto inc : incomingTrains) {
+		if(inc->GetShuntingUnit()->GetTrainByID(train->GetID()) != nullptr) return inc;
+	}
+	return nullptr;
+}
+
+const Outgoing* Scenario::GetOutgoingByTrain(const Train* train) const {
+	for(auto out : outgoingTrains) {
+		if(out->GetShuntingUnit()->GetTrainByID(train->GetID()) != nullptr) return out;
+	}
+	return nullptr;
 }
 
 void Scenario::ImportEmployees(const PBScenario& pb_scenario, const Location& location) {

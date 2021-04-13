@@ -40,6 +40,13 @@ Location::~Location()
 	trackIndex.clear();
 }
 
+const Facility* Location::GetFacilityByID(int id) const {
+	auto it = find_if(facilities.begin(), 
+             facilities.end(), 
+             [id] (const Facility* f) -> bool { return f->GetID() == id; });
+	return it == facilities.end() ? nullptr : *it;
+}
+
 list<Position> GetAllPositions(const vector<Track*>& tracks) {
 	list<Position> positions;
 	for(auto track: tracks) {

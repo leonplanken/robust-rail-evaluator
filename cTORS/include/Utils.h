@@ -9,7 +9,7 @@
 namespace fs = std::filesystem;
 
 #ifndef DEBUG
-#define DEBUG 0
+#define DEBUG 1
 #endif // !DEBUG
 #ifndef debug_out
 #define debug_out(s) \
@@ -62,10 +62,25 @@ inline void parse_json_to_pb(const fs::path& file_path, google::protobuf::Messag
     buffer << fileInput.rdbuf();
     auto status = google::protobuf::util::JsonStringToMessage(buffer.str(), message);
     debug_out("Parse JSON " << file_path.string() << " / Status: " << status.ToString());
+    fileInput.close();
 }
 
 inline void parse_json_to_pb(const std::string& filename, google::protobuf::Message* message) {
     parse_json_to_pb(fs::path(filename), message);
+}
+
+inline void parse_pb_to_json(const fs::path& file_path, const google::protobuf::Message& message) {
+    std::ofstream out (file_path);
+    if(!out.is_open())
+        throw std::runtime_error("The file " + file_path.string() + " could not be opened.");
+    string output;
+    google::protobuf::util::MessageToJsonString(message, &output);
+    out << output;
+    out.close();
+}
+
+inline void parse_pb_to_json(const std::string& filename, google::protobuf::Message& message) {
+    parse_pb_to_json(fs::path(filename), message);
 }
 
 #endif

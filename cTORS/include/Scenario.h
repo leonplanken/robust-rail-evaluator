@@ -43,6 +43,12 @@ public:
 	inline const vector<const Incoming*>& GetIncomingTrains() const { return incomingTrains; }
 	inline const vector<const Employee*>& GetEmployees() const { return employees; }
 	const size_t GetNumberOfTrains() const;
+	const Train* GetTrainByID(int id) const;
+	const Incoming* GetIncomingBySU(const ShuntingUnit* su) const;
+	const Outgoing* GetOutgoingBySU(const ShuntingUnit* su) const;
+	const Incoming* GetIncomingByTrain(const Train* su) const;
+	const Outgoing* GetOutgoingByTrain(const Train* su) const;
+	const vector<Task> GetTasksForTrain(const Train* train) const { return GetIncomingByTrain(train)->GetTasks().at(train); }
 
 	inline void SetStartTime(int startTime) { this->startTime = startTime; }
 	inline void SetEndTime(int endTime) { this->endTime = endTime; }
