@@ -2,11 +2,11 @@
 
 int POSAction::newUID{ 0 };
 
-const ShuntingUnit GetShuntingUnitFromTrainIDs(const Scenario* scenario, PBList<string> pb_train_ids) {
+const ShuntingUnit GetShuntingUnitFromTrainIDs(const Scenario* scenario, const PBList<string>& pb_train_ids) {
     vector<string> trainIDs(pb_train_ids.begin(), pb_train_ids.end());
     vector<const Train*> trains (trainIDs.size());
     transform(trainIDs.begin(), trainIDs.end(), trains.begin(),
-        [scenario](const string& s) -> const Train* {return scenario->GetTrainByID(stoi(s));});
+        [scenario](const string& s) -> const Train* {return new Train(*scenario->GetTrainByID(stoi(s)));});
     static int newSUID = 0;
     return ShuntingUnit(newSUID++, trains);
 }
@@ -198,8 +198,8 @@ void POSPlan::SerializeToFile(Engine& engine, const Scenario& scenario, const st
 
 
 void RunResult::Serialize(Engine& engine, PBRun* pb_run) const {
-    scenario.Serialize(pb_run->mutable_scenario());
-    plan.Serialize(engine, scenario, pb_run->mutable_plan());
+    scenario->Serialize(pb_run->mutable_scenario());
+    plan.Serialize(engine, *scenario, pb_run->mutable_plan());
     pb_run->set_feasible(feasible);
 }
 

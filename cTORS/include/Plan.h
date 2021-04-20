@@ -63,14 +63,19 @@ public:
 
 class RunResult {
 private:
-    const Scenario scenario;
+    const Scenario* scenario;
     POSPlan plan;
     bool feasible;
 public:
-    RunResult(const Scenario& scenario) : scenario(scenario), feasible(false) {}
-    RunResult(const Scenario& scenario, const POSPlan& plan, bool feasible) : scenario(scenario), plan(plan), feasible(feasible) {}
+    RunResult(const Scenario* scenario) : scenario(scenario), feasible(false) {}
+    RunResult(const Scenario& scenario) : scenario(new Scenario(scenario)), feasible(false) {}
+    RunResult(const Scenario& scenario, const POSPlan& plan, bool feasible) : scenario(new Scenario(scenario)), plan(plan), feasible(feasible) {}
+    RunResult(const RunResult& rr) : RunResult(*rr.scenario, rr.plan, rr.feasible) {}
+    ~RunResult() { delete scenario; }
     inline const vector<POSAction>& GetActions() const { return plan.GetActions(); }
     inline void AddAction(const POSAction& action) { plan.AddAction(action); }
+    inline const Scenario& GetScenario() const { return *scenario; }
+    inline const POSPlan& GetPlan() const { return plan; }
     void Serialize(Engine& engine, PBRun* pb_run) const;
     void SerializeToFile(Engine& engine, const string& outfile) const;
     static RunResult CreateRunResult(const Location* location, const PBRun& pb_run);

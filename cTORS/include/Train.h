@@ -75,10 +75,10 @@ private:
 	const bool forcedMatch;
 public:
 	Train() = delete;
-	Train(int id, TrainUnitType *type);
+	Train(int id, TrainUnitType *type) : id(id), type(type), forcedMatch(false) {}
 	Train(const PBTrainUnit& pb_train);
-	Train(const Train &train);
-	~Train();
+	Train(const Train &train) = default;
+	~Train() = default;
 	inline const TrainUnitType* GetType() const { return type; }
 	bool operator==(const Train& train) const;
 	bool operator!=(const Train& t) const { return !(*this == t); }

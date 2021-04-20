@@ -95,7 +95,13 @@ list<const Action*> &Engine::GetValidActions(State* state) {
 		debug_out("GetValidActions list filtered");
 		state->SetUnchanged();
 	}
-	return stateActionMap.at(state);
+	debug_out("Return valid actions: ");
+	auto& actions = stateActionMap.at(state);
+	int i=0;
+	for (auto a : actions) {
+		debug_out(to_string(i++) << ":\t" + a->toString() << ".\n");
+	}
+	return actions;
 }
 
 void Engine::ExecuteImmediateEvents(State* state) {
@@ -145,9 +151,10 @@ bool Engine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
 
 State* Engine::StartSession(const Scenario& scenario) {
 	debug_out("Start Session. (Currently " << stateActionMap.size() << " sessions)");
-	State* state = new State(scenario, location.GetTracks());
+	Scenario* scenarioCopy = new Scenario(scenario);
+	State* state = new State(*scenarioCopy, location.GetTracks());
 	stateActionMap[state];
-	results[state] = new RunResult(scenario);
+	results[state] = new RunResult(*scenarioCopy);
 	return state;
 }
 
@@ -172,4 +179,10 @@ void Engine::CalcShortestPaths() {
 const Path Engine::GetPath(const State* state, const Move& move) const {
 	static auto moveGenerator = static_cast<const MoveActionGenerator*>(actionManager.GetGenerator(move.GetGeneratorName()));
 	return moveGenerator->GeneratePath(state, move);
+}
+
+RunResult Engine::ImportResult(const string& path) {
+	PBRun run;
+	parse_json_to_pb(path, &run);
+	return RunResult::CreateRunResult(&location, run);
 }

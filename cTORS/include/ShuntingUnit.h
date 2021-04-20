@@ -17,7 +17,7 @@ private:
 	void UpdateValues();
 public:
 	ShuntingUnit() = delete;
-	ShuntingUnit(int id, vector<const Train*> trains);
+	ShuntingUnit(int id, const vector<const Train*>& trains);
 	ShuntingUnit(const PBTrainGoal& pb_tg);
 	ShuntingUnit(const ShuntingUnit& su);
 	~ShuntingUnit();

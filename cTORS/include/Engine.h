@@ -42,14 +42,15 @@ public:
 	void ApplyAction(State* state, const Action* action);
 	void ApplyAction(State* state, const SimpleAction& action);
 	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
-	State *StartSession(const Scenario& scenario);
-	inline State *StartSession() { return StartSession(originalScenario); }
+	State* StartSession(const Scenario& scenario);
+	inline State* StartSession() { return StartSession(originalScenario); }
 	void EndSession(State* state);
 	inline const Location& GetLocation() const { return location; }
 	inline const Scenario& GetScenario() const { return originalScenario; }
 	void CalcShortestPaths();
 	const Path GetPath(const State* state, const Move& move) const;
 	RunResult* GetResult(State* state) const { return results.at(state); }
+	RunResult ImportResult(const string& path);
 };
 
 #endif

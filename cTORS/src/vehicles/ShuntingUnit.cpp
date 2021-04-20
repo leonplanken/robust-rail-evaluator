@@ -1,12 +1,6 @@
 #include "ShuntingUnit.h"
 
-ShuntingUnit::ShuntingUnit(int id, vector<const Train*> trains) : id(id), trains(trains)
-{
-	UpdateValues();
-}
-
-template<class PBT>
-vector<const Train*> ConvertPBTrains(const PBList<PBT> trains) {
+vector<const Train*> ConvertPBTrains(const PBList<PBTrainUnit>& trains) {
 	vector<const Train*> out;
 	for(auto& train: trains) {
 		out.push_back(new Train(train));
@@ -14,7 +8,19 @@ vector<const Train*> ConvertPBTrains(const PBList<PBT> trains) {
 	return out;
 }
 
-ShuntingUnit::ShuntingUnit(const PBTrainGoal& pb_tg) : ShuntingUnit(stoi(pb_tg.id()), ConvertPBTrains(pb_tg.members())) {}
+ShuntingUnit::ShuntingUnit(int id, const vector<const Train*>& trains) : id(id), trains(trains) {
+	UpdateValues();
+}
+
+ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
+	id(su.id), length(su.length) {
+	for (auto t : su.trains)
+		trains.push_back(new Train(*t));
+	UpdateValues();
+}
+
+ShuntingUnit::ShuntingUnit(const PBTrainGoal& pb_tg) 
+	: ShuntingUnit(stoi(pb_tg.id()), ConvertPBTrains(pb_tg.members())) {}
 
 void ShuntingUnit::UpdateValues() {
 	length = 0;
@@ -49,13 +55,6 @@ int ShuntingUnit::GetTrainIndexByID(int id) const {
 	auto it = find_if(trains.begin(), trains.end(), [id](const Train* t) -> bool { return t->GetID() == id; });
 	if(it == trains.end()) return -1;
 	return it - trains.begin();
-}
-
-ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :
-	id(su.id), length(su.length) {
-	for (auto t : su.trains)
-		trains.push_back(new Train(*t));
-	UpdateValues();
 }
 
 int ShuntingUnit::GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime, int setbackTime) const {

@@ -350,6 +350,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference)
 		.def("get_result", &Engine::GetResult, py::arg("state"), py::return_value_policy::copy)
 		.def("get_path", &Engine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
+		.def("import_result", &Engine::ImportResult, py::arg("file_path"), py::return_value_policy::take_ownership)
 		.def("calc_shortest_paths", &Engine::CalcShortestPaths);
 
 	////////////////////////////////////
@@ -378,6 +379,8 @@ PYBIND11_MODULE(pyTORS, m) {
 
 	py::class_<RunResult>(m, "RunResult")
 		.def_property_readonly("actions", &RunResult::GetActions, py::return_value_policy::reference)
+		.def_property_readonly("scenario", &RunResult::GetScenario, py::return_value_policy::reference)
+		.def_property_readonly("plan", &RunResult::GetPlan, py::return_value_policy::reference)
 		.def("serialize_to_file", &RunResult::SerializeToFile, py::arg("engine"), py::arg("file_name"));
 
 	////////////////////////////////////
