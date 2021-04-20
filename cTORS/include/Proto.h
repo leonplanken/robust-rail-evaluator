@@ -5,12 +5,12 @@
 #include <list>
 #include <google/protobuf/message.h>
 #include <google/protobuf/util/json_util.h>
-#include "instance/Location.pb.h"
-#include "instance/Scenario.pb.h"
-#include "instance/TrainUnitTypes.pb.h"
-#include "plan/PartialOrderSchedule.pb.h"
-#include "plan/Plan.pb.h"
-#include "plan/Run.pb.h"
+#include "Location.pb.h"
+#include "Scenario.pb.h"
+#include "TrainUnitTypes.pb.h"
+#include "PartialOrderSchedule.pb.h"
+#include "Plan.pb.h"
+#include "Run.pb.h"
 using namespace std;
 
 typedef proto_tors::Scenario PBScenario;
