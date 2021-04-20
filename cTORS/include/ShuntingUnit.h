@@ -18,7 +18,6 @@ private:
 public:
 	ShuntingUnit() = delete;
 	ShuntingUnit(int id, vector<const Train*> trains);
-	ShuntingUnit(const PBShuntingUnit& pb_su);
 	ShuntingUnit(const PBTrainGoal& pb_tg);
 	ShuntingUnit(const ShuntingUnit& su);
 	~ShuntingUnit();

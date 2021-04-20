@@ -73,13 +73,15 @@ inline void parse_pb_to_json(const fs::path& file_path, const google::protobuf::
     std::ofstream out (file_path);
     if(!out.is_open())
         throw std::runtime_error("The file " + file_path.string() + " could not be opened.");
+    google::protobuf::util::JsonPrintOptions options;
+    options.add_whitespace = true;
     string output;
-    google::protobuf::util::MessageToJsonString(message, &output);
+    google::protobuf::util::MessageToJsonString(message, &output, options);
     out << output;
     out.close();
 }
 
-inline void parse_pb_to_json(const std::string& filename, google::protobuf::Message& message) {
+inline void parse_pb_to_json(const std::string& filename, const google::protobuf::Message& message) {
     parse_pb_to_json(fs::path(filename), message);
 }
 

@@ -28,8 +28,8 @@ public:
     inline int GetSuggestedEnd() const { return suggestedEnd; }
     inline int GetMinimumDuration() const { return minDuration; }
     inline const SimpleAction* GetAction() const { return action; }
-    void Serialize(const Engine& engine, const State* state, PBPOSAction* pb_action) const;
-    static POSAction CreatePOSAction(const Location* location, const Scenario* scenario, const PBPOSAction& pb_action);
+    void Serialize(const Engine& engine, const State* state, PBAction* pb_action) const;
+    static POSAction CreatePOSAction(const Location* location, const Scenario* scenario, const PBAction& pb_action);
 };
 
 class POSMatch {
@@ -58,6 +58,22 @@ public:
     void Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_plan) const;
     void SerializeToFile(Engine& engine, const Scenario& scenario, const string& outfile) const;
     static POSPlan CreatePOSPlan(const Location* location, const Scenario* scenario, const PBPOSPlan& pb_plan);
+};
+
+
+class RunResult {
+private:
+    const Scenario scenario;
+    POSPlan plan;
+    bool feasible;
+public:
+    RunResult(const Scenario& scenario) : scenario(scenario), feasible(false) {}
+    RunResult(const Scenario& scenario, const POSPlan& plan, bool feasible) : scenario(scenario), plan(plan), feasible(feasible) {}
+    inline const vector<POSAction>& GetActions() const { return plan.GetActions(); }
+    inline void AddAction(const POSAction& action) { plan.AddAction(action); }
+    void Serialize(Engine& engine, PBRun* pb_run) const;
+    void SerializeToFile(Engine& engine, const string& outfile) const;
+    static RunResult CreateRunResult(const Location* location, const PBRun& pb_run);
 };
 
 

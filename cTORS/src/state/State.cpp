@@ -16,6 +16,7 @@ State::State(const Scenario& scenario, const vector<Track*>& tracks) {
 }
 
 State::~State() {
+	debug_out("Deleting state");
 	DELETE_VECTOR(shuntingUnits);
 }
 
@@ -146,13 +147,13 @@ void State::FreeTracks(const list<const Track*>& tracks) {
 }
 
 void State::RemoveIncoming(const Incoming* incoming) {
-	auto it = find(incomingTrains.begin(), incomingTrains.end(), incoming);
+	auto it = find_if(incomingTrains.begin(), incomingTrains.end(), [incoming](const Incoming* inc) -> bool { return *inc == *incoming; });
 	if(it != incomingTrains.end())
 		incomingTrains.erase(it);
 }
 
 void State::RemoveOutgoing(const Outgoing* outgoing) {
-	auto it = find(outgoingTrains.begin(), outgoingTrains.end(), outgoing);
+	auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(), [outgoing](const Outgoing* out) -> bool { return *out == *outgoing; });
 	if (it != outgoingTrains.end())
 		outgoingTrains.erase(it);
 }

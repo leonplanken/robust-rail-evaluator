@@ -27,6 +27,6 @@ for i in range(2000):
   obs, rewards, done, info = env.step(action)
   env.render()
   if done:
-    env.write_to_file("./plans/plan_"+str(run)+".json")
+    env.write_to_file("./runs/run_"+str(run)+".json")
     obs = env.reset()
     run += 1

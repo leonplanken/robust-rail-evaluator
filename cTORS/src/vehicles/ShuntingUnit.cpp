@@ -14,8 +14,6 @@ vector<const Train*> ConvertPBTrains(const PBList<PBT> trains) {
 	return out;
 }
 
-ShuntingUnit::ShuntingUnit(const PBShuntingUnit& pb_su) : ShuntingUnit(stoi(pb_su.id()), ConvertPBTrains(pb_su.trainunits())) {}
-
 ShuntingUnit::ShuntingUnit(const PBTrainGoal& pb_tg) : ShuntingUnit(stoi(pb_tg.id()), ConvertPBTrains(pb_tg.members())) {}
 
 void ShuntingUnit::UpdateValues() {
@@ -42,17 +40,15 @@ const string ShuntingUnit::GetTrainString() const {
 }
 
 const Train* ShuntingUnit::GetTrainByID(int id) const {
-	for(auto t: trains) {
-		if(t->GetID()==id) return t;
-	}
-	return nullptr;
+	auto it = find_if(trains.begin(), trains.end(), [id](const Train* t) -> bool { return t->GetID() == id; });
+	if(it == trains.end()) return nullptr;
+	return *it;
 }
 
 int ShuntingUnit::GetTrainIndexByID(int id) const {
-	for(size_t i=0; i<trains.size(); i++) {
-		if(trains.at(i)->GetID()==id) return i;
-	}
-	return -1;
+	auto it = find_if(trains.begin(), trains.end(), [id](const Train* t) -> bool { return t->GetID() == id; });
+	if(it == trains.end()) return -1;
+	return it - trains.begin();
 }
 
 ShuntingUnit::ShuntingUnit(const ShuntingUnit& su) :

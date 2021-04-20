@@ -5,47 +5,42 @@
 #include <list>
 #include <google/protobuf/message.h>
 #include <google/protobuf/util/json_util.h>
-#include "Location.pb.h"
-#include "Scenario.pb.h"
-#include "Vehicles.pb.h"
-#include "Employee.pb.h"
-#include "TrainUnitTypes.pb.h"
-#include "PartialOrderSchedule.pb.h"
+#include "instance/Location.pb.h"
+#include "instance/Scenario.pb.h"
+#include "instance/TrainUnitTypes.pb.h"
+#include "plan/PartialOrderSchedule.pb.h"
+#include "plan/Plan.pb.h"
+#include "plan/Run.pb.h"
 using namespace std;
 
-typedef algo_iface::Scenario PBScenario;
-typedef algo_iface::Train PBTrainGoal;
+typedef proto_tors::Scenario PBScenario;
+typedef proto_tors::Train PBTrainGoal;
+typedef proto_tors::ShuntingUnit PBShuntingUnit;
 
-typedef tors_proto::IncomingTrain PBIncoming;
-typedef tors_proto::OutgoingTrain PBOutgoing;
-typedef tors_proto::ShuntingUnit PBShuntingUnit;
+typedef proto_tors::TrainUnit PBTrainUnit;
+typedef proto_tors::TrainUnit PBSTrainUnit;
+typedef proto_tors::TrainUnitType PBTrainUnitType;
+typedef proto_tors::TaskType PBTaskType;
+typedef proto_tors::PredefinedTaskType PBPredefinedTaskType;
+typedef proto_tors::TaskSpec PBTask;
 
-typedef tors_proto::TrainUnit PBTrainUnit;
-typedef algo_iface::TrainUnit PBSTrainUnit;
-typedef algo_iface::TrainUnitType PBTrainUnitType;
-typedef algo_iface::TaskType PBTaskType;
-typedef algo_iface::PredefinedTaskType PBPredefinedTaskType;
-typedef algo_iface::TaskSpec PBSTask;
-typedef tors_proto::Task PBTask;
+typedef proto_tors::MemberOfStaff PBMemberOfStaff;
+typedef proto_tors::TimeInterval PBTimeInterval;
 
-typedef tors_proto::Employee PBEmployee;
-typedef algo_iface::MemberOfStaff PBMemberOfStaff;
-typedef algo_iface::TimeInterval PBTimeInterval;
-typedef tors_proto::Interval PBInterval;
+typedef proto_tors::Location PBLocation;
+typedef proto_tors::Facility PBFacility;
+typedef proto_tors::TrackPart PBTrack;
+typedef proto_tors::TrackPartType PBTrackPartType;
+typedef proto_tors::Side PBSide;
 
-typedef algo_iface::Location PBLocation;
-typedef algo_iface::Facility PBFacility;
-typedef algo_iface::TrackPart PBTrack;
-typedef algo_iface::TrackPartType PBTrackPartType;
-typedef algo_iface::Side PBSide;
-
-typedef algo_iface::POSPlan PBPOSPlan;
-typedef algo_iface::POSMatch PBPOSMatch;
-typedef algo_iface::POSAction PBPOSAction;
-typedef algo_iface::POSMovement PBPOSMovement;
-typedef algo_iface::POSTask PBPOSTask;
-typedef algo_iface::POSBreak PBPOSBreak;
-typedef algo_iface::POSPrecedenceConstraint PBPOSPrecedenceConstraint;
+typedef proto_tors::PartialOrderSchedule PBPOSPlan;
+typedef proto_tors::Match PBMatch;
+typedef proto_tors::Action PBAction;
+typedef proto_tors::MovementAction PBMovementAction;
+typedef proto_tors::TaskAction PBTaskAction;
+typedef proto_tors::BreakAction PBBreakAction;
+typedef proto_tors::POSPrecedenceConstraint PBPOSPrecedenceConstraint;
+typedef proto_tors::Run PBRun;
 
 typedef google::protobuf::uint64 UInt;
 template<class Item> using PBList =  google::protobuf::RepeatedPtrField<Item>;

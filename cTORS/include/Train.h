@@ -4,8 +4,7 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <Vehicles.pb.h>
-#include <Location.pb.h>
+#include "Proto.h"
 #include "Utils.h"
 using namespace std;
 
@@ -38,7 +37,7 @@ struct TrainUnitType {
 	const string toString() const { return displayName; }
 	bool operator==(const TrainUnitType& t) const { return (displayName == t.displayName); }
 	bool operator!=(const TrainUnitType& t) const { return !(*this == t); }
-
+	void Serialize(PBTrainUnitType* pb_tt) const;
 };
 
 inline string ConvertPBTaskType(const PBTaskType& pb_task_type) {
@@ -61,13 +60,12 @@ struct Task {
 	Task() = delete;
 	Task(const string& taskType, int priority, int duration, list<string> skills) :
 		taskType(taskType), priority(priority), duration(duration), skills(skills) {}
-	Task(const PBSTask& pb_task) :
-		Task(ConvertPBTaskType(pb_task.type()), pb_task.priority(), pb_task.duration(), PBToStringList(pb_task.requiredskills())) {}
 	Task(const PBTask& pb_task) :
-		Task(pb_task.type(), pb_task.priority(), pb_task.duration(), PBToStringList(pb_task.requiredskills())) {}
+		Task(ConvertPBTaskType(pb_task.type()), pb_task.priority(), pb_task.duration(), PBToStringList(pb_task.requiredskills())) {}
 	bool operator==(const Task& t) const { return (taskType == t.taskType && priority == t.priority && duration == t.duration); }
 	bool operator!=(const Task& t) const { return !(*this == t); }
 	const string &toString() const { return taskType; }
+	void Serialize(PBTask* pb_task) const;
 };
 
 class Train {
@@ -79,7 +77,6 @@ public:
 	Train() = delete;
 	Train(int id, TrainUnitType *type);
 	Train(const PBTrainUnit& pb_train);
-	Train(const PBSTrainUnit& pb_train);
 	Train(const Train &train);
 	~Train();
 	inline const TrainUnitType* GetType() const { return type; }
@@ -87,6 +84,7 @@ public:
 	bool operator!=(const Train& t) const { return !(*this == t); }
 	const string toString() const;
 	inline int GetID() const { return id; }
+	void Serialize(PBTrainUnit* pb_t) const;
 };
 
 struct TrainHash {

@@ -56,19 +56,19 @@ SIMPLE_ACTION_DEFINE(Setback, "set_back")
 
 class Service : public SimpleAction {
 private:
-	const Task* task;
-	const Train* train;
+	const Task task;
+	const int trainIndex;
 	const Facility* facility;
 public:
 	Service() = delete;
-	Service(const ShuntingUnit& su, const Task* task, const Train* train, const Facility* facility)
-		: SimpleAction(su), task(task), train(train), facility(facility) {}
+	Service(const ShuntingUnit& su, const Task& task, const Train* train, const Facility* facility)
+		: SimpleAction(su), task(task), facility(facility), trainIndex(GetShuntingUnit().GetTrainIndexByID(train->GetID())) {}
 	Service(const Service& service) = default;
-	inline const Task* GetTask() const { return task; }
-	inline const Train* GetTrain() const { return train; }
+	inline const Task* GetTask() const { return &task; }
+	inline const Train* GetTrain() const { return GetShuntingUnit().GetTrains().at(trainIndex); }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const string toString() const override {
-		return "Service: " + GetShuntingUnit().toString() + " perform " + task->toString() + " on " + train->toString() + " at " +facility->toString();
+		return "Service: " + GetShuntingUnit().toString() + " perform " + task.toString() + " on " + GetTrain()->toString() + " at " +facility->toString();
 	}
 	inline const string GetGeneratorName() const override { return "service"; }
 	inline const Service* Clone() const override { return new Service(*this); }
@@ -285,15 +285,15 @@ class ServiceAction : public Action {
 private:
 	const Train * train;
 	const Facility* facility;
-	const Task* task;
+	const Task task;
 public:
 	ServiceAction() = delete;
-	ServiceAction(const ShuntingUnit* su, const Train* tu, const Task* ta, const Facility* fa, vector<const Employee*> employees) :
-		Action(su, {}, employees, ta->duration), train(tu), task(ta), facility(fa) {}
+	ServiceAction(const ShuntingUnit* su, const Train* tu, const Task& ta, const Facility* fa, vector<const Employee*> employees) :
+		Action(su, {}, employees, ta.duration), train(tu), task(ta), facility(fa) {}
 	inline const Train* GetTrain() const { return train; }
 	inline const Facility* GetFacility() const { return facility; }
-	inline const Task* GetTask() const { return task; }
-	inline const Service* CreateSimple() const {return new Service(*GetShuntingUnit(), GetTask(), GetTrain(), GetFacility()); }
+	inline const Task* GetTask() const { return &task; }
+	inline const Service* CreateSimple() const {return new Service(*GetShuntingUnit(), *GetTask(), GetTrain(), GetFacility()); }
 	ACTION_OVERRIDE(ServiceAction)
 };
 

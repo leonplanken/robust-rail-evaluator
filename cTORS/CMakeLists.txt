@@ -124,24 +124,20 @@ set(TORS_SOURCE_FILES
 #include_directories(${PROTOBUF_INCLUDE_DIRS})
 #include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(PROTOS_DIR "../protos")
+set(PROTOBUF_IMPORT_DIRS ${PROTOS_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-	${PROTOS_DIR}/Task.proto
-	${PROTOS_DIR}/Employee.proto
-	${PROTOS_DIR}/ActionType.proto
-	${PROTOS_DIR}/Vehicles.proto
-	${PROTOS_DIR}/Action.proto
 	${PROTOS_DIR}/Utilities.proto
+
 	${PROTOS_DIR}/Location.proto
 	${PROTOS_DIR}/TrainUnitTypes.proto
-	${PROTOS_DIR}/State.proto
 	${PROTOS_DIR}/Scenario.proto
+	
 	${PROTOS_DIR}/PartialOrderSchedule.proto
-	${PROTOS_DIR}/Disturbance.proto
+	${PROTOS_DIR}/Run.proto
 	${PROTOS_DIR}/Plan.proto
-	${PROTOS_DIR}/TORS_RPC.proto
 )
 
-add_library(cTORS SHARED ${TORS_SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+add_library(cTORS SHARED ${PROTO_SRCS} ${PROTO_HDRS} ${TORS_SOURCE_FILES} )
 
 
 target_include_directories(cTORS PUBLIC ${PROJECT_INCLUDE_DIR})

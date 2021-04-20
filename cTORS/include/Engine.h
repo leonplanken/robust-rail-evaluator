@@ -2,6 +2,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 #include <list>
+#include <vector>
 #include <unordered_map>
 #include "Utils.h"
 #include "State.h"
@@ -15,6 +16,7 @@
 
 using namespace std;
 
+class RunResult;
 class POSPlan;
 
 class Engine
@@ -27,7 +29,7 @@ private:
 	ActionValidator actionValidator;
 	ActionManager actionManager;
 	unordered_map<State*, list<const Action*>> stateActionMap;
-	unordered_map<State*, POSPlan*> schedules;
+	unordered_map<State*, RunResult*> results;
 
 	void ExecuteEvent(State* state, const Event* e);
 	void ExecuteImmediateEvents(State * state);
@@ -47,7 +49,7 @@ public:
 	inline const Scenario& GetScenario() const { return originalScenario; }
 	void CalcShortestPaths();
 	const Path GetPath(const State* state, const Move& move) const;
-	POSPlan* GetPlan(State* state) const { return schedules.at(state); }
+	RunResult* GetResult(State* state) const { return results.at(state); }
 };
 
 #endif

@@ -38,7 +38,10 @@ public:
 	inline const Track* GetSideTrack() const { return sideTrack; }
 	inline const Track* GetParkingTrack() const { return parkingTrack; }
 	const inline unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& GetTasks() const { return tasks; }
+	void Serialize(PBTrainGoal* pb_inc) const;
 	virtual string toString() const = 0;
+	bool operator==(const TrainGoal& tg) const;
+	bool operator!=(const TrainGoal& tg) const { return !(*this == tg); }
 };
 
 class Incoming : public TrainGoal {
@@ -49,7 +52,6 @@ public:
 		TrainGoal(id, su, parkingTrack, sideTrack, time, isInstanding, standingIndex, tasks) {}
 	Incoming(int id, const ShuntingUnit* su, int time, bool isInstanding, int standingIndex) :
 		Incoming(id, su, nullptr, nullptr, time, isInstanding, standingIndex, unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals> {}) {}
-	Incoming(const PBIncoming& pb_inc, bool isInstanding);
 	Incoming(const PBTrainGoal& pb_inc, bool isInstanding);
 	Incoming(const Incoming& incoming) : TrainGoal(incoming) {}
 	~Incoming() = default;

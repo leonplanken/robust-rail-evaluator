@@ -28,10 +28,11 @@ private:
 
 	void ImportEmployees(const PBScenario& pb_scenario, const Location& location);
 	void ImportShuntingUnits(const PBScenario& pb_scenario, const Location& location);
-
+	void Init(const PBScenario& pb_scenario, const Location& location);
 public:
 	Scenario();
 	Scenario(string path, const Location& location);
+	Scenario(const PBScenario& pb_scenario, const Location& location);
 	Scenario(const Scenario& scenario);
 	~Scenario();
 	
@@ -61,6 +62,8 @@ public:
 	inline void AddIncomingTrain(const Incoming* incomingTrain) { incomingTrains.push_back(incomingTrain); }
 	inline void AddDisturbance(const Event* disturbance) { disturbances.push(disturbance); }
 	inline void AddEmployee(const Employee* employee) { employees.push_back(employee); }
+
+	void Serialize(PBScenario* pb_scenario) const;
 };
 
 #endif

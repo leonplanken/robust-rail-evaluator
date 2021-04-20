@@ -12,7 +12,6 @@ Location::Location(const string &folderName) {
 	try {
 		PBLocation pb_location;
 		parse_json_to_pb(fs::path(folderName) / fs::path(locationFileString), &pb_location);
-		debug_out("PB Location Debug info: " << pb_location.DebugString());
 		ImportTracks(pb_location);
 		ImportFacilities(pb_location);
 		ImportDistanceMatrix(pb_location);
@@ -146,9 +145,9 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 	}
 	auto end = chrono::steady_clock::now();
 	debug_out("Calculating shortest paths finished in "
-		<< chrono::duration_cast<chrono::microseconds>(end - begin).count() << "[µs]" << " // "
-		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "[ms]" << " // "
-		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "[s]");
+		<< chrono::duration_cast<chrono::microseconds>(end - begin).count() << "µs" << " // "
+		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "ms" << " // "
+		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "s");
 	#endif
 }
 

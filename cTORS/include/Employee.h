@@ -31,7 +31,6 @@ public:
 	Employee(const string& id, const string& name, const string& type, const vector<string>& skills, 
 		const vector<TimeShift>& shifts, const vector<TimeShift>& breakWindows, const int breakDuration, const bool canMoveTrains) :
 		id(id), name(name), type(type), skills(skills), shifts(shifts), breakWindows(breakWindows), breakDuration(breakDuration), canMoveTrains(canMoveTrains) {}
-	Employee(const PBEmployee& pb_employee);
 	Employee(const PBMemberOfStaff& pb_employee);
 	Employee(const Employee& employee) = default;
 	~Employee();

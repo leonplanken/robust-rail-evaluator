@@ -200,7 +200,7 @@ PYBIND11_MODULE(pyTORS, m) {
 	BIND_SIMPLE_ACTION(Wait);
 	BIND_SIMPLE_ACTION(Setback);
 	py::class_<Service, SimpleAction>(m, "Service")
-		.def(py::init<const ShuntingUnit, const Task*, const Train*, const Facility*>())
+		.def(py::init<const ShuntingUnit, const Task&, const Train*, const Facility*>())
 		.def_property_readonly("task", &Service::GetTask, py::return_value_policy::reference)
 		.def_property_readonly("train", &Service::GetTrain, py::return_value_policy::reference)
 		.def_property_readonly("facility", &Service::GetFacility, py::return_value_policy::reference)
@@ -348,7 +348,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("end_session", &Engine::EndSession, py::arg("state"))
 		.def("get_location", &Engine::GetLocation, py::return_value_policy::reference)
 		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference)
-		.def("get_plan", &Engine::GetPlan, py::arg("state"), py::return_value_policy::copy)
+		.def("get_result", &Engine::GetResult, py::arg("state"), py::return_value_policy::copy)
 		.def("get_path", &Engine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
 		.def("calc_shortest_paths", &Engine::CalcShortestPaths);
 
@@ -370,11 +370,15 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("type", &Event::GetType);
 
 	////////////////////////////////////
-	//// POSPlan                    ////
+	//// POSPlan, RunResult         ////
 	////////////////////////////////////
 	py::class_<POSPlan>(m, "POSPlan")
 		.def_property_readonly("actions", &POSPlan::GetActions, py::return_value_policy::reference)
 		.def("serialize_to_file", &POSPlan::SerializeToFile, py::arg("engine"), py::arg("scenario"), py::arg("file_name"));
+
+	py::class_<RunResult>(m, "RunResult")
+		.def_property_readonly("actions", &RunResult::GetActions, py::return_value_policy::reference)
+		.def("serialize_to_file", &RunResult::SerializeToFile, py::arg("engine"), py::arg("file_name"));
 
 	////////////////////////////////////
 	//// Exceptions                 ////

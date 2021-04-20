@@ -23,7 +23,7 @@ POSAction& POSAction::operator=(const POSAction& pa) {
     return *this;
 }
 
-POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* scenario, const PBPOSAction& pb_action) {
+POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* scenario, const PBAction& pb_action) {
     int suggestedStartingTime = pb_action.suggestedstartingtime();
     int suggestedEndingTime = pb_action.suggestedfinishingtime();
     int minDuration = pb_action.minimumduration();
@@ -76,12 +76,11 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
         } else {
             const Train* train = su.GetTrainByID(stoi(pb_action.task().trainunitids().at(0)));
             auto tasks = scenario->GetTasksForTrain(train);
-            const Task* task;
-            for(auto& t: tasks) {
-                if(t.taskType == taskType.other()) task = &t;
-            }
+            auto taskTypeString = taskType.other();
+            auto it = find_if(tasks.begin(), tasks.end(), [taskTypeString](auto& t) -> bool {return t.taskType == taskTypeString; });
+            if(it==tasks.end()) throw invalid_argument("Could not find task " + taskTypeString + " for train " + train->toString());
             const Facility* facility = location->GetFacilityByID(pb_action.task().facilities().at(0).id());
-            action = new Service(su, task, train, facility);
+            action = new Service(su, *it, train, facility);
         }
     } else {
         action = new Wait(su);
@@ -89,7 +88,7 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
     return POSAction(suggestedStartingTime, suggestedEndingTime, minDuration, action); 
 }
 
-void POSAction::Serialize(const Engine& engine, const State* state, PBPOSAction* pb_action) const {
+void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb_action) const {
     pb_action->set_suggestedstartingtime(suggestedStart);
     pb_action->set_suggestedfinishingtime(suggestedEnd);
     pb_action->set_minimumduration(minDuration);
@@ -152,10 +151,10 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBPOSAction*
 }
 
 POSPlan POSPlan::CreatePOSPlan(const Location* location, const Scenario* scenario, const PBPOSPlan& pb_plan) {
-    vector<PBPOSAction> pb_actions(pb_plan.actions().begin(), pb_plan.actions().end());
+    vector<PBAction> pb_actions(pb_plan.actions().begin(), pb_plan.actions().end());
     vector<POSAction> actions;
     transform(pb_actions.begin(), pb_actions.end(), back_inserter(actions),
-        [location, scenario](const PBPOSAction& pba) -> const POSAction {return POSAction::CreatePOSAction(location, scenario, pba);});
+        [location, scenario](const PBAction& pba) -> const POSAction {return POSAction::CreatePOSAction(location, scenario, pba);});
     return POSPlan(actions);
 }
 
@@ -164,9 +163,9 @@ void POSPlan::Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_
     auto it = actions.begin();
     while(it != actions.end()) {
         try {
-            debug_out("Serializing T=" + to_string(state->GetTime()) + ". A=" + it->GetAction()->toString() + ".");
+            debug_out("Serializing T=" + to_string(state->GetTime()) + ". A=" + it->GetAction()->toString() + " at T=" + to_string(it->GetSuggestedStart()) +".");
             engine.Step(state);
-            debug_out("Finished Step Update");
+            debug_out("Finished Step Update [T="+to_string(state->GetTime())+"].");
             if(state->GetTime() >= it->GetSuggestedStart()) {
                 if(!instanceof<BeginMove>(it->GetAction()) && !instanceof<EndMove>(it->GetAction())) {
                     auto pb_action = pb_plan->add_actions();
@@ -195,4 +194,24 @@ void POSPlan::SerializeToFile(Engine& engine, const Scenario& scenario, const st
     Serialize(engine, scenario, &pb_plan);
     debug_out("End Serializing plan.")
     parse_pb_to_json(outfile, pb_plan);
+}
+
+
+void RunResult::Serialize(Engine& engine, PBRun* pb_run) const {
+    scenario.Serialize(pb_run->mutable_scenario());
+    plan.Serialize(engine, scenario, pb_run->mutable_plan());
+    pb_run->set_feasible(feasible);
+}
+
+void RunResult::SerializeToFile(Engine& engine, const string& outfile) const {
+    PBRun pb_run;
+    Serialize(engine, &pb_run);
+    parse_pb_to_json(outfile, pb_run);
+}
+
+RunResult RunResult::CreateRunResult(const Location* location, const PBRun& pb_run) {
+    const Scenario scenario(pb_run.scenario(), *location);
+    POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_run.plan());
+    bool feasible = pb_run.feasible();
+    return RunResult(scenario, plan, feasible);
 }

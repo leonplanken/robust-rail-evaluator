@@ -1,4 +1,3 @@
-#include <list>
 #include "Engine.h"
 using namespace std;
 
@@ -8,15 +7,20 @@ Engine::Engine(const string &path) : path(path), location(Location(path)),
 
 
 Engine::~Engine() {
+	debug_out("Deleting engine");
 	for(auto& [name, type]: TrainUnitType::types) {
 		delete type;	
 	}
 	TrainUnitType::types.clear();
+	vector<State*> states;
 	for(auto& [state, action_list]: stateActionMap) {
-		EndSession(state);
+		states.push_back(state);
 	}
+	for(auto state: states)
+		EndSession(state);
 	stateActionMap.clear();
-	schedules.clear();
+	results.clear();
+	debug_out("Done deleting engine");
 }
 
 list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
@@ -54,9 +58,9 @@ void Engine::ApplyAction(State* state, const Action* action) {
 	int startTime = state->GetTime();
 	auto sa = action->CreateSimple();
 	state->StartAction(action);
-	int endTime = state->GetTime();
-	POSAction posaction(startTime, endTime, endTime-startTime, sa);
-	schedules[state]->AddAction(posaction);
+	int duration = action->GetDuration();
+	POSAction posaction(startTime, startTime + duration, duration, sa);
+	results[state]->AddAction(posaction);
 }
 
 void Engine::ApplyAction(State* state, const SimpleAction& action) {
@@ -140,19 +144,21 @@ bool Engine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
 }
 
 State* Engine::StartSession(const Scenario& scenario) {
+	debug_out("Start Session. (Currently " << stateActionMap.size() << " sessions)");
 	State* state = new State(scenario, location.GetTracks());
 	stateActionMap[state];
-	schedules[state] = new POSPlan();
+	results[state] = new RunResult(scenario);
 	return state;
 }
 
 void Engine::EndSession(State* state) {
+	debug_out("End session. (Currently " << stateActionMap.size() << " sessions)");
 	auto& actions = stateActionMap[state];
-	auto& schedule = schedules[state];
+	auto& schedule = results[state];
 	DELETE_LIST(actions);
 	delete schedule;
 	stateActionMap.erase(state);
-	schedules.erase(state);
+	results.erase(state);
 	delete state;
 }
 

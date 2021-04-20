@@ -4,8 +4,7 @@
 
 syntax = "proto3";
 
-package algo_iface;
-option java_package = "nl.ns.maindev.protobuf";
+package proto_tors;
 
 import "Location.proto";
 import "TrainUnitTypes.proto";

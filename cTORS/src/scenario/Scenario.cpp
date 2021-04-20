@@ -5,9 +5,17 @@ const string Scenario::scenarioFileString = "scenario.json";
 Scenario::Scenario() : startTime(0), endTime(0) {}
 
 Scenario::Scenario(string folderName, const Location& location) {
+	PBScenario pb_scenario;
+	parse_json_to_pb(fs::path(folderName) / fs::path(scenarioFileString), &pb_scenario);
+	Init(pb_scenario, location);
+}
+
+Scenario::Scenario(const PBScenario& pb_scenario, const Location& location) {
+	Init(pb_scenario, location);
+}
+
+void Scenario::Init(const PBScenario& pb_scenario, const Location& location) {
 	try {
-		PBScenario pb_scenario;
-		parse_json_to_pb(fs::path(folderName) / fs::path(scenarioFileString), &pb_scenario);
 		ImportEmployees(pb_scenario, location);
 		ImportShuntingUnits(pb_scenario, location);
 		startTime = pb_scenario.starttime();
@@ -125,3 +133,24 @@ void Scenario::ImportShuntingUnits(const PBScenario& pb_scenario, const Location
 		outgoingTrains.push_back(dynamic_cast<Outgoing*>(ImportTrainGoal(location, pb_out, false, true)));
 }
 
+void Scenario::Serialize(PBScenario* pb_scenario) const {
+	for(auto inc: incomingTrains) {
+		inc->Serialize(
+			inc->IsInstanding() ?
+			pb_scenario->add_instanding() :
+			pb_scenario->add_in()
+		);
+	}
+	for(auto out: outgoingTrains) {
+		out->Serialize(
+			out->IsInstanding() ?
+			pb_scenario->add_outstanding() :
+			pb_scenario->add_out()
+		);
+	}
+	pb_scenario->set_starttime(GetStartTime());
+	pb_scenario->set_endtime(GetEndTime());
+	for(auto& [name, type]: TrainUnitType::types) {
+		type->Serialize(pb_scenario->add_trainunittypes());
+	}
+}

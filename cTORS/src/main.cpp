@@ -28,13 +28,17 @@ int main()
 				}
 				a = *next(actions.begin(), i);
 			}
-			engine.ApplyAction(state, a);
+			auto sa = a->CreateSimple();
+			engine.ApplyAction(state, *sa);
+			delete sa;
 		}
 		catch (ScenarioFailedException e) {
 			cout << "Scenario failed.\n";
 			break;
 		}
 	}
+	PBRun pb_run;
+	engine.GetResult(state)->Serialize(engine, &pb_run);
 	engine.EndSession(state);
 	cout << "End of session\n";
 	string out;
