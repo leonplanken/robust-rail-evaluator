@@ -26,12 +26,15 @@ class State;
 
 class SimpleAction {
 private:
-	const ShuntingUnit shuntingUnit;
+	vector<int> trainIDs;
+protected:
+	const string GetTrainsToString() const;
 public:
 	SimpleAction() = delete;
-	SimpleAction(const ShuntingUnit& su) : shuntingUnit(su) {}
+	SimpleAction(const ShuntingUnit* su) : trainIDs(su->GetTrainIDs()) {}
+	SimpleAction(const vector<int>& trainIDs) : trainIDs(trainIDs) {}
 	SimpleAction(const SimpleAction& sa) = default;
-	inline const ShuntingUnit& GetShuntingUnit() const { return shuntingUnit; }
+	inline const vector<int>& GetTrainIDs() const { return trainIDs; }
 	virtual const string toString() const = 0;
 	virtual const string GetGeneratorName() const = 0;
 	virtual const SimpleAction* Clone() const = 0;
@@ -42,9 +45,10 @@ public:
 class name : public SimpleAction { \
 public: \
 	name() = delete; \
-	name(const ShuntingUnit& su) : SimpleAction(su) {} \
+	name(const ShuntingUnit* su) : SimpleAction(su) {} \
+	name(const vector<int>& trainIDs) : SimpleAction(trainIDs) {} \
 	name(const name& action) = default; \
-	inline const string toString() const override { return #name ": "  + GetShuntingUnit().toString(); } \
+	inline const string toString() const override { return #name ": "  + GetTrainsToString(); } \
 	inline const string GetGeneratorName() const override { return generator_name; } \
 	inline const name* Clone() const override { return new name(*this); } \
 };
@@ -57,18 +61,20 @@ SIMPLE_ACTION_DEFINE(Setback, "set_back")
 class Service : public SimpleAction {
 private:
 	const Task task;
-	const int trainIndex;
+	const Train train;
 	const Facility* facility;
 public:
 	Service() = delete;
-	Service(const ShuntingUnit& su, const Task& task, const Train* train, const Facility* facility)
-		: SimpleAction(su), task(task), facility(facility), trainIndex(GetShuntingUnit().GetTrainIndexByID(train->GetID())) {}
+	Service(const vector<int>& trainIDs, const Task& task, const Train* train, const Facility* facility)
+		: SimpleAction(trainIDs), task(task), facility(facility), train(*train) {}
+	Service(const ShuntingUnit* su, const Task& task, const Train* train, const Facility* facility)
+		: Service(su->GetTrainIDs(), task, train, facility) {}
 	Service(const Service& service) = default;
 	inline const Task* GetTask() const { return &task; }
-	inline const Train* GetTrain() const { return &GetShuntingUnit().GetTrains().at(trainIndex); }
+	inline const Train* GetTrain() const { return &train; }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const string toString() const override {
-		return "Service: " + GetShuntingUnit().toString() + " perform " + task.toString() + " on " + GetTrain()->toString() + " at " +facility->toString();
+		return "Service: " + GetTrainsToString() + " perform " + task.toString() + " on " + GetTrain()->toString() + " at " +facility->toString();
 	}
 	inline const string GetGeneratorName() const override { return "service"; }
 	inline const Service* Clone() const override { return new Service(*this); }
@@ -79,10 +85,10 @@ private:
 	const Incoming* incoming;
 public:
 	Arrive() = delete;
-	Arrive(const Incoming* inc) : SimpleAction(*(inc->GetShuntingUnit())), incoming(inc) {}
+	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incoming(inc) {}
 	Arrive(const Arrive& arrive) = default;
 	inline const Incoming* GetIncoming() const { return incoming; }
-	inline const string toString() const override { return "Arrive: " + GetShuntingUnit().toString(); }
+	inline const string toString() const override { return "Arrive: " + GetTrainsToString(); }
 	inline const string GetGeneratorName() const override { return "arrive"; }
 	inline const Arrive* Clone() const override { return new Arrive(*this); }
 };
@@ -92,10 +98,11 @@ private:
 	const Outgoing* outgoing;
 public:
 	Exit() = delete;
-	Exit(const Outgoing* out, const ShuntingUnit& su) : SimpleAction(su), outgoing(out) {}
+	Exit(const Outgoing* out, const vector<int>& ids) : SimpleAction(ids), outgoing(out) {}
+	Exit(const Outgoing* out, const ShuntingUnit* su) : Exit(out, su->GetTrainIDs()) {}
 	Exit(const Exit& exit) = default;
 	inline const Outgoing* GetOutgoing() const { return outgoing; }
-	inline const string toString() const override { return "Exit: " + GetShuntingUnit().toString(); }
+	inline const string toString() const override { return "Exit: " + GetTrainsToString(); }
 	inline const string GetGeneratorName() const override { return "exit"; }
 	inline const Exit* Clone() const override { return new Exit(*this); }
 };
@@ -105,36 +112,43 @@ private:
 	const Track* destination;
 public:
 	Move() = delete;
-	Move(const ShuntingUnit& su, const Track* destination) : SimpleAction(su), destination(destination) {}
+	Move(const vector<int>& trainIDs, const Track* destination) : SimpleAction(trainIDs), destination(destination) {}
+	Move(const ShuntingUnit* su, const Track* destination) : Move(su->GetTrainIDs(), destination) {}
 	Move(const Move& move) = default;
 	inline const Track* GetDestination() const { return destination; }
-	inline const string toString() const override { return "Move: " + GetShuntingUnit().toString() + " to " +destination->toString(); }
+	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to " +destination->toString(); }
 	inline const string GetGeneratorName() const override { return "move"; }
 	inline const Move* Clone() const override { return new Move(*this); }
 };
 
 class Split : public SimpleAction {
 private:
-	const int splitIndex;
+	int splitIndex;
 public:
 	Split() = delete;
-	Split(const ShuntingUnit& su, const int splitIndex) : SimpleAction(su), splitIndex(splitIndex) {}
+	Split(const vector<int>& trainIDs, const int splitIndex) : SimpleAction(trainIDs), splitIndex(splitIndex) {}
+	Split(const ShuntingUnit* su, const int splitIndex) : Split(su->GetTrainIDs(), splitIndex) {}
 	Split(const Split& s) = default;
 	inline const int GetSplitIndex() const { return splitIndex; }
-	inline const string toString() const override { return "Split: " + GetShuntingUnit().toString() + " at position " +to_string(splitIndex); }
+	inline const string toString() const override { return "Split: " + GetTrainsToString() + " at position " +to_string(splitIndex); }
 	inline const string GetGeneratorName() const override { return "split"; }
 	inline const Split* Clone() const override { return new Split(*this); }
 };
 
 class Combine : public SimpleAction {
 private:
-	const ShuntingUnit secondShuntingUnit;
+	vector<int> secondTrainIDs;
+protected:
+	const string GetSecondTrainsToString() const;
 public:
 	Combine() = delete;
-	Combine(const ShuntingUnit& su, const ShuntingUnit& secondShuntingUnit) : SimpleAction(su), secondShuntingUnit(secondShuntingUnit) {}
+	Combine(const vector<int>& trainIDs, const vector<int>& secondTrainIDs)
+		: SimpleAction(trainIDs), secondTrainIDs(secondTrainIDs) {}
+	Combine(const ShuntingUnit* su, const ShuntingUnit* secondShuntingUnit)
+		: Combine(su->GetTrainIDs(), secondShuntingUnit->GetTrainIDs()) {}
 	Combine(const Combine& c) = default;
-	inline const ShuntingUnit& GetSecondShuntingUnit() const { return secondShuntingUnit; }
-	inline const string toString() const override { return "Combine: " + GetShuntingUnit().toString() + " and " + secondShuntingUnit.toString(); }
+	inline const vector<int>& GetSecondTrainIDs() const { return secondTrainIDs; }
+	inline const string toString() const override { return "Combine: " + GetTrainsToString() + " and " + GetSecondTrainsToString(); }
 	inline const string GetGeneratorName() const override { return "combine"; }
 	inline const Combine* Clone() const override { return new Combine(*this); }
 };
@@ -213,7 +227,7 @@ public:
 	ExitAction(const ShuntingUnit* su, const Outgoing* outgoing) : Action(su), outgoing(outgoing) {};
 	inline const Track* GetDestinationTrack() const { return outgoing->GetParkingTrack(); }
 	inline const Outgoing* GetOutgoing() const { return outgoing; }
-	inline const Exit* CreateSimple() const { return new Exit(outgoing, *GetShuntingUnit()); }
+	inline const Exit* CreateSimple() const { return new Exit(outgoing, GetShuntingUnit()); }
 	ACTION_OVERRIDE(ExitAction)
 };
 
@@ -221,7 +235,7 @@ class BeginMoveAction : public Action {
 public:
 	BeginMoveAction() = delete;
 	BeginMoveAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {};
-	inline const BeginMove* CreateSimple() const {return new BeginMove(*GetShuntingUnit()); }
+	inline const BeginMove* CreateSimple() const {return new BeginMove(GetShuntingUnit()); }
 	ACTION_OVERRIDE(BeginMoveAction)
 };
 
@@ -229,7 +243,7 @@ class EndMoveAction : public Action {
 public:
 	EndMoveAction() = delete;
 	EndMoveAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {};
-	inline const EndMove* CreateSimple() const {return new EndMove(*GetShuntingUnit()); }
+	inline const EndMove* CreateSimple() const {return new EndMove(GetShuntingUnit()); }
 	ACTION_OVERRIDE(EndMoveAction)
 };
 
@@ -244,7 +258,7 @@ public:
 	inline const Track* GetDestinationTrack() const { return tracks.back(); }
 	inline const Track* GetPreviousTrack() const { return tracks[tracks.size()-2]; }
 	inline const vector<const Track*>& GetTracks() const { return tracks; }
-	inline const Move* CreateSimple() const {return new Move(*GetShuntingUnit(), GetDestinationTrack()); }
+	inline const Move* CreateSimple() const {return new Move(GetShuntingUnit(), GetDestinationTrack()); }
 	ACTION_OVERRIDE(MoveAction)
 };
 
@@ -263,7 +277,7 @@ public:
 	inline const ShuntingUnit* GetFrontShuntingUnit() const { return GetShuntingUnit(); }
 	inline const ShuntingUnit* GetRearShuntingUnit() const { return rearSU; }
 	inline const ShuntingUnit* GetCombinedShuntingUnit() const { return &combinedSU; }
-	inline const Combine* CreateSimple() const {return new Combine(*GetShuntingUnit(), *rearSU); }
+	inline const Combine* CreateSimple() const {return new Combine(GetShuntingUnit(), rearSU); }
 	ACTION_OVERRIDE(CombineAction)
 };
 class SplitAction : public Action {
@@ -277,7 +291,7 @@ public:
 	inline const ShuntingUnit* GetASideShuntingUnit() const { return &suA; }
 	inline const ShuntingUnit* GetBSideShuntingUnit() const { return &suB; }
 	inline const int GetSplitIndex() const { return GetASideShuntingUnit()->GetTrains().size(); }
-	inline const Split* CreateSimple() const {return new Split(*GetShuntingUnit(), GetSplitIndex()); }
+	inline const Split* CreateSimple() const {return new Split(GetShuntingUnit(), GetSplitIndex()); }
 	ACTION_OVERRIDE(SplitAction)
 };
 
@@ -293,7 +307,7 @@ public:
 	inline const Train* GetTrain() const { return train; }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const Task* GetTask() const { return &task; }
-	inline const Service* CreateSimple() const {return new Service(*GetShuntingUnit(), *GetTask(), GetTrain(), GetFacility()); }
+	inline const Service* CreateSimple() const {return new Service(GetShuntingUnit(), *GetTask(), GetTrain(), GetFacility()); }
 	ACTION_OVERRIDE(ServiceAction)
 };
 
@@ -302,7 +316,7 @@ public:
 	SetbackAction() = delete;
 	SetbackAction(const ShuntingUnit* su, vector<const Employee*> drivers, int duration) : Action(su, {}, drivers, duration) {}
 	const inline vector<const Employee*>& GetDrivers() const { return GetEmployees(); }
-	inline const Setback* CreateSimple() const {return new Setback(*GetShuntingUnit()); }
+	inline const Setback* CreateSimple() const {return new Setback(GetShuntingUnit()); }
 	ACTION_OVERRIDE(SetbackAction)
 };
 
@@ -310,7 +324,7 @@ class WaitAction : public Action {
 public:
 	WaitAction() = delete;
 	WaitAction(const ShuntingUnit* su, int duration) : Action(su, {}, duration) {}
-	inline const Wait* CreateSimple() const {return new Wait(*GetShuntingUnit()); }
+	inline const Wait* CreateSimple() const {return new Wait(GetShuntingUnit()); }
 	ACTION_OVERRIDE(WaitAction)
 };
 

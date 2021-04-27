@@ -26,8 +26,8 @@ const string CombineAction::toString() const {
 
 const Action* CombineActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto combine = static_cast<const Combine*>(&action);
-	auto frontSU = state->GetMatchingShuntingUnit(&combine->GetShuntingUnit());
-    auto rearSU = state->GetMatchingShuntingUnit(&combine->GetSecondShuntingUnit());
+	auto frontSU = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
+    auto rearSU = state->GetShuntingUnitByTrainIDs(combine->GetSecondTrainIDs());
     auto& frontTrains = frontSU->GetTrains();
     auto& rearTrains = rearSU->GetTrains();
     auto duration = state->GetFrontTrain(frontSU)->GetType()->combineDuration;
@@ -68,7 +68,11 @@ void CombineActionGenerator::Generate(const State* state, list<const Action*>& o
                 frontSU = suB;
                 rearSU = suA;
             } else continue;
-			out.push_back(Generate(state, Combine(*frontSU, *rearSU)));
+			out.push_back(Generate(state, Combine(frontSU, rearSU)));
         }
     }
+}
+
+const string Combine::GetSecondTrainsToString() const {
+    return "[" + Join(secondTrainIDs.begin(), secondTrainIDs.end(), ", ") + "]";
 }

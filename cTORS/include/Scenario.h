@@ -47,8 +47,12 @@ public:
 	const Train* GetTrainByID(int id) const;
 	const Incoming* GetIncomingBySU(const ShuntingUnit* su) const;
 	const Outgoing* GetOutgoingBySU(const ShuntingUnit* su) const;
-	const Incoming* GetIncomingByTrain(const Train* su) const;
-	const Outgoing* GetOutgoingByTrain(const Train* su) const;
+	inline const Incoming* GetIncomingByTrain(const Train* train) const { return GetIncomingByTrainID(train->GetID()); }
+	inline const Outgoing* GetOutgoingByTrain(const Train* train) const { return GetOutgoingByTrainID(train->GetID()); }
+	inline const Incoming* GetIncomingByTrainIDs(const vector<int>& ids) const { return GetIncomingByTrainID(ids.at(0)); }
+	inline const Outgoing* GetOutgoingByTrainIDs(const vector<int>& ids) const { return GetOutgoingByTrainID(ids.at(0)); }
+	const Incoming* GetIncomingByTrainID(int id) const;
+	const Outgoing* GetOutgoingByTrainID(int id) const;
 	const vector<Task> GetTasksForTrain(const Train* train) const { return GetIncomingByTrain(train)->GetTasks().at(train); }
 
 	inline void SetStartTime(int startTime) { this->startTime = startTime; }

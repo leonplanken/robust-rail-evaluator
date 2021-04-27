@@ -56,7 +56,8 @@ private:
 	unordered_map<const ShuntingUnit*, ShuntingUnitState, ShuntingUnitHash, ShuntingUnitEquals> shuntingUnitStates;
 	unordered_map<const Track*, TrackState> trackStates;
 	unordered_map<const Train*, TrainState, TrainHash, TrainEquals> trainStates;
-
+	map<int, const ShuntingUnit*> trainIDToShuntingUnit;
+	map<int, const Train*> trainIDToTrain;
 	bool changed;
 public:
 	State() = delete;
@@ -114,6 +115,9 @@ public:
 	inline const list<const Task*>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
 	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return shuntingUnitStates.at(su); }
 	inline const unordered_map<const ShuntingUnit*, ShuntingUnitState, ShuntingUnitHash, ShuntingUnitEquals>& GetShuntingUnitStates() const { return shuntingUnitStates; }
+	inline const ShuntingUnit* GetShuntingUnitByTrainID(int id) const { return trainIDToShuntingUnit.at(id); }
+	inline const Train* GetTrainByTrainID(int id) const { return trainIDToTrain.at(id); }
+	const ShuntingUnit* GetShuntingUnitByTrainIDs(const vector<int>& ids) const;
 
 	//Setters and Adders
 	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }

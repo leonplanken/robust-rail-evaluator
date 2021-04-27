@@ -16,11 +16,12 @@ void ShuntingUnit::UpdateValues() {
 	needsElectricity = false;
 	trainString = "";
 	bool first = true;
+	trainIDs = {};
 	for (auto& t : trains) {
 		length += t.GetType()->length;
 		needsElectricity |= t.GetType()->needsElectricity;
 		trainString += (t.toString() + (first ? "" : "-"));
-		trainIDs.push_back(to_string(t.GetID()));
+		trainIDs.push_back(t.GetID());
 	}
 }
 
@@ -46,7 +47,6 @@ int ShuntingUnit::GetSetbackTime(const Train* const frontTrain, bool normTime, b
 		}
 	}
 	return setbackTime;
-		
 }
 
 bool ShuntingUnit::MatchesShuntingUnit(const ShuntingUnit* su) const {

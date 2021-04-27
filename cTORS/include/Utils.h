@@ -37,6 +37,19 @@ std::vector<const T*> copy_of(const std::vector<const T*>& objs) {
     return res;
 }
 
+template <class It>
+std::string Join(It begin, const It end, const std::string& sep)
+{
+  ostringstream stream;
+  if(begin!=end)
+    stream << *begin++;
+  while(begin!=end) {
+    stream << sep;
+    stream << *begin++;
+  }
+  return stream.str();
+}
+
 template<class T>
 inline void hash_combine(std::size_t& s, const T& v)
 {

@@ -31,7 +31,7 @@ const string SplitAction::toString() const {
 
 const Action* SplitActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto split = static_cast<const Split*>(&action);
-	auto su = state->GetMatchingShuntingUnit(&action.GetShuntingUnit());
+	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
 	auto suState = state->GetShuntingUnitState(su);
 	if(su->GetTrains().size() <= 1) throw InvalidActionException("The shunting unit consists of only one train unit.");
 	if(suState.moving || suState.waiting || suState.HasActiveAction()) throw InvalidActionException("The shunting unit is already occupied.");
@@ -54,7 +54,7 @@ void SplitActionGenerator::Generate(const State* state, list<const Action*>& out
 		if (size <= 1 || suState.moving || suState.waiting || suState.HasActiveAction()) continue;
 		auto duration = suState.frontTrain->GetType()->splitDuration;
 		for(int splitPosition = 1; splitPosition < size; splitPosition++) {
-			out.push_back(Generate(state, Split(*su, splitPosition)));
+			out.push_back(Generate(state, Split(su, splitPosition)));
 		}
 	}
 }

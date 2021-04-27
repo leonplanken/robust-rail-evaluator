@@ -15,7 +15,7 @@ private:
 	double length;
 	bool needsElectricity;
 	string trainString;
-	vector<string> trainIDs;
+	vector<int> trainIDs;
 	void UpdateValues();
 public:
 	ShuntingUnit() = delete;
@@ -28,7 +28,7 @@ public:
 		return "ShuntingUnit-" + to_string(id);
 	}
 	inline const string& GetTrainString() const { return trainString; }
-	inline const vector<string>& GetTrainIDString() const { return trainIDs; };
+	inline const vector<int>& GetTrainIDs() const { return trainIDs; };
 
 	inline bool operator==(const ShuntingUnit& su) const { return (id == su.id); }
 	inline bool operator!=(const ShuntingUnit& su) const { return !(*this == su); }

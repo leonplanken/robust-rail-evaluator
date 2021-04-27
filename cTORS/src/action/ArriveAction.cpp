@@ -5,7 +5,6 @@ void ArriveAction::Start(State* state) const {
 	const Track* parkingTrack = incoming->GetParkingTrack();
 	const Track* sideTrack = incoming->GetSideTrack();
 	const ShuntingUnit* su = GetShuntingUnit();
-
 	state->AddShuntingUnit(su, parkingTrack, sideTrack);
 	if (!incoming->IsInstanding())
 		state->ReserveTracks(vector({ parkingTrack, sideTrack }));

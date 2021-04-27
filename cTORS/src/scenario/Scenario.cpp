@@ -81,16 +81,16 @@ const Outgoing* Scenario::GetOutgoingBySU(const ShuntingUnit* su) const {
 	return nullptr;
 }
 
-const Incoming* Scenario::GetIncomingByTrain(const Train* train) const {
+const Incoming* Scenario::GetIncomingByTrainID(int id) const {
 	for(auto inc : incomingTrains) {
-		if(inc->GetShuntingUnit()->GetTrainByID(train->GetID()) != nullptr) return inc;
+		if(inc->GetShuntingUnit()->GetTrainByID(id) != nullptr) return inc;
 	}
 	return nullptr;
 }
 
-const Outgoing* Scenario::GetOutgoingByTrain(const Train* train) const {
+const Outgoing* Scenario::GetOutgoingByTrainID(int id) const {
 	for(auto out : outgoingTrains) {
-		if(out->GetShuntingUnit()->GetTrainByID(train->GetID()) != nullptr) return out;
+		if(out->GetShuntingUnit()->GetTrainByID(id) != nullptr) return out;
 	}
 	return nullptr;
 }

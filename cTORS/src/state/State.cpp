@@ -77,7 +77,11 @@ const ShuntingUnit* State::AddShuntingUnitToState(const ShuntingUnit* su, const 
 	shuntingUnits.push_back(shuntingUnit);
 	auto& trains = shuntingUnit->GetTrains();
 	shuntingUnitStates.emplace(shuntingUnit, ShuntingUnitState(track, previous, trains.front() == *frontTrain ? &trains.front() : &trains.back()));
-	for(auto& train: shuntingUnit->GetTrains()) trainStates[&train];
+	for(auto& train: trains) {
+		trainStates[&train];
+		trainIDToShuntingUnit[train.GetID()] = shuntingUnit;
+		trainIDToTrain[train.GetID()] = &train;
+	}
 	return shuntingUnit;
 }
 
@@ -161,7 +165,11 @@ void State::RemoveOutgoing(const Outgoing* outgoing) {
 void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 	RemoveOccupation(su);
 	shuntingUnitStates.erase(su);
-	for(auto& train: su->GetTrains()) trainStates.erase(&train);
+	for(auto& train: su->GetTrains()) {
+		trainIDToShuntingUnit.erase(train.GetID());
+		trainIDToTrain.erase(train.GetID());
+		trainStates.erase(&train);
+	}
 	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
 	if (it != shuntingUnits.end()) {
 		delete *it;
@@ -263,4 +271,18 @@ void State::SwitchFrontTrain(const ShuntingUnit* su) {
 	auto front = &su->GetTrains().front();
 	auto back = &su->GetTrains().back();
 	SetFrontTrain(su, GetFrontTrain(su) == front ? back : front);
+}
+
+const ShuntingUnit* State::GetShuntingUnitByTrainIDs(const vector<int>& ids) const {
+	#if(DEBUG)
+	//Check that all train ids refer to the same shunting unit
+	assert(ids.size() > 0);
+	const ShuntingUnit* su = nullptr;
+	for(int id: ids) {
+		auto current = GetShuntingUnitByTrainID(id); 
+		assert(su == nullptr || su == current);
+		su = current;
+	}
+	#endif
+	return GetShuntingUnitByTrainID(ids.at(0));
 }
