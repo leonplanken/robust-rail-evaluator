@@ -28,13 +28,13 @@ const Action* CombineActionGenerator::Generate(const State* state, const SimpleA
 	auto combine = static_cast<const Combine*>(&action);
 	auto frontSU = state->GetMatchingShuntingUnit(&combine->GetShuntingUnit());
     auto rearSU = state->GetMatchingShuntingUnit(&combine->GetSecondShuntingUnit());
-    auto frontTrains = copy_of(frontSU->GetTrains());
-    auto rearTrains = copy_of(rearSU->GetTrains());
+    auto& frontTrains = frontSU->GetTrains();
+    auto& rearTrains = rearSU->GetTrains();
     auto duration = state->GetFrontTrain(frontSU)->GetType()->combineDuration;
     auto track = state->GetPosition(frontSU);
     auto position = state->GetPositionOnTrack(frontSU);
     auto neutral = state->IsInNeutral(frontSU) && state->IsInNeutral(rearSU);
-    vector<const Train*> combinedTrains(frontTrains);
+    vector<Train> combinedTrains(frontTrains);
     combinedTrains.insert(combinedTrains.end(), rearTrains.begin(), rearTrains.end());
     ShuntingUnit combinedSU(frontSU->GetID(), combinedTrains);
     return new CombineAction(frontSU, rearSU, combinedSU, track, duration, position, neutral);

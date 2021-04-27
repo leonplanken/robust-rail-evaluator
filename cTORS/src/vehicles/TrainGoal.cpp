@@ -1,9 +1,9 @@
 #include "TrainGoals.h"
 
-const Train* GetTrainById(const vector<const Train*>& trains, const string& id) {
+const Train* GetTrainById(const vector<Train>& trains, const string& id) {
 	int iid = id == "****" ? -1 : stoi(id);
 	for(auto& train: trains) {
-		if(train->GetID() == iid) return train;
+		if(train.GetID() == iid) return &train;
 	}
 	return nullptr;
 }
@@ -53,10 +53,10 @@ void TrainGoal::Serialize(PBTrainGoal* pb_tg) const {
 	pb_tg->set_time(time);
 	pb_tg->set_id(to_string(id));
 	map<const Train*, PBTrainUnit*> trainMap;
-	for(auto t: shuntingUnit->GetTrains()) {
+	for(auto& t: shuntingUnit->GetTrains()) {
 		auto pb_t = pb_tg->add_members();
-		t->Serialize(pb_t);
-		trainMap[t] = pb_t;
+		t.Serialize(pb_t);
+		trainMap[&t] = pb_t;
 	}
 	pb_tg->set_candepartfromanytrack(false);
 	pb_tg->set_standingindex(standingIndex);

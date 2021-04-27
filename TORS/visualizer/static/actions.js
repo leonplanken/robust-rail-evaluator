@@ -99,7 +99,7 @@ function get_trains(trains) {
     var result = '';
     $.each(trains, function (i, train) {
         result += (i > 0) ? ", " : '';
-        result += train['id'] + '[' + train['train_units'] + ']' //train.split("-")[0];
+        result += train['id'] + '[' + train['trains'] + ']' //train.split("-")[0];
     });
 
     return result;

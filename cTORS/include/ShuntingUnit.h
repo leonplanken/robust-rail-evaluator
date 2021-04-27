@@ -10,22 +10,25 @@ class Action;
 
 class ShuntingUnit {
 private:
-	const int id;
-	vector<const Train*> trains;
+	int id;
+	vector<Train> trains;
 	double length;
 	bool needsElectricity;
+	string trainString;
+	vector<string> trainIDs;
 	void UpdateValues();
 public:
 	ShuntingUnit() = delete;
-	ShuntingUnit(int id, const vector<const Train*>& trains);
+	ShuntingUnit(int id, const vector<Train>& trains) : id(id), trains(trains) { UpdateValues(); }
 	ShuntingUnit(const PBTrainGoal& pb_tg);
-	ShuntingUnit(const ShuntingUnit& su);
-	~ShuntingUnit();
+	ShuntingUnit(const ShuntingUnit& su) = default;
+	~ShuntingUnit() = default;
 	
 	inline const string toString() const {
 		return "ShuntingUnit-" + to_string(id);
 	}
-	const string GetTrainString() const;
+	inline const string& GetTrainString() const { return trainString; }
+	inline const vector<string>& GetTrainIDString() const { return trainIDs; };
 
 	inline bool operator==(const ShuntingUnit& su) const { return (id == su.id); }
 	inline bool operator!=(const ShuntingUnit& su) const { return !(*this == su); }
@@ -34,11 +37,11 @@ public:
 	inline double GetLength() const { return length; }
 	inline bool NeedsElectricity() const { return needsElectricity; }
 	inline size_t GetNumberOfTrains() const { return trains.size(); }
-	inline const vector<const Train*>& GetTrains() const { return trains; }
+	inline const vector<Train>& GetTrains() const { return trains; }
 	int GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime, int setbackTime) const;
 	inline int GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime) const { return GetSetbackTime(frontTrain, normTime, walkTime, 0); }
 	inline int GetStartUpTime(const Train* const frontTrain) const { return frontTrain->GetType()->startUpTime; }
-	inline void SetTrains(vector<const Train*> trains) {
+	inline void SetTrains(vector<Train>& trains) {
 		this->trains = trains;
 		UpdateValues();
 	}

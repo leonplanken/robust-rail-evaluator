@@ -65,7 +65,7 @@ public:
 		: SimpleAction(su), task(task), facility(facility), trainIndex(GetShuntingUnit().GetTrainIndexByID(train->GetID())) {}
 	Service(const Service& service) = default;
 	inline const Task* GetTask() const { return &task; }
-	inline const Train* GetTrain() const { return GetShuntingUnit().GetTrains().at(trainIndex); }
+	inline const Train* GetTrain() const { return &GetShuntingUnit().GetTrains().at(trainIndex); }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const string toString() const override {
 		return "Service: " + GetShuntingUnit().toString() + " perform " + task.toString() + " on " + GetTrain()->toString() + " at " +facility->toString();

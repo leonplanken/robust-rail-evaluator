@@ -151,6 +151,10 @@ enum PredefinedTaskType {
     Break = 7;
     // Non-Service traffic that blocks the infrastructure
     NonService = 8;
+    
+    BeginMove = 9;//TEMP
+    
+    EndMove = 10;//TEMP
 }
 
 message WalkingDistanceEntry {

@@ -69,6 +69,7 @@ private:
 public:
     RunResult(const Scenario* scenario) : scenario(scenario), feasible(false) {}
     RunResult(const Scenario& scenario) : scenario(new Scenario(scenario)), feasible(false) {}
+    RunResult(const Scenario* scenario, const POSPlan& plan, bool feasible) : scenario(scenario), plan(plan), feasible(feasible) {}
     RunResult(const Scenario& scenario, const POSPlan& plan, bool feasible) : scenario(new Scenario(scenario)), plan(plan), feasible(feasible) {}
     RunResult(const RunResult& rr) : RunResult(*rr.scenario, rr.plan, rr.feasible) {}
     ~RunResult() { delete scenario; }
@@ -78,7 +79,7 @@ public:
     inline const POSPlan& GetPlan() const { return plan; }
     void Serialize(Engine& engine, PBRun* pb_run) const;
     void SerializeToFile(Engine& engine, const string& outfile) const;
-    static RunResult CreateRunResult(const Location* location, const PBRun& pb_run);
+    static RunResult* CreateRunResult(const Location* location, const PBRun& pb_run);
 };
 
 

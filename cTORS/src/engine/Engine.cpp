@@ -64,14 +64,8 @@ void Engine::ApplyAction(State* state, const Action* action) {
 }
 
 void Engine::ApplyAction(State* state, const SimpleAction& action) {
-	
-	const Action* _action;
-	try {
-		debug_out("\tApplying action " + action.toString());
-		_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
-	} catch(exception& e) {
-		throw InvalidActionException("Error in generating action (" + action.toString() + "): " + e.what());
-	}
+	debug_out("\tApplying action " + action.toString());
+	const Action* _action = GenerateAction(state, action);
 	auto is_valid = actionValidator.IsValid(state, _action);
 	if(!is_valid.first) {
 		delete _action;
@@ -81,6 +75,14 @@ void Engine::ApplyAction(State* state, const SimpleAction& action) {
 		ApplyAction(state, _action);
 	} catch(exception& e) {
 		throw InvalidActionException("Error in applying action (" + _action->toString() + "): " + e.what());
+	}
+}
+
+const Action* Engine::GenerateAction(const State* state, const SimpleAction& action) const {
+	try {
+		return actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
+	} catch(exception& e) {
+		throw InvalidActionException("Error in generating action (" + action.toString() + "): " + e.what());
 	}
 }
 
@@ -181,7 +183,7 @@ const Path Engine::GetPath(const State* state, const Move& move) const {
 	return moveGenerator->GeneratePath(state, move);
 }
 
-RunResult Engine::ImportResult(const string& path) {
+RunResult* Engine::ImportResult(const string& path) {
 	PBRun run;
 	parse_json_to_pb(path, &run);
 	return RunResult::CreateRunResult(&location, run);

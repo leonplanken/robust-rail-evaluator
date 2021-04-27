@@ -4,9 +4,8 @@ int POSAction::newUID{ 0 };
 
 const ShuntingUnit GetShuntingUnitFromTrainIDs(const Scenario* scenario, const PBList<string>& pb_train_ids) {
     vector<string> trainIDs(pb_train_ids.begin(), pb_train_ids.end());
-    vector<const Train*> trains (trainIDs.size());
-    transform(trainIDs.begin(), trainIDs.end(), trains.begin(),
-        [scenario](const string& s) -> const Train* {return new Train(*scenario->GetTrainByID(stoi(s)));});
+    vector<Train> trains;
+    for(auto& s: trainIDs) trains.push_back(Train(*scenario->GetTrainByID(stoi(s))));
     static int newSUID = 0;
     return ShuntingUnit(newSUID++, trains);
 }
@@ -66,6 +65,10 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
                     action = new Setback(su); break;
                 case PBPredefinedTaskType::Break:
                     action = new Wait(su); break;
+                case PBPredefinedTaskType::BeginMove: //TEMP
+                    action = new BeginMove(su); break; //TEMP
+                case PBPredefinedTaskType::EndMove: //TEMP
+                    action = new EndMove(su); break; //TEMP
                 case PBPredefinedTaskType::NonService:
                     throw invalid_argument("Non-service tasks not implemented.");
                 case PBPredefinedTaskType::Move:
@@ -93,8 +96,8 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb
     pb_action->set_suggestedfinishingtime(suggestedEnd);
     pb_action->set_minimumduration(minDuration);
     debug_out("Serialize train ids");
-    for(auto t: action->GetShuntingUnit().GetTrains()) {
-        *(pb_action->add_trainunitids()) = to_string(t->GetID());
+    for(auto& t: action->GetShuntingUnit().GetTrains()) {
+        *(pb_action->add_trainunitids()) = to_string(t.GetID());
     }
     if(instanceof<Move>(action)) {
         debug_out("Serialize move action");
@@ -130,20 +133,24 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb
             // TODO how is the split action defined in protobuf? Current implementation: store the IDs of the first train.
             for(int i=0; i<split->GetSplitIndex(); i++) {
                 debug_out("Serialize split action: " + to_string(i));
-                pb_task->add_trainunitids(to_string(split->GetShuntingUnit().GetTrains().at(i)->GetID()));
+                pb_task->add_trainunitids(to_string(split->GetShuntingUnit().GetTrains().at(i).GetID()));
             } 
         } else if(instanceof<Combine>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Combine);
             auto combine = dynamic_cast<const Combine*>(action);
             // TODO how is the combine action defined in protobuf? Current implementation: store the IDs of the second train.
-            for(auto t: combine->GetSecondShuntingUnit().GetTrains())
-                pb_task->add_trainunitids(to_string(t->GetID()));
+            for(auto& t: combine->GetSecondShuntingUnit().GetTrains())
+                pb_task->add_trainunitids(to_string(t.GetID()));
         } else if(instanceof<Setback>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Walking);
         } else if(instanceof<Arrive>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Arrive);
         } else if(instanceof<Exit>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Exit);
+        } else if(instanceof<BeginMove>(action)) { //TEMP
+            pb_task_type->set_predefined(PBPredefinedTaskType::BeginMove);//TEMP
+        } else if(instanceof<EndMove>(action)) {//TEMP
+            pb_task_type->set_predefined(PBPredefinedTaskType::EndMove);//TEMP
         } else {
             throw invalid_argument("Action serialization not implemented for action " + action->toString());
         }
@@ -167,7 +174,7 @@ void POSPlan::Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_
             engine.Step(state);
             debug_out("Finished Step Update [T="+to_string(state->GetTime())+"].");
             if(state->GetTime() >= it->GetSuggestedStart()) {
-                if(!instanceof<BeginMove>(it->GetAction()) && !instanceof<EndMove>(it->GetAction())) {
+                if(true || (!instanceof<BeginMove>(it->GetAction()) && !instanceof<EndMove>(it->GetAction()))) {
                     auto pb_action = pb_plan->add_actions();
                     debug_out("Serialize action");
                     it->Serialize(engine, state, pb_action);
@@ -209,9 +216,9 @@ void RunResult::SerializeToFile(Engine& engine, const string& outfile) const {
     parse_pb_to_json(outfile, pb_run);
 }
 
-RunResult RunResult::CreateRunResult(const Location* location, const PBRun& pb_run) {
-    const Scenario scenario(pb_run.scenario(), *location);
-    POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_run.plan());
+RunResult* RunResult::CreateRunResult(const Location* location, const PBRun& pb_run) {
+    const Scenario* scenario =  new Scenario(pb_run.scenario(), *location);
+    POSPlan plan = POSPlan::CreatePOSPlan(location, scenario, pb_run.plan());
     bool feasible = pb_run.feasible();
-    return RunResult(scenario, plan, feasible);
+    return new RunResult(scenario, plan, feasible);
 }

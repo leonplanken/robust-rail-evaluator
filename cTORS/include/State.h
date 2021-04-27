@@ -95,7 +95,7 @@ public:
 	const vector<const Track*> GetReservedTracks() const;
 	int GetPositionOnTrack(const ShuntingUnit* su) const;
 	inline size_t GetAmountOnTrack(const Track* track) const { return GetOccupations(track).size(); }
-	const vector<const Train*> GetTrainUnitsInOrder(const ShuntingUnit* su) const;
+	const vector<Train> GetTrainUnitsInOrder(const ShuntingUnit* su) const;
 	bool CanMoveToSide(const ShuntingUnit* su, const Track* side) const;
 	inline bool IsMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).moving; }
 	inline bool IsReserved(const Track* track) const { return trackStates.at(track).reserved; }
@@ -129,7 +129,7 @@ public:
 	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->Clone()); }
 	const ShuntingUnit* AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
-	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, su->GetTrains().front()); }
+	inline void AddShuntingUnit(const ShuntingUnit* su, const Track* track, const Track* previous) { AddShuntingUnit(su, track, previous, &su->GetTrains().front()); }
 	void AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain, int positionOnTrack);
 	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { shuntingUnitStates.at(su).frontTrain = frontTrain; }
 	void SwitchFrontTrain(const ShuntingUnit* su);

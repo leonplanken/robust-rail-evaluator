@@ -60,8 +60,8 @@ const size_t Scenario::GetNumberOfTrains() const {
 
 const Train* Scenario::GetTrainByID(int id) const {
 	for(auto inc : incomingTrains) {
-		for(auto t: inc->GetShuntingUnit()->GetTrains()) {
-			if(t->GetID() == id) return t;
+		for(auto& t: inc->GetShuntingUnit()->GetTrains()) {
+			if(t.GetID() == id) return &t;
 		}
 	}
 	return nullptr;

@@ -4,6 +4,17 @@ import json
 
 from pyTORS import ArriveAction, ExitAction, BeginMoveAction, EndMoveAction, SplitAction, CombineAction, WaitAction, ServiceAction, MoveAction
 
+def get_valid_actions():
+    if not current_app.result is None:
+        actions = current_app.result.plan.get_actions()
+        if current_app.action_index < len(actions):
+            a = actions[current_app.action_index]  
+            _a = current_app.engine.generate_action(current_app.state, a.action)
+            print("Generated: ", _a)
+            return [_a]
+        return []
+    else:
+        return current_app.engine.get_valid_actions(current_app.state)
 
 class Actions(Resource):
 
@@ -15,13 +26,13 @@ class Actions(Resource):
         """
 
         actions = {}
-        for idx, a in enumerate(current_app.engine.get_valid_actions(current_app.state)):
+        for idx, a in enumerate(get_valid_actions()):
             # get shunting units from action
             shunting_units = [a.shunting_unit] # add other shunting units with combine
             shunting_units = [{
                 "uuid": str(su.id),
                 "id": str(su.id),
-                "train_units": "-".join([str(tu.type) for tu in su.train_units])
+                "trains": "-".join([str(tu.type) for tu in su.trains])
             } for su in shunting_units]
             
 
@@ -45,7 +56,13 @@ class Actions(Resource):
         """
 
         action_id = int(request.args["action"])
-        action = current_app.engine.get_valid_actions(current_app.state)[action_id]
-
+        valid_actions = get_valid_actions()
+        if action_id < 0 or action_id >= len(valid_actions):
+            return Response("Invalid action id", status=400)
+        action = valid_actions[action_id]
+        
         current_app.engine.apply_action(current_app.state, action)
         current_app.engine.step(current_app.state)
+
+        if not current_app.result is None:
+            current_app.action_index += 1

@@ -34,13 +34,12 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// ShuntingUnit               ////
 	////////////////////////////////////
 	py::class_<ShuntingUnit>(m, "ShuntingUnit")
-		.def(py::init<int, vector<const Train*>>())
+		.def(py::init<int, const vector<Train>&>())
 		.def_property_readonly("id", &ShuntingUnit::GetID)
-		.def_property("train_units", &ShuntingUnit::GetTrains, &ShuntingUnit::SetTrains, py::return_value_policy::reference, py::keep_alive<1, 2>())
+		.def_property("trains", &ShuntingUnit::GetTrains, &ShuntingUnit::SetTrains, py::return_value_policy::reference, py::keep_alive<1, 2>())
 		.def_property_readonly("length", &ShuntingUnit::GetLength)
 		.def_property_readonly("needs_electricity", &ShuntingUnit::NeedsElectricity)
 		.def_property_readonly("number_of_trains", &ShuntingUnit::GetNumberOfTrains)
-		.def("get_trains", &ShuntingUnit::GetTrains, py::return_value_policy::reference)
 		.def("get_copy", [](const ShuntingUnit& su) { return new ShuntingUnit(su); }, py::return_value_policy::take_ownership)
 		.def("matches_shunting_unit", &ShuntingUnit::MatchesShuntingUnit, py::arg("su"))
 		.def("__str__", &ShuntingUnit::toString)
@@ -340,6 +339,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_valid_actions", &Engine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
 		.def("apply_action", static_cast<void (Engine::*)(State*, const SimpleAction&)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
 		.def("apply_action", static_cast<void (Engine::*)(State*, const Action*)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("generate_action", &Engine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
 		.def("start_session", 
 			[](Engine& e, Scenario *scenario) -> State* { 
 				if (scenario == nullptr) return e.StartSession();
@@ -374,14 +374,26 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// POSPlan, RunResult         ////
 	////////////////////////////////////
 	py::class_<POSPlan>(m, "POSPlan")
-		.def_property_readonly("actions", &POSPlan::GetActions, py::return_value_policy::reference)
+		.def("get_actions", &POSPlan::GetActions, py::return_value_policy::reference)
+		.def("get_first_action", [](POSPlan& p) -> POSAction {return p.GetActions()[0]; })
 		.def("serialize_to_file", &POSPlan::SerializeToFile, py::arg("engine"), py::arg("scenario"), py::arg("file_name"));
 
 	py::class_<RunResult>(m, "RunResult")
-		.def_property_readonly("actions", &RunResult::GetActions, py::return_value_policy::reference)
 		.def_property_readonly("scenario", &RunResult::GetScenario, py::return_value_policy::reference)
 		.def_property_readonly("plan", &RunResult::GetPlan, py::return_value_policy::reference)
+		.def("get_actions", &RunResult::GetActions, py::return_value_policy::reference)
 		.def("serialize_to_file", &RunResult::SerializeToFile, py::arg("engine"), py::arg("file_name"));
+
+	////////////////////////////////////
+	//// POSAction                  ////
+	////////////////////////////////////
+	py::class_<POSAction>(m, "POSAction")
+		.def(py::init<int, int, int, const SimpleAction*>())
+		.def_property_readonly("id", &POSAction::GetID)
+		.def_property_readonly("suggested_start", &POSAction::GetSuggestedStart)
+		.def_property_readonly("suggested_end", &POSAction::GetSuggestedEnd)
+		.def_property_readonly("minimum_duration", &POSAction::GetMinimumDuration)
+		.def_property_readonly("action", &POSAction::GetAction, py::return_value_policy::reference);
 
 	////////////////////////////////////
 	//// Exceptions                 ////

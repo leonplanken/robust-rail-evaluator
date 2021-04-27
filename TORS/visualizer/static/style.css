@@ -19,9 +19,31 @@ h1, h2, h3 {
 
 }
 
+.header > * {
+    display: inline-block;
+}
+
+.header > div {
+    height: 70%;
+    float: right;
+}
+
 .header h1 {
     color: #0c9356;
     margin: 0;
+}
+
+.header button {
+    height: 100%;
+}
+
+.header button:hover {
+    cursor: pointer;
+}
+
+.header select {
+    height: 100%;
+    vertical-align: bottom;
 }
 
 .wrapper {

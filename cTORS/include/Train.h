@@ -70,9 +70,9 @@ struct Task {
 
 class Train {
 private:
-	const int id;
-	const TrainUnitType *type;
-	const bool forcedMatch;
+	int id;
+	TrainUnitType *type;
+	bool forcedMatch;
 public:
 	Train() = delete;
 	Train(int id, TrainUnitType *type) : id(id), type(type), forcedMatch(false) {}

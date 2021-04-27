@@ -44,10 +44,10 @@ void ServiceActionGenerator::Generate(const State* state, list<const Action*>& o
 		if (state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su)) continue;
 		auto tr = state->GetPosition(su);
 		auto& fas = tr->GetFacilities();
-		for (auto tu : su->GetTrains()) {
-			for (const Task& task : state->GetTasksForTrain(tu)) {
+		for (auto& tu : su->GetTrains()) {
+			for (const Task& task : state->GetTasksForTrain(&tu)) {
 				for (auto fa : fas) {
-					out.push_back(Generate(state, Service(*su, task, tu, fa)));
+					out.push_back(Generate(state, Service(*su, task, &tu, fa)));
 				}
 			}
 		}

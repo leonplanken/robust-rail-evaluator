@@ -76,8 +76,8 @@ const ShuntingUnit* State::AddShuntingUnitToState(const ShuntingUnit* su, const 
 	auto shuntingUnit = new ShuntingUnit(*su);
 	shuntingUnits.push_back(shuntingUnit);
 	auto& trains = shuntingUnit->GetTrains();
-	shuntingUnitStates.emplace(shuntingUnit, ShuntingUnitState(track, previous, trains.front() == frontTrain ? trains.front() : trains.back()));
-	for(auto train: shuntingUnit->GetTrains()) trainStates[train];
+	shuntingUnitStates.emplace(shuntingUnit, ShuntingUnitState(track, previous, trains.front() == *frontTrain ? &trains.front() : &trains.back()));
+	for(auto& train: shuntingUnit->GetTrains()) trainStates[&train];
 	return shuntingUnit;
 }
 
@@ -161,7 +161,7 @@ void State::RemoveOutgoing(const Outgoing* outgoing) {
 void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 	RemoveOccupation(su);
 	shuntingUnitStates.erase(su);
-	for(auto train: su->GetTrains()) trainStates.erase(train);
+	for(auto& train: su->GetTrains()) trainStates.erase(&train);
 	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
 	if (it != shuntingUnits.end()) {
 		delete *it;
@@ -249,18 +249,18 @@ bool State::CanMoveToSide(const ShuntingUnit* su, const Track* side) const {
 	return sus.back() == su;
 }
 
-const vector<const Train*> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
-	auto trains = su->GetTrains();
+const vector<Train> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
+	auto& trains = su->GetTrains();
 	auto suState = GetShuntingUnitState(su);
-	bool frontFirst = suState.frontTrain == trains.front();
+	bool frontFirst = *suState.frontTrain == trains.front();
 	if ((suState.previous == nullptr || suState.position->IsASide(suState.previous)) && frontFirst)
 		return trains;
-	vector<const Train*>reverse (trains.rbegin(), trains.rend());
+	vector<Train>reverse (trains.rbegin(), trains.rend());
 	return reverse;
 }
 
 void State::SwitchFrontTrain(const ShuntingUnit* su) {
-	auto front = su->GetTrains().front();
-	auto back = su->GetTrains().back();
+	auto front = &su->GetTrains().front();
+	auto back = &su->GetTrains().back();
 	SetFrontTrain(su, GetFrontTrain(su) == front ? back : front);
 }
