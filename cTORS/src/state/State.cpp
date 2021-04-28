@@ -286,3 +286,17 @@ const ShuntingUnit* State::GetShuntingUnitByTrainIDs(const vector<int>& ids) con
 	#endif
 	return GetShuntingUnitByTrainID(ids.at(0));
 }
+
+const Incoming* State::GetIncomingByID(int id) const {
+	auto it = find_if(incomingTrains.begin(), incomingTrains.end(),
+		[id](const Incoming* inc) -> bool { return inc->GetID() == id;});
+	if(it==incomingTrains.end()) return nullptr;
+	return *it;
+}
+
+const Outgoing* State::GetOutgoingByID(int id) const {
+	auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(),
+		[id](const Outgoing* out) -> bool { return out->GetID() == id;});
+	if(it==outgoingTrains.end()) return nullptr;
+	return *it;
+}

@@ -118,6 +118,8 @@ public:
 	inline const ShuntingUnit* GetShuntingUnitByTrainID(int id) const { return trainIDToShuntingUnit.at(id); }
 	inline const Train* GetTrainByTrainID(int id) const { return trainIDToTrain.at(id); }
 	const ShuntingUnit* GetShuntingUnitByTrainIDs(const vector<int>& ids) const;
+	const Incoming* GetIncomingByID(int id) const;
+	const Outgoing* GetOutgoingByID(int id) const;
 
 	//Setters and Adders
 	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }

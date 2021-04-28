@@ -62,19 +62,21 @@ class Service : public SimpleAction {
 private:
 	const Task task;
 	const Train train;
-	const Facility* facility;
+	int facilityID;
 public:
 	Service() = delete;
+	Service(const vector<int>& trainIDs, const Task& task, const Train& train, int facilityID)
+		: SimpleAction(trainIDs), task(task), train(train), facilityID(facilityID) {}
 	Service(const vector<int>& trainIDs, const Task& task, const Train& train, const Facility* facility)
-		: SimpleAction(trainIDs), task(task), facility(facility), train(train) {}
+		: Service(trainIDs, task, train, facility->GetID()) {}
 	Service(const ShuntingUnit* su, const Task& task, const Train& train, const Facility* facility)
-		: Service(su->GetTrainIDs(), task, train, facility) {}
+		: Service(su->GetTrainIDs(), task, train, facility->GetID()) {}
 	Service(const Service& service) = default;
 	inline const Task& GetTask() const { return task; }
 	inline const Train& GetTrain() const { return train; }
-	inline const Facility* GetFacility() const { return facility; }
+	inline int GetFacilityID() const { return facilityID; }
 	inline const string toString() const override {
-		return "Service: " + GetTrainsToString() + " perform " + GetTask().toString() + " on " + GetTrain().toString() + " at " +facility->toString();
+		return "Service: " + GetTrainsToString() + " perform " + GetTask().toString() + " on " + GetTrain().toString() + " at facility " + to_string(facilityID);
 	}
 	inline const string GetGeneratorName() const override { return "service"; }
 	inline const Service* Clone() const override { return new Service(*this); }
@@ -82,12 +84,12 @@ public:
 
 class Arrive : public SimpleAction {
 private:
-	const Incoming* incoming;
+	int incomingID;
 public:
 	Arrive() = delete;
-	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incoming(inc) {}
+	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incomingID(inc->GetID()) {}
 	Arrive(const Arrive& arrive) = default;
-	inline const Incoming* GetIncoming() const { return incoming; }
+	inline const int GetIncomingID() const { return incomingID; }
 	inline const string toString() const override { return "Arrive: " + GetTrainsToString(); }
 	inline const string GetGeneratorName() const override { return "arrive"; }
 	inline const Arrive* Clone() const override { return new Arrive(*this); }
@@ -95,13 +97,13 @@ public:
 
 class Exit : public SimpleAction {
 private:
-	const Outgoing* outgoing;
+	int outgoingID;
 public:
 	Exit() = delete;
-	Exit(const Outgoing* out, const vector<int>& ids) : SimpleAction(ids), outgoing(out) {}
-	Exit(const Outgoing* out, const ShuntingUnit* su) : Exit(out, su->GetTrainIDs()) {}
+	Exit(const vector<int>& ids, int outgoingID) : SimpleAction(ids), outgoingID(outgoingID) {}
+	Exit(const ShuntingUnit* su, const Outgoing* out) : Exit(su->GetTrainIDs(), out->GetID()) {}
 	Exit(const Exit& exit) = default;
-	inline const Outgoing* GetOutgoing() const { return outgoing; }
+	inline const int GetOutgoingID() const { return outgoingID; }
 	inline const string toString() const override { return "Exit: " + GetTrainsToString(); }
 	inline const string GetGeneratorName() const override { return "exit"; }
 	inline const Exit* Clone() const override { return new Exit(*this); }
@@ -109,14 +111,15 @@ public:
 
 class Move : public SimpleAction {
 private:
-	const Track* destination;
+	string destinationID;
 public:
 	Move() = delete;
-	Move(const vector<int>& trainIDs, const Track* destination) : SimpleAction(trainIDs), destination(destination) {}
-	Move(const ShuntingUnit* su, const Track* destination) : Move(su->GetTrainIDs(), destination) {}
+	Move(const vector<int>& trainIDs, string destinationID) : SimpleAction(trainIDs), destinationID(destinationID) {}
+	Move(const vector<int>& trainIDs, const Track* destination) : Move(trainIDs, destination->GetID()) {}
+	Move(const ShuntingUnit* su, const Track* destination) : Move(su->GetTrainIDs(), destination->GetID()) {}
 	Move(const Move& move) = default;
-	inline const Track* GetDestination() const { return destination; }
-	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to " +destination->toString(); }
+	inline const string& GetDestinationID() const { return destinationID; }
+	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to " +destinationID; }
 	inline const string GetGeneratorName() const override { return "move"; }
 	inline const Move* Clone() const override { return new Move(*this); }
 };
@@ -227,7 +230,7 @@ public:
 	ExitAction(const ShuntingUnit* su, const Outgoing* outgoing) : Action(su), outgoing(outgoing) {};
 	inline const Track* GetDestinationTrack() const { return outgoing->GetParkingTrack(); }
 	inline const Outgoing* GetOutgoing() const { return outgoing; }
-	inline const Exit* CreateSimple() const { return new Exit(outgoing, GetShuntingUnit()); }
+	inline const Exit* CreateSimple() const { return new Exit(GetShuntingUnit(), outgoing); }
 	ACTION_OVERRIDE(ExitAction)
 };
 

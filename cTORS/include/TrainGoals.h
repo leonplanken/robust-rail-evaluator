@@ -30,6 +30,7 @@ public:
 			: TrainGoal(id, su, nullptr, nullptr, time, isInstanding, standingIndex, unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals> {}) {};
 	TrainGoal(const TrainGoal& traingoal);
 	~TrainGoal();
+	inline int GetID() const { return id; }
 	void assignTracks(const Track* park, const Track* side);
 	inline bool IsInstanding() const { return isInstanding; }
 	inline int GetTime() const { return time; }

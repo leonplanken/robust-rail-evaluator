@@ -46,6 +46,7 @@ public:
 		UpdateValues();
 	}
 	bool MatchesShuntingUnit(const ShuntingUnit* su) const ;
+	bool MatchesTrainIDs(const vector<int>& ids, const vector<const TrainUnitType*>& types) const;
 	const Train* GetTrainByID(int id) const;
 	int GetTrainIndexByID(int id) const;
 };

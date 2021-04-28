@@ -37,7 +37,8 @@ const Path& MoveActionGenerator::GeneratePath(const State* state, const Move& mo
 	auto& suState  = state->GetShuntingUnitState(su);
 	if(!suState.moving || suState.HasActiveAction()) throw InvalidActionException("The shunting unit is already active.");
 	auto previous = suState.inNeutral ? nullptr : suState.previous;
-	return location->GetNeighborPath({previous, suState.position}, move.GetDestination()); 
+	auto destination = location->GetTrackByID(move.GetDestinationID());
+	return location->GetNeighborPath({previous, suState.position}, destination); 
 }
 
 const Action* MoveActionGenerator::Generate(const State* state, const SimpleAction& action) const {

@@ -38,8 +38,24 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
             switch(task) {
                 case PBPredefinedTaskType::Arrive: 
                     action = new Arrive(scenario->GetIncomingByTrainIDs(trainIDs)); break;
-                case PBPredefinedTaskType::Exit: 
-                    action = new Exit(scenario->GetOutgoingByTrainIDs(trainIDs), trainIDs); break;
+                case PBPredefinedTaskType::Exit:
+                {
+                    vector<const TrainUnitType*> types;
+                    for(int id: trainIDs)  types.push_back(scenario->GetTrainByID(id)->GetType());
+                    auto& outgoingTrains = scenario->GetOutgoingTrains();
+                    int start = pb_action.suggestedstartingtime();
+                    int end = pb_action.suggestedfinishingtime();
+                    auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(),
+                        [start, end, &trainIDs, &types] (const Outgoing* out) -> bool { 
+                            return out->GetTime() >= start && 
+                                    out->GetTime() <= end &&
+                                    out->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types);
+                        });
+                    if(it == outgoingTrains.end())
+                        throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
+                    action = new Exit(trainIDs, (*it)->GetID());
+                    break;
+                }
                 case PBPredefinedTaskType::Split:
                 {
                     // TODO how is the split action defined in protobuf? Current implementation: store the IDs of the first train.
@@ -111,7 +127,7 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb
         }
         auto current = state->GetPosition(su);
         auto previous = state->GetPrevious(su);
-        auto destination = move->GetDestination();
+        auto destination = engine.GetLocation().GetTrackByID(move->GetDestinationID());
         auto prev_destination = prev(path.route.back());
         pb_move->set_fromside(current->IsASide(previous) ? PBSide::B : PBSide::A );
         pb_move->set_toside(destination->IsASide(prev_destination) ? PBSide::A : PBSide::B );
@@ -123,10 +139,11 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb
         auto pb_task_type = pb_task->mutable_type();
         if(instanceof<Service>(action)) {
             auto service = dynamic_cast<const Service*>(action);
+            auto facility = engine.GetLocation().GetFacilityByID(service->GetFacilityID());
             pb_task_type->set_other(service->GetTask().taskType);
-            pb_task->set_location(stoi(service->GetFacility()->GetTracks().at(0)->GetID()));
+            pb_task->set_location(stoi(facility->GetTracks().at(0)->GetID()));
             auto pb_facility = pb_task->add_facilities();
-            pb_facility->set_id(service->GetFacility()->GetID());
+            pb_facility->set_id(facility->GetID());
             pb_task->add_trainunitids(to_string(service->GetTrain().GetID()));
         } else if(instanceof<Split>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Split);

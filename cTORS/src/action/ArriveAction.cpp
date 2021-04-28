@@ -26,8 +26,9 @@ const string ArriveAction::toString() const {
 
 const Action* ArriveActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto arrive = static_cast<const Arrive*>(&action);
-	auto su = arrive->GetIncoming()->GetShuntingUnit();
-	return new ArriveAction(su, 0, arrive->GetIncoming());
+	auto inc = state->GetIncomingByID(arrive->GetIncomingID());
+	auto su = inc->GetShuntingUnit();
+	return new ArriveAction(su, 0, inc);
 }
 
 void ArriveActionGenerator::Generate(const State* state, list<const Action*>& out) const {

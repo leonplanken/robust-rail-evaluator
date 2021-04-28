@@ -33,7 +33,7 @@ const Action* ServiceActionGenerator::Generate(const State* state, const SimpleA
 	auto it = find(tasks.begin(), tasks.end(), task);
 	if(it==tasks.end())
 		throw invalid_argument("The service task " + task.toString() + " for train " + train->toString() + " could not be found.");
-	auto facility = location->GetFacilityByID(service->GetFacility()->GetID());
+	auto facility = location->GetFacilityByID(service->GetFacilityID());
 	return new ServiceAction(su, train, *it, facility, vector<const Employee*> {});
 }
 

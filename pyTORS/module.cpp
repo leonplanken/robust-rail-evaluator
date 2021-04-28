@@ -108,7 +108,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	//// Incoming, Outgoing         ////
 	////////////////////////////////////
 	py::class_<TrainGoal>(m, "TrainGoal")
-		.def_property_readonly("shunting_unit", &TrainGoal::GetShuntingUnit)
+		.def_property_readonly("id", &TrainGoal::GetID)
+		.def_property_readonly("shunting_unit", &TrainGoal::GetShuntingUnit, py::return_value_policy::reference)
 		.def_property_readonly("time", &TrainGoal::GetTime)
 		.def_property_readonly("instanding", &TrainGoal::IsInstanding)
 		.def_property_readonly("standing_index", &TrainGoal::GetStandingIndex)
@@ -141,6 +142,9 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_amount_on_track", &State::GetAmountOnTrack, py::arg("track"))
 		.def("get_reserved_tracks", &State::GetReservedTracks, py::return_value_policy::move)
 		.def("can_move_to_side", &State::CanMoveToSide, py::arg("shunting_unit"), py::arg("track"))
+		.def("get_train_by_id", &State::GetTrainByTrainID, py::arg("train_id"), py::return_value_policy::reference)
+		.def("get_shunting_unit_by_id", &State::GetShuntingUnitByTrainID, py::arg("train_id"), py::return_value_policy::reference)
+		.def("get_shunting_unit_by_ids", &State::GetShuntingUnitByTrainIDs, py::arg("train_ids"), py::return_value_policy::reference)
 		.def("is_moving", &State::IsMoving, py::arg("shunting_unit"))
 		.def("is_waiting", &State::IsWaiting, py::arg("shunting_unit"))
 		.def("is_reserved", &State::IsReserved, py::arg("track"))
@@ -200,28 +204,30 @@ PYBIND11_MODULE(pyTORS, m) {
 	BIND_SIMPLE_ACTION(Wait);
 	BIND_SIMPLE_ACTION(Setback);
 	py::class_<Service, SimpleAction>(m, "Service")
+		.def(py::init<const vector<int>&, const Task&, const Train&, int>())
 		.def(py::init<const ShuntingUnit*, const Task&, const Train&, const Facility*>())
 		.def(py::init<const vector<int>&, const Task&, const Train&, const Facility*>())
 		.def_property_readonly("task", &Service::GetTask, py::return_value_policy::reference)
 		.def_property_readonly("train", &Service::GetTrain, py::return_value_policy::reference)
-		.def_property_readonly("facility", &Service::GetFacility, py::return_value_policy::reference)
+		.def_property_readonly("facility_id", &Service::GetFacilityID)
 		.def("__str__", &Service::toString)
 		.def("__repr__", &Service::toString);
 	py::class_<Arrive, SimpleAction>(m, "Arrive")
 		.def(py::init<const Incoming*>())
-		.def_property_readonly("incoming", &Arrive::GetIncoming, py::return_value_policy::reference)
+		.def_property_readonly("incoming_id", &Arrive::GetIncomingID)
 		.def("__str__", &Arrive::toString)
 		.def("__repr__", &Arrive::toString);
 	py::class_<Exit, SimpleAction>(m, "Exit")
-		.def(py::init<const Outgoing*, const ShuntingUnit*>())
-		.def(py::init<const Outgoing*, const vector<int>&>())
-		.def_property_readonly("outgoing", &Exit::GetOutgoing, py::return_value_policy::reference)
+		.def(py::init<const ShuntingUnit*, const Outgoing*>())
+		.def(py::init<const vector<int>&, int>())
+		.def_property_readonly("outgoing_id", &Exit::GetOutgoingID)
 		.def("__str__", &Exit::toString)
 		.def("__repr__", &Exit::toString);
 	py::class_<Move, SimpleAction>(m, "Move")
 		.def(py::init<const ShuntingUnit*, const Track*>())
 		.def(py::init<const vector<int>&, const Track*>())
-		.def_property_readonly("destination", &Move::GetDestination, py::return_value_policy::reference)
+		.def(py::init<const vector<int>&, string>())
+		.def_property_readonly("destination_id", &Move::GetDestinationID)
 		.def("__str__", &Move::toString)
 		.def("__repr__", &Move::toString);
 	py::class_<Split, SimpleAction>(m, "Split")

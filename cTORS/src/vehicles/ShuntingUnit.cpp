@@ -71,3 +71,28 @@ bool ShuntingUnit::MatchesShuntingUnit(const ShuntingUnit* su) const {
 	}
 	return true;
 }
+
+bool ShuntingUnit::MatchesTrainIDs(const vector<int>& ids, const vector<const TrainUnitType*>& types) const {
+	auto& su1Trains = GetTrains();
+	if(su1Trains.size() != ids.size()) return false;
+	bool leftValid = true;
+	bool rightValid = true;
+	for (int i = 0; i < su1Trains.size(); i++) {
+		auto exp = su1Trains.at(i).GetID();
+		auto expType = su1Trains.at(i).GetType();
+		auto left = ids.at(i);
+		auto leftType = types.at(i);
+		auto right = ids.at(ids.size() - 1 - i);
+		auto rightType = types.at(ids.size() - 1 - i);
+		bool haveIDleft = (exp != -1 && left != -1);
+		bool haveIDright = (exp != -1 && right != -1);
+		if ((haveIDleft && exp != left) ||
+			(!haveIDleft && expType->displayName != leftType->displayName))
+			leftValid = false;
+		if ((haveIDright && exp != right) ||
+			(!haveIDright && expType->displayName != rightType->displayName))
+			rightValid = false;	
+		if(!leftValid && !rightValid) return false;
+	}
+	return true;
+}
