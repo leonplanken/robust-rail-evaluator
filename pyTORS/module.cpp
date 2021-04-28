@@ -200,8 +200,8 @@ PYBIND11_MODULE(pyTORS, m) {
 	BIND_SIMPLE_ACTION(Wait);
 	BIND_SIMPLE_ACTION(Setback);
 	py::class_<Service, SimpleAction>(m, "Service")
-		.def(py::init<const ShuntingUnit*, const Task&, const Train*, const Facility*>())
-		.def(py::init<const vector<int>&, const Task&, const Train*, const Facility*>())
+		.def(py::init<const ShuntingUnit*, const Task&, const Train&, const Facility*>())
+		.def(py::init<const vector<int>&, const Task&, const Train&, const Facility*>())
 		.def_property_readonly("task", &Service::GetTask, py::return_value_policy::reference)
 		.def_property_readonly("train", &Service::GetTrain, py::return_value_policy::reference)
 		.def_property_readonly("facility", &Service::GetFacility, py::return_value_policy::reference)

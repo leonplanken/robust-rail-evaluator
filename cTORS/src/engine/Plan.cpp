@@ -84,7 +84,7 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
             auto it = find_if(tasks.begin(), tasks.end(), [taskTypeString](auto& t) -> bool {return t.taskType == taskTypeString; });
             if(it==tasks.end()) throw invalid_argument("Could not find task " + taskTypeString + " for train " + train->toString());
             const Facility* facility = location->GetFacilityByID(pb_action.task().facilities().at(0).id());
-            action = new Service(trainIDs, *it, train, facility);
+            action = new Service(trainIDs, *it, *train, facility);
         }
     } else {
         action = new Wait(trainIDs);
@@ -123,11 +123,11 @@ void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb
         auto pb_task_type = pb_task->mutable_type();
         if(instanceof<Service>(action)) {
             auto service = dynamic_cast<const Service*>(action);
-            pb_task_type->set_other(service->GetTask()->taskType);
+            pb_task_type->set_other(service->GetTask().taskType);
             pb_task->set_location(stoi(service->GetFacility()->GetTracks().at(0)->GetID()));
             auto pb_facility = pb_task->add_facilities();
             pb_facility->set_id(service->GetFacility()->GetID());
-            pb_task->add_trainunitids(to_string(service->GetTrain()->GetID()));
+            pb_task->add_trainunitids(to_string(service->GetTrain().GetID()));
         } else if(instanceof<Split>(action)) {
             pb_task_type->set_predefined(PBPredefinedTaskType::Split);
             auto split = dynamic_cast<const Split*>(action);

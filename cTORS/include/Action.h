@@ -65,16 +65,16 @@ private:
 	const Facility* facility;
 public:
 	Service() = delete;
-	Service(const vector<int>& trainIDs, const Task& task, const Train* train, const Facility* facility)
-		: SimpleAction(trainIDs), task(task), facility(facility), train(*train) {}
-	Service(const ShuntingUnit* su, const Task& task, const Train* train, const Facility* facility)
+	Service(const vector<int>& trainIDs, const Task& task, const Train& train, const Facility* facility)
+		: SimpleAction(trainIDs), task(task), facility(facility), train(train) {}
+	Service(const ShuntingUnit* su, const Task& task, const Train& train, const Facility* facility)
 		: Service(su->GetTrainIDs(), task, train, facility) {}
 	Service(const Service& service) = default;
-	inline const Task* GetTask() const { return &task; }
-	inline const Train* GetTrain() const { return &train; }
+	inline const Task& GetTask() const { return task; }
+	inline const Train& GetTrain() const { return train; }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const string toString() const override {
-		return "Service: " + GetTrainsToString() + " perform " + task.toString() + " on " + GetTrain()->toString() + " at " +facility->toString();
+		return "Service: " + GetTrainsToString() + " perform " + GetTask().toString() + " on " + GetTrain().toString() + " at " +facility->toString();
 	}
 	inline const string GetGeneratorName() const override { return "service"; }
 	inline const Service* Clone() const override { return new Service(*this); }
@@ -307,7 +307,7 @@ public:
 	inline const Train* GetTrain() const { return train; }
 	inline const Facility* GetFacility() const { return facility; }
 	inline const Task* GetTask() const { return &task; }
-	inline const Service* CreateSimple() const {return new Service(GetShuntingUnit(), *GetTask(), GetTrain(), GetFacility()); }
+	inline const Service* CreateSimple() const {return new Service(GetShuntingUnit(), *GetTask(), *GetTrain(), GetFacility()); }
 	ACTION_OVERRIDE(ServiceAction)
 };
 
