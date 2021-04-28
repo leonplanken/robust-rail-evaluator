@@ -3,7 +3,7 @@
 
 int main()
 {
-	Engine engine("data/Demo");
+	LocationEngine engine("data/Demo");
 	engine.CalcShortestPaths();
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
@@ -28,9 +28,7 @@ int main()
 				}
 				a = *next(actions.begin(), i);
 			}
-			auto sa = a->CreateSimple();
-			engine.ApplyAction(state, *sa);
-			delete sa;
+			engine.ApplyAction(state, a);
 		}
 		catch (ScenarioFailedException e) {
 			cout << "Scenario failed.\n";

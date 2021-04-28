@@ -108,7 +108,7 @@ POSAction POSAction::CreatePOSAction(const Location* location, const Scenario* s
     return POSAction(suggestedStartingTime, suggestedEndingTime, minDuration, action); 
 }
 
-void POSAction::Serialize(const Engine& engine, const State* state, PBAction* pb_action) const {
+void POSAction::Serialize(const LocationEngine& engine, const State* state, PBAction* pb_action) const {
     pb_action->set_suggestedstartingtime(suggestedStart);
     pb_action->set_suggestedfinishingtime(suggestedEnd);
     pb_action->set_minimumduration(minDuration);
@@ -184,7 +184,7 @@ POSPlan POSPlan::CreatePOSPlan(const Location* location, const Scenario* scenari
     return POSPlan(actions);
 }
 
-void POSPlan::Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_plan) const {
+void POSPlan::Serialize(LocationEngine& engine, const Scenario& scenario, PBPOSPlan* pb_plan) const {
     auto state = engine.StartSession(scenario);
     auto it = actions.begin();
     while(it != actions.end()) {
@@ -214,7 +214,7 @@ void POSPlan::Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_
     engine.EndSession(state);
 }
 
-void POSPlan::SerializeToFile(Engine& engine, const Scenario& scenario, const string& outfile) const {
+void POSPlan::SerializeToFile(LocationEngine& engine, const Scenario& scenario, const string& outfile) const {
     PBPOSPlan pb_plan;
     debug_out("Start Serializing plan.")
     Serialize(engine, scenario, &pb_plan);
@@ -223,21 +223,28 @@ void POSPlan::SerializeToFile(Engine& engine, const Scenario& scenario, const st
 }
 
 
-void RunResult::Serialize(Engine& engine, PBRun* pb_run) const {
-    scenario->Serialize(pb_run->mutable_scenario());
-    plan.Serialize(engine, *scenario, pb_run->mutable_plan());
+void RunResult::Serialize(LocationEngine& engine, PBRun* pb_run) const {
+    pb_run->set_location(location);
+    scenario.Serialize(pb_run->mutable_scenario());
+    plan.Serialize(engine, scenario, pb_run->mutable_plan());
     pb_run->set_feasible(feasible);
 }
 
-void RunResult::SerializeToFile(Engine& engine, const string& outfile) const {
+void RunResult::SerializeToFile(LocationEngine& engine, const string& outfile) const {
     PBRun pb_run;
     Serialize(engine, &pb_run);
     parse_pb_to_json(outfile, pb_run);
 }
 
+RunResult* RunResult::CreateRunResult(const Engine& engine, const PBRun& pb_run) {
+    string locationString = pb_run.location();
+    auto& location = engine.GetLocation(locationString);
+    return CreateRunResult(&location, pb_run);
+}
+
 RunResult* RunResult::CreateRunResult(const Location* location, const PBRun& pb_run) {
-    const Scenario* scenario =  new Scenario(pb_run.scenario(), *location);
-    POSPlan plan = POSPlan::CreatePOSPlan(location, scenario, pb_run.plan());
+    Scenario scenario = Scenario(pb_run.scenario(), *location);
+    POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_run.plan());
     bool feasible = pb_run.feasible();
-    return new RunResult(scenario, plan, feasible);
+    return new RunResult(location->GetLocationFilePath(), scenario, plan, feasible);
 }

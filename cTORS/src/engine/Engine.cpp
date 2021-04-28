@@ -1,12 +1,12 @@
 #include "Engine.h"
 using namespace std;
 
-Engine::Engine(const string &path) : path(path), location(Location(path)), 
+LocationEngine::LocationEngine(const string &path) : path(path), location(Location(path)), 
 	originalScenario(Scenario(path, location)), config(Config(path)),
 	actionValidator(ActionValidator(&config)), actionManager(ActionManager(&config, &location)) {}
 
 
-Engine::~Engine() {
+LocationEngine::~LocationEngine() {
 	debug_out("Deleting engine");
 	for(auto& [name, type]: TrainUnitType::types) {
 		delete type;	
@@ -23,7 +23,7 @@ Engine::~Engine() {
 	debug_out("Done deleting engine");
 }
 
-list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
+list<const Action*> &LocationEngine::Step(State * state, Scenario * scenario) {
 	ExecuteImmediateEvents(state);
 	auto& actions = GetValidActions(state);
 	debug_out("Got valid actions succesfully");
@@ -53,7 +53,7 @@ list<const Action*> &Engine::Step(State * state, Scenario * scenario) {
 	return actions;
 }
 
-void Engine::ApplyAction(State* state, const Action* action) {
+void LocationEngine::ApplyAction(State* state, const Action* action) {
 	debug_out("\tApplying action " + action->toString());
 	int startTime = state->GetTime();
 	auto sa = action->CreateSimple();
@@ -63,7 +63,7 @@ void Engine::ApplyAction(State* state, const Action* action) {
 	results[state]->AddAction(posaction);
 }
 
-void Engine::ApplyAction(State* state, const SimpleAction& action) {
+void LocationEngine::ApplyAction(State* state, const SimpleAction& action) {
 	debug_out("\tApplying action " + action.toString());
 	const Action* _action = GenerateAction(state, action);
 	auto is_valid = actionValidator.IsValid(state, _action);
@@ -78,7 +78,7 @@ void Engine::ApplyAction(State* state, const SimpleAction& action) {
 	}
 }
 
-const Action* Engine::GenerateAction(const State* state, const SimpleAction& action) const {
+const Action* LocationEngine::GenerateAction(const State* state, const SimpleAction& action) const {
 	try {
 		return actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
 	} catch(exception& e) {
@@ -86,7 +86,7 @@ const Action* Engine::GenerateAction(const State* state, const SimpleAction& act
 	}
 }
 
-list<const Action*> &Engine::GetValidActions(State* state) {
+list<const Action*> &LocationEngine::GetValidActions(State* state) {
 	debug_out("Starting GetValidActions");
 	if (state->IsChanged()) {
 		auto& actions = stateActionMap.at(state);
@@ -106,7 +106,7 @@ list<const Action*> &Engine::GetValidActions(State* state) {
 	return actions;
 }
 
-void Engine::ExecuteImmediateEvents(State* state) {
+void LocationEngine::ExecuteImmediateEvents(State* state) {
 	if (state == nullptr) {
 		throw runtime_error("state == null, something went wrong");
 	}
@@ -120,7 +120,7 @@ void Engine::ExecuteImmediateEvents(State* state) {
 	}
 }
 
-void Engine::ExecuteEvent(State* state, const Event* e) {
+void LocationEngine::ExecuteEvent(State* state, const Event* e) {
 	auto a = e->GetAction();
 	if (a != nullptr) {
 		debug_out("\tFinishing action " + a->toString());
@@ -130,7 +130,7 @@ void Engine::ExecuteEvent(State* state, const Event* e) {
 	delete e;
 }
 
-bool Engine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
+bool LocationEngine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
 	auto state = StartSession(scenario);
 	auto it = plan.GetActions().begin();
     while(it != plan.GetActions().end()) {
@@ -151,16 +151,15 @@ bool Engine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
 	return result;
 }
 
-State* Engine::StartSession(const Scenario& scenario) {
+State* LocationEngine::StartSession(const Scenario& scenario) {
 	debug_out("Start Session. (Currently " << stateActionMap.size() << " sessions)");
-	Scenario* scenarioCopy = new Scenario(scenario);
-	State* state = new State(*scenarioCopy, location.GetTracks());
+	State* state = new State(scenario, location.GetTracks());
 	stateActionMap[state];
-	results[state] = new RunResult(*scenarioCopy);
+	results[state] = new RunResult(path, scenario);
 	return state;
 }
 
-void Engine::EndSession(State* state) {
+void LocationEngine::EndSession(State* state) {
 	debug_out("End session. (Currently " << stateActionMap.size() << " sessions)");
 	auto& actions = stateActionMap[state];
 	auto& schedule = results[state];
@@ -171,20 +170,61 @@ void Engine::EndSession(State* state) {
 	delete state;
 }
 
-void Engine::CalcShortestPaths() { 
+void LocationEngine::CalcShortestPaths() { 
 	bool byTrackType = true; //TODO read parameter for distance matrix from config file
 	for(const auto& [trainTypeName, trainType]: TrainUnitType::types) {
 		location.CalcShortestPaths(byTrackType, trainType);
 	}
 } 
 
-const Path Engine::GetPath(const State* state, const Move& move) const {
+const Path LocationEngine::GetPath(const State* state, const Move& move) const {
 	static auto moveGenerator = static_cast<const MoveActionGenerator*>(actionManager.GetGenerator(move.GetGeneratorName()));
 	return moveGenerator->GeneratePath(state, move);
+}
+
+RunResult* LocationEngine::ImportResult(const string& path) {
+	PBRun run;
+	parse_json_to_pb(path, &run);
+	return RunResult::CreateRunResult(&location, run);
+}
+
+LocationEngine* Engine::GetOrLoadLocationEngine(const string& location) {
+	auto it = engines.find(location);
+	if(it== engines.end()) {
+		engines.emplace(location, location);
+		return &engines.at(location);
+	}
+	return &it->second;
+}
+
+State* Engine::StartSession(const string& location, const Scenario& scenario) {
+	auto e = GetOrLoadLocationEngine(location);
+	auto state = e->StartSession(scenario);
+	engineMap[state] = e;
+	return state;
+}
+
+State* Engine::StartSession(const string& location) {
+	auto e = GetOrLoadLocationEngine(location);
+	auto state = e->StartSession(e->GetScenario());
+	engineMap[state] = e;
+	return state;
+}
+
+void Engine::EndSession(State* state) {
+	auto e = engineMap.at(state);
+	engineMap.erase(state);
+	e->EndSession(state);
+}
+
+void Engine::CalcShortestPaths() {
+	for(auto& [loc, engine]: engines) {
+		engine.CalcShortestPaths();
+	}
 }
 
 RunResult* Engine::ImportResult(const string& path) {
 	PBRun run;
 	parse_json_to_pb(path, &run);
-	return RunResult::CreateRunResult(&location, run);
+	return RunResult::CreateRunResult(*this, run);
 }

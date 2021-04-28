@@ -30,6 +30,7 @@ class Location
 private:
 	static const string locationFileString;
 	
+	string path;
 	vector<Track*> tracks;
 	vector<Facility*> facilities;
 	unordered_map<Position, double> distanceMatrix;
@@ -50,6 +51,8 @@ public:
 	Location(const Location& location) = default;
 	~Location();
 	
+	inline const string& GetLocationFilePath() const { return path; }
+
 	inline Track* GetTrackByID(const string& id) const { return trackIndex.at(id); }
 
 	inline const vector<Track*>& GetTracks() const { return tracks; }

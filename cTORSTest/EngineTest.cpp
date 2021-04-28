@@ -4,7 +4,7 @@
 namespace cTORSTest
 {
 	TEST_CASE("Engine Test") {
-		Engine engine("data/Demo");
+		LocationEngine engine("data/Demo");
 		auto& tracks = engine.GetLocation().GetTracks();
 		auto& scenario = engine.GetScenario();
 		Track* railTrack;
@@ -37,7 +37,7 @@ namespace cTORSTest
 	}
 
 	TEST_CASE("Scenario test") {
-		Engine engine("data/Demo");
+		LocationEngine engine("data/Demo");
 		auto& sc1 = engine.GetScenario();
 		{
 			Scenario sc2(sc1);

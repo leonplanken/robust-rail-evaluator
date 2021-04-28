@@ -9,6 +9,7 @@ using namespace std;
 const string Location::locationFileString = "location.json";
 
 Location::Location(const string &folderName) {
+	path = folderName;
 	try {
 		PBLocation pb_location;
 		parse_json_to_pb(fs::path(folderName) / fs::path(locationFileString), &pb_location);

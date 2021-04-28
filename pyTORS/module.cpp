@@ -345,25 +345,25 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	//// Engine                     ////
 	////////////////////////////////////
-	py::class_<Engine>(m, "Engine")
+	py::class_<LocationEngine>(m, "Engine")
 		.def(py::init<const std::string&>())
-		.def("step", &Engine::Step, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
-		.def("get_valid_actions", &Engine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
-		.def("apply_action", static_cast<void (Engine::*)(State*, const SimpleAction&)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
-		.def("apply_action", static_cast<void (Engine::*)(State*, const Action*)>(&Engine::ApplyAction), py::arg("state"), py::arg("action"))
-		.def("generate_action", &Engine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
+		.def("step", &LocationEngine::Step, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
+		.def("get_valid_actions", &LocationEngine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
+		.def("apply_action", static_cast<void (LocationEngine::*)(State*, const SimpleAction&)>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action", static_cast<void (LocationEngine::*)(State*, const Action*)>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
 		.def("start_session", 
-			[](Engine& e, Scenario *scenario) -> State* { 
+			[](LocationEngine& e, Scenario *scenario) -> State* { 
 				if (scenario == nullptr) return e.StartSession();
 				else return e.StartSession(*scenario); 
 		}, py::arg("scenario") = nullptr, py::return_value_policy::reference)
-		.def("end_session", &Engine::EndSession, py::arg("state"))
-		.def("get_location", &Engine::GetLocation, py::return_value_policy::reference)
-		.def("get_scenario", &Engine::GetScenario, py::return_value_policy::reference)
-		.def("get_result", &Engine::GetResult, py::arg("state"), py::return_value_policy::copy)
-		.def("get_path", &Engine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
-		.def("import_result", &Engine::ImportResult, py::arg("file_path"), py::return_value_policy::take_ownership)
-		.def("calc_shortest_paths", &Engine::CalcShortestPaths);
+		.def("end_session", &LocationEngine::EndSession, py::arg("state"))
+		.def("get_location", &LocationEngine::GetLocation, py::return_value_policy::reference)
+		.def("get_scenario", &LocationEngine::GetScenario, py::return_value_policy::reference)
+		.def("get_result", &LocationEngine::GetResult, py::arg("state"), py::return_value_policy::copy)
+		.def("get_path", &LocationEngine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
+		.def("import_result", &LocationEngine::ImportResult, py::arg("file_path"), py::return_value_policy::take_ownership)
+		.def("calc_shortest_paths", &LocationEngine::CalcShortestPaths);
 
 	////////////////////////////////////
 	//// Event                      ////

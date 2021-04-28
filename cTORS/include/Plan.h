@@ -8,6 +8,7 @@
 #include "Engine.h"
 
 class Engine;
+class LocationEngine;
 
 class POSAction {
 private:
@@ -28,7 +29,7 @@ public:
     inline int GetSuggestedEnd() const { return suggestedEnd; }
     inline int GetMinimumDuration() const { return minDuration; }
     inline const SimpleAction* GetAction() const { return action; }
-    void Serialize(const Engine& engine, const State* state, PBAction* pb_action) const;
+    void Serialize(const LocationEngine& engine, const State* state, PBAction* pb_action) const;
     static POSAction CreatePOSAction(const Location* location, const Scenario* scenario, const PBAction& pb_action);
 };
 
@@ -55,30 +56,33 @@ public:
     POSPlan(vector<POSAction> actions) : actions(actions) {}
     inline const vector<POSAction>& GetActions() const { return actions; }
     inline void AddAction(const POSAction& action) { actions.push_back(action); }
-    void Serialize(Engine& engine, const Scenario& scenario, PBPOSPlan* pb_plan) const;
-    void SerializeToFile(Engine& engine, const Scenario& scenario, const string& outfile) const;
+    void Serialize(LocationEngine& engine, const Scenario& scenario, PBPOSPlan* pb_plan) const;
+    void SerializeToFile(LocationEngine& engine, const Scenario& scenario, const string& outfile) const;
     static POSPlan CreatePOSPlan(const Location* location, const Scenario* scenario, const PBPOSPlan& pb_plan);
 };
 
 
 class RunResult {
 private:
-    const Scenario* scenario;
+    Scenario scenario;
     POSPlan plan;
+    string location;
     bool feasible;
 public:
-    RunResult(const Scenario* scenario) : scenario(scenario), feasible(false) {}
-    RunResult(const Scenario& scenario) : scenario(new Scenario(scenario)), feasible(false) {}
-    RunResult(const Scenario* scenario, const POSPlan& plan, bool feasible) : scenario(scenario), plan(plan), feasible(feasible) {}
-    RunResult(const Scenario& scenario, const POSPlan& plan, bool feasible) : scenario(new Scenario(scenario)), plan(plan), feasible(feasible) {}
-    RunResult(const RunResult& rr) : RunResult(*rr.scenario, rr.plan, rr.feasible) {}
-    ~RunResult() { delete scenario; }
+    RunResult() = delete;
+    RunResult(const string& location, const Scenario& scenario) : location(location), scenario(scenario), feasible(false) {}
+    RunResult(const string& location, const Scenario& scenario, const POSPlan& plan, bool feasible)
+        : location(location), scenario(scenario), plan(plan), feasible(feasible) {}
+    RunResult(const RunResult& rr) = default;
+    ~RunResult() = default;
     inline const vector<POSAction>& GetActions() const { return plan.GetActions(); }
     inline void AddAction(const POSAction& action) { plan.AddAction(action); }
-    inline const Scenario& GetScenario() const { return *scenario; }
+    inline const Scenario& GetScenario() const { return scenario; }
     inline const POSPlan& GetPlan() const { return plan; }
-    void Serialize(Engine& engine, PBRun* pb_run) const;
-    void SerializeToFile(Engine& engine, const string& outfile) const;
+    inline const string& GetLocation() const { return location; }
+    void Serialize(LocationEngine& engine, PBRun* pb_run) const;
+    void SerializeToFile(LocationEngine& engine, const string& outfile) const;
+    static RunResult* CreateRunResult(const Engine& engine, const PBRun& pb_run);
     static RunResult* CreateRunResult(const Location* location, const PBRun& pb_run);
 };
 

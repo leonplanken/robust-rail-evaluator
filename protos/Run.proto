@@ -6,9 +6,9 @@ import "Scenario.proto";
 import "PartialOrderSchedule.proto";
 
 message Run {
-	//TODO add location
-	Scenario scenario = 1;
-	PartialOrderSchedule plan = 2;
-	bool feasible = 3;
-	string result = 4;
+	string location = 1;
+	Scenario scenario = 2;
+	PartialOrderSchedule plan = 3;
+	bool feasible = 4;
+	string result = 5;
 }
