@@ -4,9 +4,12 @@ State::State(const Scenario& scenario, const vector<Track*>& tracks) {
 	time = scenario.GetStartTime();
 	startTime = scenario.GetStartTime();
 	endTime = scenario.GetEndTime();
-	incomingTrains = scenario.GetIncomingTrains();
-	outgoingTrains = scenario.GetOutgoingTrains();
-	employees = scenario.GetEmployees();
+	for(auto inc: scenario.GetIncomingTrains())
+		incomingTrains.push_back(new Incoming(*inc));
+	for(auto out: scenario.GetOutgoingTrains())
+		outgoingTrains.push_back(new Outgoing(*out));
+	for(auto e: scenario.GetEmployees())
+		employees.push_back(new Employee(*e));
 	for (auto in : incomingTrains)
 		AddEvent(in);
 	for (auto out : outgoingTrains)
@@ -18,6 +21,9 @@ State::State(const Scenario& scenario, const vector<Track*>& tracks) {
 State::~State() {
 	debug_out("Deleting state");
 	DELETE_VECTOR(shuntingUnits);
+	DELETE_VECTOR(incomingTrains);
+	DELETE_VECTOR(outgoingTrains);
+	DELETE_VECTOR(employees);
 }
 
 void State::SetTime(int time) {
