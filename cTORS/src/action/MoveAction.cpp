@@ -51,8 +51,7 @@ const Action* MoveActionGenerator::Generate(const State* state, const SimpleActi
 void MoveActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
 	auto& sus = state->GetShuntingUnits();
-	for (auto su : sus) {
-		auto& suState = state->GetShuntingUnitState(su);
+	for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
 		if (!suState.moving || suState.HasActiveAction()) continue;
 		auto track = suState.position;
 		auto previous = suState.inNeutral ? nullptr : suState.previous;

@@ -39,10 +39,9 @@ const Action* ServiceActionGenerator::Generate(const State* state, const SimpleA
 
 void ServiceActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
-	auto& sus = state->GetShuntingUnits();
-	for (auto su : sus) {
-		if (state->IsMoving(su) || state->IsWaiting(su) || state->HasActiveAction(su)) continue;
-		auto tr = state->GetPosition(su);
+	for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
+		if (suState.moving || suState.waiting || suState.HasActiveAction()) continue;
+		auto tr = suState.position;
 		auto& fas = tr->GetFacilities();
 		for (auto& tu : su->GetTrains()) {
 			for (const Task& task : state->GetTasksForTrain(&tu)) {

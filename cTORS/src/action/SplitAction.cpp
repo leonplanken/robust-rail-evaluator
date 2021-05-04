@@ -47,9 +47,7 @@ const Action* SplitActionGenerator::Generate(const State* state, const SimpleAct
 void SplitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
 	//TODO employees
-	auto& sus = state->GetShuntingUnits();
-	for (auto su : sus) {
-		auto& suState = state->GetShuntingUnitState(su);
+	for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
 		auto size = su->GetTrains().size();
 		if (size <= 1 || suState.moving || suState.waiting || suState.HasActiveAction()) continue;
 		auto duration = suState.frontTrain->GetType()->splitDuration;
