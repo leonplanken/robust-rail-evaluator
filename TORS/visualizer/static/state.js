@@ -35,6 +35,7 @@ function restart(plan_id) {
     url = '/engine/state'
     if(typeof plan_id !== 'undefined') {
         url += '?plan=' + plan_id
+        $("#restart-button").attr("onclick", "restart(" + plan_id+ ")");
     }
     $.ajax({
         url: url,
