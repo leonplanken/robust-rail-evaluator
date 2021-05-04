@@ -53,10 +53,7 @@ class Plan:
                 self.trains[tr].update_current_state(prev, pos, su)
         action_priority = sum([train_state.get_action_priority(state, actions) for train_state in self.trains.values()], [])
         action_priority = sorted(action_priority, key=lambda ap: ap[0], reverse=True)
-        print(action_priority)
         if(action_priority[0][0] == 0):
-            if state.time==1500:
-                print("Random!")
             return random.choice(actions)
         return action_priority[0][1]
 

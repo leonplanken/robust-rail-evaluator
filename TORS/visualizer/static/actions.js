@@ -11,6 +11,17 @@ function refresh_actions() {
     add_table_header(table);
 
     $.getJSON("/engine/actions", function (data) {
+        if("message" in data) { //
+            $("#message-box").text(data["message"])
+            if(data["message"].includes("Scenario failed!"))
+                $("#message-box").attr("class", "alert-warning")
+            else if(data["message"].includes("Scenario solved!"))
+                $("#message-box").attr("class", "alert-success")
+            return
+        } else {
+            $("#message-box").text("")
+            $("#message-box").removeClass()
+        }
 
         items = [];
 

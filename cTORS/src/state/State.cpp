@@ -219,7 +219,7 @@ void State::RemoveActiveAction(const ShuntingUnit* su, const Action* action) {
 	}
 }
 
-void State::addTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks) {
+void State::AddTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks) {
 	for (auto& it : tasks) {
 		for (auto& task : it.second) {
 			AddTaskToTrain(it.first, task);

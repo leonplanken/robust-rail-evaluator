@@ -2,7 +2,8 @@ from flask_restful import Resource
 from flask import request, Response, current_app
 import json
 
-from pyTORS import ArriveAction, ExitAction, BeginMoveAction, EndMoveAction, SplitAction, CombineAction, WaitAction, ServiceAction, MoveAction
+from pyTORS import ScenarioFailedError, ArriveAction, ExitAction, BeginMoveAction, EndMoveAction,\
+    SplitAction, CombineAction, WaitAction, ServiceAction, MoveAction
 
 def get_valid_actions():
     if not current_app.result is None:
@@ -10,11 +11,11 @@ def get_valid_actions():
         if current_app.action_index < len(actions):
             a = actions[current_app.action_index]  
             _a = current_app.engine.generate_action(current_app.state, a.action)
-            print("Generated: ", _a)
             return [_a]
         return []
     else:
         return current_app.engine.get_valid_actions(current_app.state)
+
 
 class Actions(Resource):
 
@@ -26,7 +27,21 @@ class Actions(Resource):
         """
 
         actions = {}
-        for idx, a in enumerate(get_valid_actions()):
+        try:
+            if not current_app.done:
+                valid_actions = get_valid_actions() 
+                if len(valid_actions) == 0:
+                    current_app.done = True
+                    if len(current_app.state.incoming_trains) == 0 and len(current_app.state.outgoing_trains) == 0:
+                        current_app.message = "Scenario solved!"
+                    else:
+                        current_app.message = "Scenario failed! There are remaining incoming or outgoing trains."
+        except ScenarioFailedError as e:
+            current_app.done = True
+            current_app.message = "Scenario failed!"
+        if current_app.done:
+            return Response(json.dumps({"message": current_app.message}), mimetype='application/json')
+        for idx, a in enumerate(valid_actions):
             # get shunting units from action
             shunting_units = [a.shunting_unit] # add other shunting units with combine
             shunting_units = [{
@@ -62,7 +77,11 @@ class Actions(Resource):
         action = valid_actions[action_id]
         
         current_app.engine.apply_action(current_app.state, action)
-        current_app.engine.step(current_app.state)
+        try:
+            current_app.engine.step(current_app.state)
+        except ScenarioFailedError as e:
+            current_app.done = True
+            current_app.message = "Scenario failed! " + str(e) 
 
         if not current_app.result is None:
             current_app.action_index += 1

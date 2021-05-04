@@ -32,6 +32,8 @@ def create_app() -> Flask:
         app.state = app.engine.start_session()
         app.result = None
         app.action_index = 0
+        app.done = False
+        app.message = ""
         app.engine.step(app.state)
         load_config(app)
 

@@ -36,12 +36,12 @@ list<const Action*> &LocationEngine::Step(State * state, Scenario * scenario) {
 		else
 			evnt = state->PopEvent();
 		if (evnt->GetTime() != state->GetTime() && state->IsAnyInactive())
-			throw ScenarioFailedException();
+			throw ScenarioFailedException("Action required, but no valid action found");
 		ExecuteEvent(state, evnt);
 		ExecuteImmediateEvents(state);
 		if (state->GetTime() > state->GetEndTime()) {
 			if ((state->GetIncomingTrains().size() + state->GetOutgoingTrains().size()) > 0) {
-				throw ScenarioFailedException();
+				throw ScenarioFailedException("End of Scenario reached, but there are remaining incoming or outgoing trains.");
 			} else {
 				DELETE_LIST(actions)
 			}

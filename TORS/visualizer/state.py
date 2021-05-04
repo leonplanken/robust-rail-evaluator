@@ -40,6 +40,8 @@ class State(Resource):
             current_app.state = current_app.engine.start_session(current_app.result.scenario)
         else:
             current_app.state = current_app.engine.start_session()
+        current_app.done = False
+        current_app.message = ""
         current_app.engine.step(current_app.state)
     
     def get_time(self) -> int:

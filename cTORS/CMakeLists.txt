@@ -18,6 +18,13 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 	message(STATUS "Build type not specified: Use Release by default")
 endif ()
+if (CMAKE_BUILD_TYPE STREQUAL Release)
+	message(STATUS "Compiling in release mode")	
+	add_compile_definitions(DEBUG=0)
+else()
+	message(STATUS "Compiling in debug mode")	
+	add_compile_definitions(DEBUG=1)
+endif()
 
 #Fetch the JSON library
 FetchContent_Declare(json

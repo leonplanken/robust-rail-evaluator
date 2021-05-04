@@ -98,7 +98,7 @@ class TORSConverter(ITORSConvertor):
             out_su = outgoing.shunting_unit
             for su in state.shunting_units:
                 if out_su.matches_shunting_unit(su) and state.get_position(su) == outgoing.parking_track:
-                    return Exit(outgoing, su)
+                    return Exit(su, outgoing)
         action -= self.n_out
         su_ix = action // self.n_actions
         if su_ix >= len(state.shunting_units):

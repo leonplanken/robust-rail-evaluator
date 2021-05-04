@@ -8,7 +8,7 @@ void ArriveAction::Start(State* state) const {
 	state->AddShuntingUnit(su, parkingTrack, sideTrack);
 	if (!incoming->IsInstanding())
 		state->ReserveTracks(vector({ parkingTrack, sideTrack }));
-	state->addTasksToTrains(incoming->GetTasks());
+	state->AddTasksToTrains(incoming->GetTasks());
 	state->RemoveIncoming(incoming);
 	state->AddActiveAction(su, this);
 	state->SetWaiting(su, false);
