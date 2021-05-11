@@ -4,14 +4,14 @@
 	"workers": [
 		{
 			"id": "77",
-			"type": "Schoonmakers",
+			"type": "Cleaners",
 			"skills": [
-			  "Binnenkant reiniging",
-			  "Kop reiniging",
-			  "Zeep reiniging zijkant",
-			  "Oxaal reiniging zijkant",
-			  "Zeep reiniging",
-			  "Oxaal reiniging"
+			  "Cleaning inside",
+			  "Cleaning head",
+			  "Cleaning side - soap",
+			  "Cleaning side - oxalic",
+			  "Cleaning - soap",
+			  "Cleaning - oxalic"
 			],
 			"shifts": [
 			  {
@@ -28,9 +28,9 @@
 		},
 		{
 			"id": "101",
-			"type": "Machinisten",
+			"type": "Machinists",
 			"skills": [
-				"Rangeren"
+				"Shunting"
 			],
 			"shifts": [
 			  {
@@ -47,9 +47,9 @@
 		},
 		{
 			"id": "102",
-			"type": "Machinisten",
+			"type": "Machinists",
 			"skills": [
-				"Rangeren"
+				"Shunting"
 			],
 			"shifts": [
 			  {
@@ -96,12 +96,12 @@
 					"tasks": [
 						{
 							"type": {
-							  "other": "Binnenkant reiniging"
+							  "other": "Cleaning inside"
 							},
 							"priority": 0,
 							"duration": "50",
 							"requiredSkills": [
-							  "Binnenkant reiniging"
+							  "Cleaning inside"
 							]
 						}
 					]
@@ -127,34 +127,7 @@
 	"startTime": "0",
 	"endTime": "1500",
 	"inStanding": [
-	    {
-		  "time": "0",
-		  "id": "55555",
-		  "sideTrackPart": "5",
-		  "parkingTrackPart": "4",
-		  "members": [
-				{
-				  "id": "2302",
-				  "typeDisplayName": "SNG3",
-				  "tasks": []
-				}
-			  ],
-		  "standingIndex": "2"
-		},
-	    {
-		  "time": "0",
-		  "id": "77777",
-		  "sideTrackPart": "5",
-		  "parkingTrackPart": "4",
-		  "members": [
-				{
-				  "id": "2303",
-				  "typeDisplayName": "SNG3",
-				  "tasks": []
-				}
-			  ],
-		  "standingIndex": "1"
-		}
+
 	],
 	"outStanding": [
 		{
@@ -184,25 +157,6 @@
 			}
 		  ],
 		  "standingIndex": "1"
-		},
-		{
-		  "time": "1500",
-		  "id": "55555",
-		  "sideTrackPart": "12",
-		  "parkingTrackPart": "11",
-		  "members": [
-			{
-			  "id": "****",
-			  "typeDisplayName": "SNG3",
-			  "tasks": []
-			},
-			{
-			  "id": "****",
-			  "typeDisplayName": "SNG3",
-			  "tasks": []
-			}
-		  ],
-		  "standingIndex": "2"
 		}
 	],
 	"trainUnitTypes": [

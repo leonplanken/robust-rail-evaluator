@@ -30,17 +30,14 @@ class Simulator:
         # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
         # and also in the state, which is deleted when the state is deleted.
 
-        self.print("S> Generate scenario")
         self.scenario = self.scenario_generator.generate_scenario()
-        self.print("S> Start new session")
         self.state = self.engine.start_session(self.scenario)
-        self.print("S> Started new session")
         self.result = 0
     
     def get_state(self):
         try:
             self.print("S [{}]> Get actions".format(self.state.time))
-            next_actions = self.engine.get_actions(self.state)
+            next_actions = self.engine.step(self.state)
             #next_actions = [(a[0], a[1]) for a in next_actions]
         except ScenarioFailedError:
             next_actions = []
@@ -101,11 +98,11 @@ class Simulator:
     
 def _has_matching_shunting_unit(o_su, sus):
         for s_su in sus:
-            if len(o_su.train_units) != len(s_su.train_units): continue
+            if len(o_su.trains) != len(s_su.trains): continue
             match = True
-            for i in range(len(o_su.train_units)):
-                o_tu = o_su.train_units[i]
-                s_tu = s_su.train_units[i]
+            for i in range(len(o_su.trains)):
+                o_tu = o_su.trains[i]
+                s_tu = s_su.trains[i]
                 if (o_tu.id is None and o_tu.type != s_tu.type) or \
                     (not o_tu.id is None and o_tu.id != s_tu.id):
                     match = False

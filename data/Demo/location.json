@@ -11,8 +11,7 @@
 			"name": "bumper_1",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "1",
@@ -24,11 +23,10 @@
 			  "2"
 			],
 			"length": 600,
-			"name": "spoor_1",
+			"name": "rail_1",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "2",
@@ -42,11 +40,10 @@
 			  "4"
 			],
 			"length": 0,
-			"name": "wissel_1",
+			"name": "switch_1",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "4",
@@ -58,11 +55,10 @@
 			  "5"
 			],
 			"length": 450,
-			"name": "spoor_2",
+			"name": "rail_2",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "5",
@@ -75,8 +71,7 @@
 			"name": "bumper_2",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "3",
@@ -88,11 +83,10 @@
 			  "6"
 			],
 			"length": 50,
-			"name": "spoor_3",
+			"name": "rail_3",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "6",
@@ -105,11 +99,10 @@
 			  "8"
 			],
 			"length": 0,
-			"name": "wissel_2",
+			"name": "switch_2",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "7",
@@ -121,11 +114,10 @@
 			  "9"
 			],
 			"length": 500,
-			"name": "spoor_4",
+			"name": "rail_4",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "8",
@@ -137,11 +129,10 @@
 			  "10"
 			],
 			"length": 350,
-			"name": "spoor_5",
+			"name": "rail_5",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "9",
@@ -154,8 +145,7 @@
 			"name": "bumper_3",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "10",
@@ -168,8 +158,7 @@
 			"name": "bumper_4",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 		},
 		{
 			"id": "11",
@@ -181,11 +170,10 @@
 			  "2"
 			],
 			"length": 600,
-			"name": "spoor_6",
+			"name": "rail_6",
 			"sawMovementAllowed": true,
 			"parkingAllowed": true,
-			"isElectrified": true,
-			"standingAllowed": true
+			"isElectrified": true
 		},
 		{
 			"id": "12",
@@ -198,8 +186,7 @@
 			"name": "bumper_5",
 			"sawMovementAllowed": false,
 			"parkingAllowed": false,
-			"isElectrified": true,
-			"standingAllowed": false
+			"isElectrified": true
 				
 		}
 	],
@@ -212,7 +199,7 @@
 			],
 			"taskTypes": [
 			  {
-				"other": "Binnenkant reiniging"
+				"other": "Cleaning inside"
 			  }
 			],
 			"simultaneousUsageCount": 1,

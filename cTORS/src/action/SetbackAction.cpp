@@ -10,6 +10,7 @@ void SetbackAction::Start(State* state) const {
 		//TODO
 	}
 	state->AddActiveAction(su, this);
+	state->SetBeginMoving(su, false);
 }
 
 void SetbackAction::Finish(State* state) const {
@@ -33,19 +34,23 @@ int SetbackActionGenerator::GetDuration(const State* state, const ShuntingUnit* 
 	return su->GetSetbackTime(state->GetFrontTrain(su), normTime, walkTime, constantTime);
 }
 
+const Action* SetbackActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
+	auto suState = state->GetShuntingUnitState(su);
+	vector<const Employee*> drivers;
+	auto duration = GetDuration(state, su, drivers.size());
+	return new SetbackAction(su, drivers, duration);
+}
+
 void SetbackActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
-	auto& sus = state->GetShuntingUnits();
 	bool driver_mandatory = false;//TODO get value from config
-	for (auto su : sus) {
-		const ShuntingUnitState& suState = state->GetShuntingUnitState(su);
+	for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
 		if (!suState.moving || suState.waiting || suState.HasActiveAction() || suState.inNeutral) continue;
 		vector<const Employee*> drivers;
 		if (driver_mandatory) {
 			//TODO
 		}
-		int duration = GetDuration(state, su, drivers.size());
-		Action* a = new SetbackAction(su, drivers, duration);
-		out.push_back(a);		
+		out.push_back(Generate(state, Setback(su)));		
 	}
 }

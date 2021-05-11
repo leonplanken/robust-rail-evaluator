@@ -4,7 +4,7 @@
 namespace cTORSTest
 {
 	TEST_CASE("Engine Test") {
-		Engine engine("data/Demo");
+		LocationEngine engine("data/Demo");
 		auto& tracks = engine.GetLocation().GetTracks();
 		auto& scenario = engine.GetScenario();
 		Track* railTrack;
@@ -18,7 +18,7 @@ namespace cTORSTest
 		SUBCASE("Test create state") {
 			auto state = engine.StartSession();
 			SUBCASE("Test active actions") {
-				ShuntingUnit* su = new ShuntingUnit(0, {new Train(0, TrainUnitType::types.begin()->second)});
+				ShuntingUnit* su = new ShuntingUnit(0, {Train(0, TrainUnitType::types.begin()->second)});
 				state->AddShuntingUnit(su, railTrack, previous);
 				BeginMoveAction* beginMoveAction = new BeginMoveAction(su, 25);
 				state->AddActiveAction(su, beginMoveAction);
@@ -27,7 +27,7 @@ namespace cTORSTest
 				CHECK(!state->HasActiveAction(su));
 			}
 			SUBCASE("Test get actions") {
-				list<const Action*> &actions = engine.GetActions(state);
+				list<const Action*> &actions = engine.Step(state);
 				CHECK(actions.size() > 0);
 				auto a = actions.front();
 				engine.ApplyAction(state, a);
@@ -37,15 +37,15 @@ namespace cTORSTest
 	}
 
 	TEST_CASE("Scenario test") {
-		Engine engine("data/Demo");
+		LocationEngine engine("data/Demo");
 		auto& sc1 = engine.GetScenario();
 		{
 			Scenario sc2(sc1);
 		}
-		CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front()->GetType()!=nullptr);
+		CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
 		auto st1 = engine.StartSession(sc1);
 		engine.EndSession(st1);
-		CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front()->GetType()!=nullptr);
+		CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
 		for(int i=0; i<5; i++) {
 			CAPTURE("Test " + to_string(i));
 			Scenario sc3(sc1);
@@ -53,7 +53,7 @@ namespace cTORSTest
 			int counter = 0;
 			while(true) {
 				try{
-					list<const Action*> &actions = engine.GetActions(st2);
+					list<const Action*> &actions = engine.Step(st2);
 					if(actions.size() == 0) break;
 					auto it = actions.begin();
 					advance(it, counter++ % actions.size());
@@ -62,7 +62,7 @@ namespace cTORSTest
 				} catch(ScenarioFailedException& e) { break; }
 			}
 			engine.EndSession(st2);
-			CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front()->GetType()!=nullptr);
+			CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
 		}
 	}
 }

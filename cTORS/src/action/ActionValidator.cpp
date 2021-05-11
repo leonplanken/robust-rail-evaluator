@@ -5,11 +5,11 @@
 #define ADD_VALIDATOR(validator) \
 if (config->IsBusinessRuleActive(#validator)) { \
 	validators.push_back(new validator(config)); \
-}
+} 
 #endif
 
 ActionValidator::~ActionValidator() {
-	validators.clear();
+	DELETE_VECTOR(validators);
 }
 
 void ActionValidator::AddValidators() {

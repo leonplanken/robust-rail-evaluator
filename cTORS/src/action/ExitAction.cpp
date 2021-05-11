@@ -22,8 +22,14 @@ const string ExitAction::toString() const {
 	return "Exit from " + su->toString() + " at " + outgoing->GetParkingTrack()->toString() + " at T" + to_string(outgoing->GetTime());
 }
 
+const Action* ExitActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto exit = static_cast<const Exit*>(&action);
+	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
+	auto out = state->GetOutgoingByID(exit->GetOutgoingID());
+	return new ExitAction(su, 0, out);
+}
+
 void ExitActionGenerator::Generate(const State* state, list<const Action*>& out) const {
-	auto& sus = state->GetShuntingUnits();
 	auto& outgoing = state->GetOutgoingTrains();
 	if (outgoing.size() == 0) return;
 	int minIndex = outgoing.at(0)->GetStandingIndex();
@@ -32,13 +38,12 @@ void ExitActionGenerator::Generate(const State* state, list<const Action*>& out)
 		if (ou->IsInstanding()) {
 			if (state->GetTime() < state->GetEndTime()) continue;
 			if (ou->GetStandingIndex() > minIndex) continue;
-		}
-		for (auto su : sus) {
-			if (state->HasActiveAction(su)) continue;
+		} else if (state->GetTime() < ou->GetTime()) continue;
+		for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
+			if (suState.HasActiveAction()) continue;
 			if (su->GetNumberOfTrains() != ou->GetShuntingUnit()->GetNumberOfTrains()) continue;
-			if (state->GetPosition(su) != ou->GetParkingTrack()) continue;
-			Action* a = new ExitAction(su, 0, ou);
-			out.push_back(a);
+			if (suState.position != ou->GetParkingTrack()) continue;
+			out.push_back(Generate(state, Exit(su, ou)));
 		}
 	}
 }

@@ -3,32 +3,29 @@
 #include <chrono>
 #endif
 
-using json = nlohmann::json;
 namespace fs = std::filesystem;
 using namespace std;
-
 
 const string Location::locationFileString = "location.json";
 
 Location::Location(const string &folderName) {
+	path = folderName;
 	try {
-		ifstream fileInput(fs::path(folderName) / fs::path(locationFileString));
-		if (!fileInput.good())
-			throw InvalidLocationException("The specified file '" + folderName + "' does not exist");
-		json j;
-		fileInput >> j;
-		importTracksFromJSON(j["trackParts"]);
-		importFacilitiesFromJSON(j["facilities"]);
-		importDistanceMatrix(j["distanceEntries"]);
-		j["movementConstant"].get_to(movementConstant);
-		int movementTrackCoefficient = j["movementTrackCoefficient"].get<int>();
-		int movementSwitchCoefficient = j["movementSwitchCoefficient"].get<int>();
+		PBLocation pb_location;
+		parse_json_to_pb(fs::path(folderName) / fs::path(locationFileString), &pb_location);
+		ImportTracks(pb_location);
+		ImportFacilities(pb_location);
+		ImportDistanceMatrix(pb_location);
+		movementConstant = pb_location.movementconstant();
+		int movementTrackCoefficient = pb_location.movementtrackcoefficient();
+		int movementSwitchCoefficient = pb_location.movementswitchcoefficient();
 		moveDuration[TrackPartType::Railroad] = movementTrackCoefficient;
 		moveDuration[TrackPartType::Switch] = movementSwitchCoefficient;
 		moveDuration[TrackPartType::EnglishSwitch] = 2 * movementSwitchCoefficient;
 		moveDuration[TrackPartType::HalfEnglishSwitch] = 2 * movementSwitchCoefficient;
 		moveDuration[TrackPartType::InterSection] = 0;
 		moveDuration[TrackPartType::Bumper] = 0;
+		CalcNeighboringPaths(true); // TODO read parameter from config file
 	}
 	catch (exception& e) {
 		cout << "Error in loading location: " << e.what() << "\n";
@@ -43,19 +40,14 @@ Location::~Location()
 	trackIndex.clear();
 }
 
-/**
- * Calculate the shortest paths.
- * Param byType: whether the basic distance is based on track type, or on the distance matrix
- * Param type: The train type for which the shortest paths are calculated. 
- */
-void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
-	auto setbackTime = type->setbackTime;
-	auto& shortestPath = this->shortestPath[setbackTime];
-	if(shortestPath.size() > 0) return;
-	#if DEBUG
-	auto begin = chrono::steady_clock::now();
-	#endif
-	//Get a list of all possible start and end positions
+const Facility* Location::GetFacilityByID(int id) const {
+	auto it = find_if(facilities.begin(), 
+             facilities.end(), 
+             [id] (const Facility* f) -> bool { return f->GetID() == id; });
+	return it == facilities.end() ? nullptr : *it;
+}
+
+list<Position> GetAllPositions(const vector<Track*>& tracks) {
 	list<Position> positions;
 	for(auto track: tracks) {
 		if(track->type!=TrackPartType::Railroad) continue;
@@ -63,16 +55,16 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 			positions.push_back({neighbor, track});
 		}
 	}
-	//Initialize the distance matrix
-	for(auto& pos1: positions) {
-		for(auto& pos2: positions) {
-			shortestPath[{pos1,pos2}];
-		}
-	}
-	//Initialize all railroad to railroad distances
+	return positions;
+}
+
+void Location::CalcNeighboringPaths(bool byType) {
+	if(neighborPaths.size() > 0) return;
+	auto positions = GetAllPositions(tracks);
 	for(auto& pos: positions) {
 		list<Position> open({pos});
 		unordered_map<const Track*, const Track*> previous = {{pos.second, pos.first}};
+		neighborPaths[pos];
 		while(open.size() > 0) {
 			auto current = open.front();
 			open.pop_front();
@@ -86,7 +78,8 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 						length += byType ? GetDurationByType(route.front()) : GetDistance(prev, route.front());
 						route.push_front(prev);
 					}
-					shortestPath[{pos, dest}] = Path(route, length);
+					neighborPaths[pos][dest] = Path(route, length);
+					debug_out("Found a path from " << pos.first->toString()  << ">" << pos.second->toString() << " to " << dest.first->toString()  << ">" << dest.second->toString());
 				} else {
 					open.push_back({current.second, next});
 					previous[next] = current.second;
@@ -94,6 +87,32 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 			}
 		}
 	}
+}
+
+/**
+ * Calculate the shortest paths.
+ * Param byType: whether the basic distance is based on track type, or on the distance matrix
+ * Param type: The train type for which the shortest paths are calculated. 
+ */
+void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
+	auto setbackTime = type->setbackTime;
+	auto& shortestPath = this->shortestPath[setbackTime];
+	if(shortestPath.size() > 0) return;
+	#if DEBUG
+	auto begin = chrono::steady_clock::now();
+	#endif
+	auto positions = GetAllPositions(tracks);
+	//Initialize the distance matrix
+	for(auto& pos1: positions) {
+		for(auto& pos2: positions) {
+			shortestPath[{pos1,pos2}];
+		}
+	}
+	//Initialize all railroad to railroad distances
+	CalcNeighboringPaths(byType);
+	for(auto& [pos, paths]: neighborPaths)
+		for(auto& [dest, path]: paths)
+			shortestPath[{pos, dest}] = path;
 	//Initialize all set-back distances
 	for(auto& pos: positions) {
 		if(!pos.second->sawMovementAllowed) continue;
@@ -127,46 +146,54 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 	}
 	auto end = chrono::steady_clock::now();
 	debug_out("Calculating shortest paths finished in "
-		<< chrono::duration_cast<chrono::microseconds>(end - begin).count() << "[µs]" << " // "
-		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "[ms]" << " // "
-		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "[s]");
+		<< chrono::duration_cast<chrono::microseconds>(end - begin).count() << "µs" << " // "
+		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "ms" << " // "
+		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "s");
 	#endif
 }
 
-void Location::importTracksFromJSON(const json& j) {
-	unordered_map<Track*, vector<string>> aSides;
-	unordered_map<Track*, vector<string>> bSides;
-	for (auto& jit : j) {
-		Track* t = new Track();
-		jit.get_to(*t);
-		aSides[t] = jit["aSide"].get<vector<string>>();
-		bSides[t] = jit["bSide"].get<vector<string>>();
+const Path& Location::GetNeighborPath(const Position& from, const Track* destination) const {
+	auto& prev_list = from.first == nullptr ? from.second->GetNeighbors() : vector<const Track*>({from.first});
+	for(auto& prev: prev_list) {
+		for(auto& [dest, path]: neighborPaths.at({prev, from.second})) {
+			if(dest.second == destination) return path;
+		}
+	}
+	throw NonExistingPathException("Could not find path from " +from.second->toString() + " to " + destination->toString());
+}
+
+void Location::ImportTracks(const PBLocation& pb_location) {
+	unordered_map<Track*, vector<UInt>> aSides;
+	unordered_map<Track*, vector<UInt>> bSides;
+	for (auto& track : pb_location.trackparts()) {
+		Track* t = new Track(track);
+		aSides[t] = vector<UInt>(track.aside().begin(), track.aside().end());
+		bSides[t] = vector<UInt>(track.bside().begin(), track.bside().end());
 		tracks.push_back(t);
 		trackIndex[t->id] = t;
 		debug_out("Imported track " << t->toString());
 	}
 	for (Track* t : tracks) {
-		vector<string> saside = aSides[t];
-		vector<string> sbside = bSides[t];
+		vector<UInt> saside = aSides[t];
+		vector<UInt> sbside = bSides[t];
 		auto aside = vector<const Track*>(saside.size());
 		auto bside = vector<const Track*>(sbside.size());
 		for (int j = 0; j != saside.size(); j++)
-			aside[j] = trackIndex[saside[j]];
+			aside[j] = trackIndex[to_string(saside[j])];
 		for (int j = 0; j != sbside.size(); j++)
-			bside[j] = trackIndex[sbside[j]];
+			bside[j] = trackIndex[to_string(sbside[j])];
 		t->AssignNeighbors(aside, bside);
 	}
 	debug_out("finished loading tracks from JSON");
 }
 
-void Location::importFacilitiesFromJSON(const json& j) {
-	for (auto& jit : j) {
-		Facility* f = new Facility();
-		jit.get_to(*f);
-		auto sTracks = jit["relatedTrackParts"].get<vector<string>>();
+void Location::ImportFacilities(const PBLocation& pb_location) {
+	for (auto& pb_f : pb_location.facilities()) {
+		Facility* f = new Facility(pb_f);
+		auto sTracks = vector<UInt>(pb_f.relatedtrackparts().begin(), pb_f.relatedtrackparts().end());
 		vector<Track*> tracks;
-		for (string s : sTracks) {
-			Track* t = trackIndex[s];
+		for (auto s : sTracks) {
+			Track* t = trackIndex[to_string(s)];
 			tracks.push_back(t);
 			t->AddFacility(f);
 		}
@@ -177,11 +204,11 @@ void Location::importFacilitiesFromJSON(const json& j) {
 	debug_out("finished loading facilities from JSON");
 }
 
-void Location::importDistanceMatrix(const json& j) {
-	for (auto& jit : j) {
-		string from = jit.at("fromTrackPartId").get<string>();
-		string to = jit.at("toTrackPartId").get<string>();
-		int distance = jit.at("distanceInSeconds").get<int>();
+void Location::ImportDistanceMatrix(const PBLocation& pb_location) {
+	for (auto& wde : pb_location.distanceentries()) {
+		string from = to_string(wde.fromtrackpartid());
+		string to = to_string(wde.totrackpartid());
+		int distance = wde.distanceinseconds();
 		pair<Track*, Track*> key(trackIndex[from], trackIndex[to]);
 		distanceMatrix[key] = distance;
 	}

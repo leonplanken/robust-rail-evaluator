@@ -21,10 +21,24 @@ void CombineAction::Finish(State* state) const {
 }
 
 const string CombineAction::toString() const {
-	return "CombineAction " + GetCombinedShuntingUnit()->toString() + " from  "
-        + GetFrontShuntingUnit()->GetTrainString() + " and " +GetRearShuntingUnit()->GetTrainString();
+	return "CombineAction " + GetCombinedShuntingUnit()->toString() + " from  " + suString;
 }
 
+const Action* CombineActionGenerator::Generate(const State* state, const SimpleAction& action) const {
+	auto combine = static_cast<const Combine*>(&action);
+	auto frontSU = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
+    auto rearSU = state->GetShuntingUnitByTrainIDs(combine->GetSecondTrainIDs());
+    auto& frontTrains = frontSU->GetTrains();
+    auto& rearTrains = rearSU->GetTrains();
+    auto duration = state->GetFrontTrain(frontSU)->GetType()->combineDuration;
+    auto track = state->GetPosition(frontSU);
+    auto position = state->GetPositionOnTrack(frontSU);
+    auto neutral = state->IsInNeutral(frontSU) && state->IsInNeutral(rearSU);
+    vector<Train> combinedTrains(frontTrains);
+    combinedTrains.insert(combinedTrains.end(), rearTrains.begin(), rearTrains.end());
+    ShuntingUnit combinedSU(frontSU->GetID(), combinedTrains);
+    return new CombineAction(frontSU, rearSU, combinedSU, track, duration, position, neutral);
+}
 
 void CombineActionGenerator::Generate(const State* state, list<const Action*>& out) const {
 	if(state->GetTime()==state->GetEndTime()) return;
@@ -38,32 +52,27 @@ void CombineActionGenerator::Generate(const State* state, list<const Action*>& o
             auto& suStateA = state->GetShuntingUnitState(suA);
             auto& suStateB = state->GetShuntingUnitState(suB);
             if(suStateA.HasActiveAction() || suStateB.HasActiveAction() || suStateA.moving || suStateB.moving || (suStateA.waiting && suStateB.waiting)) continue;
-            int position = static_cast<int>(distance(sus.begin(), it));
             // In case both shunting units are in neutral, they can be combined in both directions
             bool neutral = suStateA.inNeutral && suStateB.inNeutral;
             // In case both shunting units are not in neutral, they can only combine if they have the same direction
             bool notNeutral = (!suStateA.inNeutral && !suStateB.inNeutral && suStateA.previous == suStateB.previous);
             const ShuntingUnit *frontSU, *rearSU;
-            int duration;
+            
             // In case one shunting unit is in neutral, the other one becomes the front shunting unit
             if (neutral || (!suStateA.inNeutral && suStateB.inNeutral)
                 || (notNeutral && track->IsASide(suStateA.previous))) {
                 frontSU = suA;
                 rearSU = suB;
-                duration = suStateA.frontTrain->GetType()->combineDuration;
             } else if (neutral || (suStateA.inNeutral && !suStateB.inNeutral)
                 || (notNeutral && track->IsBSide(suStateA.previous))) {
                 frontSU = suB;
                 rearSU = suA;
-                duration = suStateB.frontTrain->GetType()->combineDuration;
             } else continue;
-            auto frontTrains = copy_of(frontSU->GetTrains());
-            auto rearTrains = copy_of(rearSU->GetTrains());
-            vector<const Train*> combinedTrains(frontTrains);
-            combinedTrains.insert(combinedTrains.end(), rearTrains.begin(), rearTrains.end());
-            ShuntingUnit combinedSU(frontSU->GetID(), combinedTrains);
-            auto combineAction = new CombineAction(frontSU, rearSU, combinedSU, track, duration, position, neutral);
-			out.push_back(combineAction);
+			out.push_back(Generate(state, Combine(frontSU, rearSU)));
         }
     }
+}
+
+const string Combine::GetSecondTrainsToString() const {
+    return "[" + Join(secondTrainIDs.begin(), secondTrainIDs.end(), ", ") + "]";
 }

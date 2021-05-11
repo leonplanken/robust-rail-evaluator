@@ -1,27 +1,15 @@
 #include "Track.h"
 
-Track::Track() : 
-	id(""), type(TrackPartType::Railroad), length(0), name(""),
-	sawMovementAllowed(false), parkingAllowed(false), 
-	isElectrified(false), standingAllowed(false) {
-}
-
-Track::Track(const string& id, TrackPartType type, double length, const string& name, bool sawMovementAllowed,
-	bool parkingAllowed, bool isElectrified, bool standingAllowed) :
+Track::Track(const string& id, TrackPartType type, double length, const string& name,
+	bool sawMovementAllowed, bool parkingAllowed, bool isElectrified) :
 	id(id), type(type), length(length),	name(name), sawMovementAllowed(sawMovementAllowed),
-	parkingAllowed(parkingAllowed), isElectrified(isElectrified),
-	standingAllowed(standingAllowed) {
-}
+	parkingAllowed(parkingAllowed), isElectrified(isElectrified) { }
 
 Track::Track(const Track& track) :
 	id(track.id), type(track.type), length(track.length),
 	name(track.name), sawMovementAllowed(track.sawMovementAllowed),
 	parkingAllowed(track.parkingAllowed), isElectrified(track.isElectrified),
-	standingAllowed(track.standingAllowed), aSides(track.aSides),
-	bSides(track.bSides), next(track.next) {
-}
-
-Track::~Track() { }
+	aSides(track.aSides), bSides(track.bSides), next(track.next) { }
 
 void Track::AssignNeighbors(vector<const Track*> aside, vector<const Track*> bside)
 {
@@ -76,15 +64,4 @@ bool Track::IsSameSide(const Track* t1, const Track* t2) const {
 
 bool Track::IsNeighbor(const Track* t) const {
 	return t != nullptr && IsASide(t) || IsBSide(t);
-}
-
-void from_json(const json& j, Track& t) {
-	j.at("id").get_to(t.id);
-	j.at("type").get_to(t.type);
-	j.at("length").get_to(t.length);
-	j.at("name").get_to(t.name);
-	j.at("sawMovementAllowed").get_to(t.sawMovementAllowed);
-	j.at("parkingAllowed").get_to(t.parkingAllowed);
-	j.at("isElectrified").get_to(t.isElectrified);
-	j.at("standingAllowed").get_to(t.standingAllowed);
 }

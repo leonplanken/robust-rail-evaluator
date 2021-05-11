@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.11)
 # set the project name
 project(cTORS VERSION 0.1)
 
+#Options
+option(BUILD_DOC "Build documentation" ON)
+
 # Verbose.
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
@@ -18,6 +21,30 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 	message(STATUS "Build type not specified: Use Release by default")
 endif ()
+if (CMAKE_BUILD_TYPE STREQUAL Release)
+	message(STATUS "Compiling in release mode")	
+	add_compile_definitions(DEBUG=0)
+else()
+	message(STATUS "Compiling in debug mode")	
+	add_compile_definitions(DEBUG=1)
+endif()
+
+
+#Doxygen documentation generation (optional)
+if(BUILD_DOC)
+	find_package(Doxygen)
+	if (DOXYGEN_FOUND)
+	    message(STATUS "Doxygen build started")
+	    # note the option ALL which allows to build the docs together with the application
+	    add_custom_target( doc_doxygen ALL
+		COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM )
+	else (DOXYGEN_FOUND)
+	  message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
+	endif (DOXYGEN_FOUND)
+endif(BUILD_DOC)
 
 #Fetch the JSON library
 FetchContent_Declare(json
@@ -79,6 +106,7 @@ set(TORS_SOURCE_FILES
 
 	${PROJECT_SOURCE_DIR}/engine/Config.cpp
 	${PROJECT_SOURCE_DIR}/engine/Engine.cpp
+	${PROJECT_SOURCE_DIR}/engine/Plan.cpp
 
 	${PROJECT_SOURCE_DIR}/location/Facility.cpp
 	${PROJECT_SOURCE_DIR}/location/Location.cpp
@@ -86,13 +114,10 @@ set(TORS_SOURCE_FILES
 	
 	${PROJECT_SOURCE_DIR}/scenario/Disturbance.cpp
 	${PROJECT_SOURCE_DIR}/scenario/Event.cpp
-	${PROJECT_SOURCE_DIR}/scenario/EventQueue.cpp
 	${PROJECT_SOURCE_DIR}/scenario/Scenario.cpp
 	
 	${PROJECT_SOURCE_DIR}/state/State.cpp
 	
-	${PROJECT_SOURCE_DIR}/vehicles/Incoming.cpp
-	${PROJECT_SOURCE_DIR}/vehicles/Outgoing.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/ShuntingUnit.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/Train.cpp
 	${PROJECT_SOURCE_DIR}/vehicles/TrainGoal.cpp
@@ -107,10 +132,11 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Employee.h
 	${PROJECT_INCLUDE_DIR}/Engine.h
 	${PROJECT_INCLUDE_DIR}/Event.h
-	${PROJECT_INCLUDE_DIR}/EventQueue.h
 	${PROJECT_INCLUDE_DIR}/Exceptions.h
 	${PROJECT_INCLUDE_DIR}/Facility.h
 	${PROJECT_INCLUDE_DIR}/Location.h
+	${PROJECT_INCLUDE_DIR}/Plan.h
+	${PROJECT_INCLUDE_DIR}/Proto.h
 	${PROJECT_INCLUDE_DIR}/Scenario.h
 	${PROJECT_INCLUDE_DIR}/ShuntingUnit.h
 	${PROJECT_INCLUDE_DIR}/State.h
@@ -120,10 +146,30 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Utils.h
 )
 
-add_library(cTORS SHARED ${TORS_SOURCE_FILES})
+#Protobuf
+find_package(Protobuf REQUIRED)
+set(PROTOS_DIR "../protos")
+set(PROTOBUF_IMPORT_DIRS ${PROTOS_DIR})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+	${PROTOS_DIR}/Utilities.proto
+
+	${PROTOS_DIR}/Location.proto
+	${PROTOS_DIR}/TrainUnitTypes.proto
+	${PROTOS_DIR}/Scenario.proto
+
+	${PROTOS_DIR}/PartialOrderSchedule.proto
+	${PROTOS_DIR}/Run.proto
+	${PROTOS_DIR}/Plan.proto
+)
+
+add_library(cTORS SHARED ${PROTO_SRCS} ${PROTO_HDRS} ${TORS_SOURCE_FILES} )
+
 
 target_include_directories(cTORS PUBLIC ${PROJECT_INCLUDE_DIR})
+target_include_directories(cTORS PUBLIC ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(cTORS PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(cTORS PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(cTORS PUBLIC ${PROTOBUF_LIBRARIES})
 
 
 

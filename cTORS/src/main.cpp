@@ -3,13 +3,13 @@
 
 int main()
 {
-	Engine engine("data/Demo");
+	LocationEngine engine("data/Demo");
 	engine.CalcShortestPaths();
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
 	while (true) {
 		try {
-			auto& actions = engine.GetActions(state);
+			auto& actions = engine.Step(state);
 			cout << "[T = "  + to_string(state->GetTime()) + "]\tChoosing from " << actions.size() << " actions.\n";
 			if (actions.size() == 0) break;
 			const Action* a;
@@ -35,6 +35,8 @@ int main()
 			break;
 		}
 	}
+	PBRun pb_run;
+	engine.GetResult(state)->Serialize(engine, &pb_run);
 	engine.EndSession(state);
 	cout << "End of session\n";
 	string out;
