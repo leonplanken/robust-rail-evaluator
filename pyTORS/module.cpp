@@ -296,7 +296,6 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_readonly("sawMovement_allowed", &Track::sawMovementAllowed)
 		.def_readonly("parking_allowed", &Track::parkingAllowed)
 		.def_readonly("is_electrified", &Track::isElectrified)
-		.def_readonly("standing_allowed", &Track::standingAllowed)
 		.def_property_readonly("facilities", &Track::GetFacilities, py::return_value_policy::reference)
 		.def_property_readonly("neighbors", &Track::GetNeighbors, py::return_value_policy::reference)
 		.def("is_a_side", &Track::IsASide, py::arg("track"))

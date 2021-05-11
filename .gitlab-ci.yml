@@ -1,13 +1,13 @@
-# This file is a template, and might need editing before it works on your project.
-# use the official gcc image, based on debian
-# can use verions as well, like gcc:5.2
-# see https://hub.docker.com/_/gcc/
+
 image: gcc
+
+cache: 
+  paths:
+    - build/
 
 build:
   stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
+
   before_script:
     - apt-get update && apt-get -y install make autoconf curl automake libtool g++ unzip
     - apt-get -y install cmake
@@ -29,4 +29,16 @@ build:
     - cd build
     - cmake ..
     - cmake --build .
-  
+
+pages:
+  script:
+  - apt-get update && apt-get install -y doxygen graphviz fonts-freefont-ttf
+  - cd cTORS
+  - doxygen Doxyfile
+  - cd ..
+  - mv cTORS/doc/html/ public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

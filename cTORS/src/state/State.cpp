@@ -48,19 +48,19 @@ const Event* State::PopEvent()
 }
 
 void State::AddEvent(const Incoming *in) {
-	Event* event = new Event(in->GetTime(), nullptr, EventType::IncomingTrain);
+	Event* event = new Event(in);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }
 
 void State::AddEvent(const Outgoing *out) {
-	Event* event = new Event(out->GetTime(), nullptr, EventType::OutgoingTrain);
+	Event* event = new Event(out);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }
 
 void State::AddEvent(const Action* action) {
-	Event* event = new Event(time + action->GetDuration(), action, EventType::ActionFinish);
+	Event* event = new Event(time + action->GetDuration(), action);
 	events.push(event);
 	debug_out("Push event " << event->toString() << " at T=" << to_string(event->GetTime()));
 }

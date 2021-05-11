@@ -1,30 +1,42 @@
+/** \file Location.h
+ * This file describes the Location class and the Path struct 
+ */
 #pragma once
 #ifndef LOCATION_H
 #define LOCATION_H
-#include <vector>
-#include <fstream>
-#include <exception>
-#include <unordered_map>
-#include <filesystem>
-#include "Utils.h"
 #include "Track.h"
 #include "Facility.h"
-#include "Exceptions.h"
-#include "Utils.h"
 using namespace std;
-#define MAX_PATH_LENGTH INT32_MAX
+#define MAX_PATH_LENGTH INT32_MAX /**< The initial maximum path length */
 
+/**
+ * A Path describes a route through the shunting yard.
+ * 
+ * Note that the length of the path may depend on a Train's type
+ */
 struct Path {
-	list<const Track*> route;
-	int length;
+	list<const Track*> route;	/**< All the tracks that are part of this path, ordered from start position to end position */
+	int length;					/**< The length of this route in seconds, possibly different for different train types. */
+	
+	/** Initialize an empty path with infinite length */
 	Path() : length(MAX_PATH_LENGTH) {}
+	/** Initialize a path given the parameters */
 	Path(list<const Track*> route, int length) : route(route), length(length) {}
+	/** Get a string representation of this path */
 	string toString() const;
+	/** Get the destination track of this path */
 	inline const Track* GetDestination() const { return route.back(); }
 };
 
+/** A Position is a tuple of (Track* previous, Track* current) */
 typedef pair<const Track*, const Track*> Position;
 
+/**
+ * A Location describes a shunting yard.
+ * 
+ * It contains a list of Track%s and Facilities.
+ * It also has helper functions to find (shortest) Path%s and distances
+ */
 class Location
 {
 private:
@@ -47,27 +59,84 @@ private:
 	void ImportDistanceMatrix(const PBLocation& pb_location);
 public:
 	Location() = delete;
+	/** Construct a Location from a protobuf file */
 	Location(const string &path);
+	/** Default copy constructor */
 	Location(const Location& location) = default;
+	/** Destruct this location */
 	~Location();
 	
+	/** Get the path of the protobuf file */
 	inline const string& GetLocationFilePath() const { return path; }
-
+	/** Get a reference to the Track by its id */
 	inline Track* GetTrackByID(const string& id) const { return trackIndex.at(id); }
-
+	/** Get all the Track%s */
 	inline const vector<Track*>& GetTracks() const { return tracks; }
+	/** Get all the facilities */
 	inline const vector<Facility*>& GetFacilities() const { return facilities; }
+	/** Get a reference to a Facility by its id */
 	const Facility* GetFacilityByID(int id) const;
 
+	/**
+	 * Get the distance from one Track to another based on the provided distance matrix
+	 * 
+	 * Note that this distance is only used when configured appropriatly
+	 */
 	inline double GetDistance(const Track* from, const Track* to) const { return distanceMatrix.at({from, to}); }
+	
+	/**
+	 * Get the duration for crossing the given track based on its type (Railroad or Switch)
+	 */
 	inline int GetDurationByType(const Track* track) const { 
 		return (track->GetType() == TrackPartType::Railroad && track->GetLength() == 0) ? 0  : moveDuration.at(track->GetType()); }
 	
+	/**
+	 * Calculate all the neighboring paths. 
+	 * 
+	 * Calling this method once is required if you want to use GetNeighborPath. The parameter byType determines if distances
+	 * are calculated by TrackPartType or by using the distance matrix
+	 */
 	void CalcNeighboringPaths(bool byType);
+	
+	/**
+	 * Calculate all the shortest paths. 
+	 * 
+	 * Calling this method once (per TrainUnitType) is required if you want to use GetShortestPath.
+	 * The parameter byType determines if distances are calculated by TrackPartType or by using the distance matrix
+	 * The parameter type is used because different train types have different Setback times.
+	 */
 	void CalcShortestPaths(bool byType, const TrainUnitType* type);
+	
+	/**
+	 * Get the shortest path from a certain position to a destination.
+	 * 
+	 * Both from and to are Position%s, a tuple describing the ShuntingUnit's current
+	 * position and its previous position.
+	 * Call CalcShortestPaths (once) to calculate all the shortest paths
+	 */
 	inline Path GetShortestPath(const TrainUnitType* type, const Position& from, const Position& to) const {
 		return shortestPath.at(type->setbackTime).at({from, to}); }
+	
+	/**
+	 * Get all the neighboring paths from a certain position
+	 * 
+	 * A neighboring path is a path to a neighboring Railroad track. Every track has immediate neighbors
+	 * as defined by the A-side and B-side attributes. This method returns all (non-immediate) Railroad 
+	 * neighbors that can be reached by traversing zero or more non-Railroad tracks.
+	 * 
+	 * Call CalcNeighboringPaths (once) to calculate all the neighboring paths
+	 */
 	inline const unordered_map<Position,Path>& GetNeighboringPaths(const Position& from) const { return neighborPaths.at(from); }
+	
+	/**
+	 * Get the neighboring path from a certain position to a certain destination
+	 * 
+	 * A neighboring path is a path to a neighboring Railroad track. Every track has immediate neighbors
+	 * as defined by the A-side and B-side attributes. This method returns a path to a (non-immediate) Railroad 
+	 * neighbor that can be reached by traversing zero or more non-Railroad tracks.
+	 * 
+	 * Call CalcNeighboringPaths (once) to calculate all the neighboring paths
+	 */
 	const Path& GetNeighborPath(const Position& from, const Track* destination) const;
 };
 

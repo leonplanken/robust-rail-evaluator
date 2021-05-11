@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.11)
 # set the project name
 project(cTORS VERSION 0.1)
 
+#Options
+option(BUILD_DOC "Build documentation" ON)
+
 # Verbose.
 #set(CMAKE_VERBOSE_MAKEFILE on)
 
@@ -26,6 +29,23 @@ else()
 	add_compile_definitions(DEBUG=1)
 endif()
 
+
+#Doxygen documentation generation (optional)
+if(BUILD_DOC)
+	find_package(Doxygen)
+	if (DOXYGEN_FOUND)
+	    message(STATUS "Doxygen build started")
+	    # note the option ALL which allows to build the docs together with the application
+	    add_custom_target( doc_doxygen ALL
+		COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM )
+	else (DOXYGEN_FOUND)
+	  message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
+	endif (DOXYGEN_FOUND)
+endif(BUILD_DOC)
+
 #Fetch the JSON library
 FetchContent_Declare(json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -36,8 +56,6 @@ if(NOT json_POPULATED)
   FetchContent_Populate(json)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
-
-find_package(Protobuf REQUIRED)
 
 # Headers
 set(PROJECT_SOURCE_DIR "src")
@@ -128,8 +146,8 @@ set(TORS_SOURCE_FILES
 	${PROJECT_INCLUDE_DIR}/Utils.h
 )
 
-#include_directories(${PROTOBUF_INCLUDE_DIRS})
-#include_directories(${CMAKE_CURRENT_BINARY_DIR})
+#Protobuf
+find_package(Protobuf REQUIRED)
 set(PROTOS_DIR "../protos")
 set(PROTOBUF_IMPORT_DIRS ${PROTOS_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
@@ -138,7 +156,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Location.proto
 	${PROTOS_DIR}/TrainUnitTypes.proto
 	${PROTOS_DIR}/Scenario.proto
-	
+
 	${PROTOS_DIR}/PartialOrderSchedule.proto
 	${PROTOS_DIR}/Run.proto
 	${PROTOS_DIR}/Plan.proto

@@ -9,7 +9,7 @@ if (config->IsBusinessRuleActive(#validator)) { \
 #endif
 
 ActionValidator::~ActionValidator() {
-	validators.clear();
+	DELETE_VECTOR(validators);
 }
 
 void ActionValidator::AddValidators() {
