@@ -32,7 +32,7 @@ struct ShuntingUnitState {
 		}
 	/** Iniitialize the ShuntingUnitState based on the given parameters */
 	ShuntingUnitState(const Track* position, const Track* previous, const Train* frontTrain) 
-		: position(position), previous(previous), moving(false), waiting(false), inNeutral(true), beginMoving(false), frontTrain(frontTrain) {}
+		: position(position), previous(previous), moving(false), waiting(false), inNeutral(false), beginMoving(false), frontTrain(frontTrain) {}
 	/** Destroy the ShuntingUnitState and its stored active actions */
 	~ShuntingUnitState() {
 		DELETE_LIST(activeActions);

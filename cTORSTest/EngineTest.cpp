@@ -65,4 +65,197 @@ namespace cTORSTest
 			CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
 		}
 	}
+
+	TEST_CASE("Actions test") {
+		LocationEngine engine("data/Demo");
+		auto s1 = engine.GetLocation().GetTrackByID("2");
+		auto s2 = engine.GetLocation().GetTrackByID("6");
+		auto r1 = engine.GetLocation().GetTrackByID("1");
+		auto r2 = engine.GetLocation().GetTrackByID("4");
+		auto r3 = engine.GetLocation().GetTrackByID("3");
+		auto r4 = engine.GetLocation().GetTrackByID("7");
+		auto r5 = engine.GetLocation().GetTrackByID("8");
+		auto r6 = engine.GetLocation().GetTrackByID("11");
+		auto state = engine.StartSession();
+		engine.Step(state);
+		auto inc1 = state->GetIncomingTrains().at(0);
+		engine.ApplyAction(state, Arrive(inc1));
+		auto su1 = state->GetMatchingShuntingUnit(inc1->GetShuntingUnit());
+		CHECK(state->GetPosition(su1) == inc1->GetParkingTrack());
+		CHECK(state->GetPrevious(su1) == inc1->GetSideTrack());
+		CHECK(!state->IsInNeutral(su1));
+		
+		engine.Step(state);
+		CHECK(!state->IsMoving(su1));
+		engine.ApplyAction(state, BeginMove(su1));
+		CHECK(state->IsMoving(su1));
+		
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su1, r3));
+		CHECK(state->GetPosition(su1)==r3);
+		CHECK(state->GetPrevious(su1)==s1);
+		CHECK(!state->IsInNeutral(su1));
+
+		engine.Step(state);
+		auto inc2 = state->GetIncomingTrains().at(0);
+		engine.ApplyAction(state, Arrive(inc2));
+		auto su2 = state->GetMatchingShuntingUnit(inc2->GetShuntingUnit());
+		CHECK(state->GetPosition(su2) == inc2->GetParkingTrack());
+		CHECK(state->GetPrevious(su2) == inc2->GetSideTrack());
+		CHECK(!state->IsInNeutral(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su2));
+		CHECK(state->IsWaiting(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su1, r5));
+		CHECK(state->GetPosition(su1)==r5);
+		CHECK(state->GetPrevious(su1)==s2);
+		CHECK(!state->IsInNeutral(su1));
+
+		engine.Step(state);
+		CHECK(!state->IsMoving(su2));
+		engine.ApplyAction(state, BeginMove(su2));
+		CHECK(state->IsMoving(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su2, r3));
+		CHECK(state->GetPosition(su2)==r3);
+		CHECK(state->GetPrevious(su2)==s1);
+		CHECK(!state->IsInNeutral(su2));
+
+		engine.Step(state);
+		CHECK(state->IsMoving(su1));
+		engine.ApplyAction(state, EndMove(su1));
+		CHECK(!state->IsMoving(su1));
+		CHECK(!state->IsInNeutral(su1));
+
+		// Here su1 has arrived at rail_5, with the front train facing bumper_4
+		// After the split, the front train should be unable to move, because it is stuck between
+		// The bumper and the back train. 
+		// The direction of the two trains should be as follows:
+		// Front: same (prev: same)
+		// Back: same (prev: same)
+		engine.Step(state);
+		auto& ids = su1->GetTrainIDs();
+		auto frontID = state->GetFrontTrain(su1)->GetID();
+		auto backID = su1->GetTrains().at(1 - su1->GetTrainIndexByID(frontID)).GetID();
+		CHECK(su1->GetNumberOfTrains() == 2);
+		engine.ApplyAction(state, Split(su1, 1));
+		auto su1a = state->GetShuntingUnitByTrainID(frontID);
+		auto su1b = state->GetShuntingUnitByTrainID(backID);
+		CHECK(su1a->GetNumberOfTrains() == 1);
+		CHECK(state->GetPosition(su1a) == r5);
+		CHECK(state->GetPrevious(su1a) == s2);
+		CHECK(!state->IsInNeutral(su1a));
+		CHECK(state->GetPositionOnTrack(su1a) == 1);
+		CHECK(su1b->GetNumberOfTrains() == 1);
+		CHECK(state->GetPosition(su1b) == r5);
+		CHECK(state->GetPrevious(su1b) == s2);
+		CHECK(!state->IsInNeutral(su1b));
+		CHECK(state->GetPositionOnTrack(su1b) == 0);
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su2, r4));
+		CHECK(state->GetPosition(su2)==r4);
+		CHECK(state->GetPrevious(su2)==s2);
+		CHECK(!state->IsInNeutral(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Setback(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, BeginMove(su1b));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Setback(su1b));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+		
+		engine.Step(state);
+		engine.ApplyAction(state, EndMove(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su1b, r3));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su1b, r1));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, EndMove(su1b));
+
+		engine.Step(state);
+		engine.ApplyAction(state, BeginMove(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su2, r3));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1b));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Move(su2, r6));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1b));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Exit(su1b, state->GetOutgoingTrains().at(0)));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, EndMove(su2));
+
+		engine.Step(state);
+		auto& train = su2->GetTrains().at(0);
+		auto& task = state->GetTasksForTrain(&train).at(0);
+		auto facility = engine.GetLocation().GetFacilities().at(0);
+		engine.ApplyAction(state, Service(su2, task, train, facility));
+		CHECK(state->GetTasksForTrain(&train).size() == 0);
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su1a));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Wait(su2));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Exit(su2, state->GetOutgoingTrains().at(0)));
+
+		engine.Step(state);
+		engine.ApplyAction(state, Exit(su1a, state->GetOutgoingTrains().at(0)));
+
+		engine.Step(state);
+	}
 }

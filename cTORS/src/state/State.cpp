@@ -184,7 +184,8 @@ void State::RemoveShuntingUnit(const ShuntingUnit* su) {
 }
 
 bool State::HasShuntingUnit(const ShuntingUnit* su) const {
-	auto it2 = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool { return *su == *s; });
+	auto it2 = find_if(shuntingUnits.begin(), shuntingUnits.end(), [su](const ShuntingUnit* s) -> bool 
+		{ return *su == *s && su->MatchesShuntingUnit(s); });
 	return (it2 != shuntingUnits.end());
 }
 
@@ -267,7 +268,7 @@ const vector<Train> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
 	auto& trains = su->GetTrains();
 	auto suState = GetShuntingUnitState(su);
 	bool frontFirst = *suState.frontTrain == trains.front();
-	if ((suState.previous == nullptr || suState.position->IsASide(suState.previous)) && frontFirst)
+	if ((suState.previous == nullptr || (suState.position->IsASide(suState.previous)) && frontFirst))
 		return trains;
 	vector<Train>reverse (trains.rbegin(), trains.rend());
 	return reverse;

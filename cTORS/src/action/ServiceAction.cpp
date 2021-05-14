@@ -9,6 +9,7 @@ void ServiceAction::Start(State* state) const {
 	for (auto e : GetEmployees()) {
 		//TODO
 	}
+	state->RemoveTaskFromTrain(tu, *ta);
 	state->AddActiveAction(su, this);
 }
 
@@ -17,7 +18,6 @@ void ServiceAction::Finish(State* state) const {
 	auto ta = GetTask();
 	state->RemoveActiveAction(su, this);
 	state->RemoveActiveTaskFromTrain(tu, ta);
-	state->RemoveTaskFromTrain(tu, *ta);
 }
 
 const string ServiceAction::toString() const {

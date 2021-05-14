@@ -4,9 +4,6 @@
 void EndMoveAction::Start(State* state) const {
 	const ShuntingUnit* su = GetShuntingUnit();
 	state->SetMoving(su, false);
-	state->SetInNeutral(su, true);
-	// TODO by setting the su in neutral, and followig up a BeginMoveAction you can do
-	// a setback with time cost 0. This should not be allowed. Redesign EndMoveAction and SetBackAction
 	state->AddActiveAction(su, this);
 }
 

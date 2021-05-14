@@ -11,8 +11,16 @@ void SplitAction::Start(State* state) const {
 	bool inNeutral = suState.inNeutral;
 	bool fromASide = track->IsASide(previous);
 	state->RemoveShuntingUnit(su);
+	/*
+	Suppose a SU T1-T2-T3, with front train T1, and split-index 1
+	resulting in suA: T1, with front train T1. suB: T2-T3, with front train T2
+	The track setup is as follows: A < --- SU ( T3 - T2 - T1> ) ---- > B
+	This means it previous track is at the Aside, but the front train is directed to the Bside.
+	In this case front = true, fromASide = true
+	The resulting setup must be: A < --- suB ( T3 - T2> ) - suA ( T1> ) ---- > B
+	*/
 	state->AddShuntingUnitOnPosition(&suA, track, previous, front ? &suA.GetTrains().front() : &suA.GetTrains().back(), positionOnTrack);
-	state->AddShuntingUnitOnPosition(&suB, track, previous, front ? &suB.GetTrains().front() : &suB.GetTrains().back(), positionOnTrack + (fromASide ? 1 : 0));
+	state->AddShuntingUnitOnPosition(&suB, track, previous, front ? &suB.GetTrains().front() : &suB.GetTrains().back(), positionOnTrack+ (fromASide ? 0 : 1));
 	state->SetInNeutral(&suA, inNeutral);
 	state->SetInNeutral(&suB, inNeutral);
 
