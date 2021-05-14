@@ -69,9 +69,9 @@ class State(Resource):
                     if previous and str(previous.id) in coordinates:
                         # direction track is connected to current track (point in common)
                         if coordinates[str(id)][0] in coordinates[str(previous.id)]:
-                            direction = coordinates[str(id)][0]
-                        else:
                             direction = coordinates[str(id)][-1]
+                        else:
+                            direction = coordinates[str(id)][0]
 
                         direction = [direction[0] * scale + offset_x,
                                      direction[1] * scale + offset_y]
@@ -82,6 +82,7 @@ class State(Resource):
                         "direction": direction,
                         "in_neutral": state.is_in_neutral(train),
                         "moving": state.is_moving(train),
+                        "active": state.has_active_action(train),
                         "trains": [tu.id for tu in train.trains],
 			            "train_unit_types": [str(tu.type) for tu in train.trains],
                         "train_unit_tasks": [", ".join([str(task) for task in state.get_tasks_for_train(tu)]) for tu in train.trains],
