@@ -38,9 +38,9 @@ class TORSEnv(gym.Env):
         if not done:
             try:
                 print("Applying action " +str(action))
-                self.engine.apply_action(self.state, action)
+                self.engine.apply_action_and_step(self.state, action)
                 reward -= 0.005
-                pos_actions = self.engine.step(self.state)
+                pos_actions = self.engine.get_valid_actions(self.state)
             except ScenarioFailedError:
                 print("Scenario failed after action " + str(action))
                 reward = 0

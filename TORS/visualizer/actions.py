@@ -76,9 +76,8 @@ class Actions(Resource):
             return Response("Invalid action id", status=400)
         action = valid_actions[action_id]
         
-        current_app.engine.apply_action(current_app.state, action)
         try:
-            current_app.engine.step(current_app.state)
+            current_app.engine.apply_action_and_step(current_app.state, action)
         except ScenarioFailedError as e:
             current_app.done = True
             current_app.message = "Scenario failed! " + str(e) 

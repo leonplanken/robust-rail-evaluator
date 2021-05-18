@@ -7,7 +7,7 @@ LocationEngine::LocationEngine(const string &path) : path(path), location(Locati
 
 
 LocationEngine::~LocationEngine() {
-	debug_out("Deleting engine");
+	debug_out("Deleting LocationEngine");
 	for(auto& [name, type]: TrainUnitType::types) {
 		delete type;	
 	}
@@ -20,37 +20,29 @@ LocationEngine::~LocationEngine() {
 		EndSession(state);
 	stateActionMap.clear();
 	results.clear();
-	debug_out("Done deleting engine");
+	debug_out("Done deleting LocationEngine");
 }
 
-list<const Action*> &LocationEngine::Step(State * state, Scenario * scenario) {
+void LocationEngine::Step(State * state) {
 	ExecuteImmediateEvents(state);
-	auto& actions = GetValidActions(state);
-	debug_out("Got valid actions succesfully");
-	EventQueue disturbances = scenario ? scenario->GetDisturbances() : EventQueue();
-	while (actions.empty() && state->GetNumberOfEvents() > 0) {
-		debug_out("No actions but still events available");
+	EventQueue disturbances; // Currently an empty queue of disturbances. TODO get the disturbances from the Scenario
+	while (!state->IsActionRequired() && state->GetNumberOfEvents() > 0) {
+		debug_out("All shunting units are still active, but still " << state->GetNumberOfEvents() 
+			<< " events available at T" << state->GetTime() << ".");
 		const Event* evnt;
 		if (disturbances.size() > 0 && disturbances.top()->GetTime() <= state->PeekEvent()->GetTime())
 			evnt = disturbances.top();
 		else
 			evnt = state->PopEvent();
-		if (evnt->GetTime() != state->GetTime() && state->IsAnyInactive())
-			throw ScenarioFailedException("Action required, but no valid action found");
 		ExecuteEvent(state, evnt);
 		ExecuteImmediateEvents(state);
 		if (state->GetTime() > state->GetEndTime()) {
 			if ((state->GetIncomingTrains().size() + state->GetOutgoingTrains().size()) > 0) {
 				throw ScenarioFailedException("End of Scenario reached, but there are remaining incoming or outgoing trains.");
-			} else {
-				DELETE_LIST(actions)
-			}
-		} else {
-			actions = GetValidActions(state);
+			} 
 		}
 	} 
-	debug_out("Done getting actions. Found " << to_string(actions.size()) << " actions.");
-	return actions;
+	debug_out("Step done.");
 }
 
 void LocationEngine::ApplyAction(State* state, const Action* action) {
@@ -76,6 +68,22 @@ void LocationEngine::ApplyAction(State* state, const SimpleAction& action) {
 	} catch(exception& e) {
 		throw InvalidActionException("Error in applying action (" + _action->toString() + "): " + e.what());
 	}
+}
+
+pair<bool, string> LocationEngine::IsValidAction(const State* state, const SimpleAction& action) const {
+	const Action* _action;
+	try {
+		_action = GenerateAction(state, action);
+	} catch(InvalidActionException& e) {
+		return make_pair(false, e.what());
+	}
+	auto result = actionValidator.IsValid(state, _action);
+	delete _action;
+	return result;
+}
+
+pair<bool, string> LocationEngine::IsValidAction(const State* state, const Action* action) const {
+	return actionValidator.IsValid(state, action);
 }
 
 const Action* LocationEngine::GenerateAction(const State* state, const SimpleAction& action) const {
@@ -128,6 +136,17 @@ void LocationEngine::ExecuteEvent(State* state, const Event* e) {
 	}
 	state->SetTime(e->GetTime());
 	delete e;
+}
+
+
+void LocationEngine::ApplyActionAndStep(State* state, const Action* action) {
+	ApplyAction(state, action);
+	Step(state);
+}
+
+void LocationEngine::ApplyActionAndStep(State* state, const SimpleAction& action) {
+	ApplyAction(state, action);
+	Step(state);
 }
 
 bool LocationEngine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {

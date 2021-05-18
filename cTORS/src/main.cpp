@@ -7,9 +7,10 @@ int main()
 	engine.CalcShortestPaths();
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
+	engine.Step(state);
 	while (true) {
 		try {
-			auto& actions = engine.Step(state);
+			auto& actions = engine.GetValidActions(state);
 			cout << "[T = "  + to_string(state->GetTime()) + "]\tChoosing from " << actions.size() << " actions.\n";
 			if (actions.size() == 0) break;
 			const Action* a;
@@ -28,7 +29,7 @@ int main()
 				}
 				a = *next(actions.begin(), i);
 			}
-			engine.ApplyAction(state, a);
+			engine.ApplyActionAndStep(state, a);
 		}
 		catch (ScenarioFailedException e) {
 			cout << "Scenario failed.\n";

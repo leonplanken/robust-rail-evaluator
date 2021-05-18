@@ -38,13 +38,23 @@ public:
 	/** Get a list of valid Action%s for the given State */
 	list<const Action*> &GetValidActions(State* state);
 	/** Go to the next Step in the simulation and update the State */
-	list<const Action*> &Step(State* state, Scenario* scenario = nullptr);
+	void Step(State* state);
+	/** Apply the Action to the State and go to the next step in the simulation */
+	void ApplyActionAndStep(State* state, const Action* action);
+	/** Apply the SimpleAction to the State and go to the next step in the simulation */
+	void ApplyActionAndStep(State* state, const SimpleAction& action);
 	/** Apply the given Action to the State */
 	void ApplyAction(State* state, const Action* action);
 	/** Apply the given SimpleAction to the State */
 	void ApplyAction(State* state, const SimpleAction& action);
 	/** Generate an Action from the given SimpleAction */
 	const Action* GenerateAction(const State* state, const SimpleAction& action) const;
+	/** Checks if the given SimpleAction is valid in the given State or not. If not
+	 * provides a reason why. */
+	pair<bool, string> IsValidAction(const State* state, const SimpleAction& action) const; 
+	/** Checks if the given Action is valid in the given State or not. If not
+	 * provides a reason why. */
+	pair<bool, string> IsValidAction(const State* state, const Action* action) const; 
 	/** Evaluate the given POSPlan for the given Scenario */
 	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
 	/** Start a session for the given Scenario and generate an initial State */
@@ -88,16 +98,26 @@ public:
 	/** Get the valid actions for the session with the given State */
 	inline list<const Action*> &GetValidActions(State* state) const { return engineMap.at(state)->GetValidActions(state); }
 	/** Go to the next Step in the simulation and update the State */
-	inline list<const Action*> &Step(State* state, Scenario* scenario = nullptr) const { return engineMap.at(state)->Step(state, scenario); }
+	void Step(State* state) const { return engineMap.at(state)->Step(state); }
 	/** Apply the given Action to the State */
 	inline void ApplyAction(State* state, const Action* action) const { engineMap.at(state)->ApplyAction(state, action); }
 	/** Apply the given SimpleAction to the State */
-	inline void ApplyAction(State* state, const SimpleAction& action) const {engineMap.at(state)->ApplyAction(state, action); }
+	inline void ApplyAction(State* state, const SimpleAction& action) const { engineMap.at(state)->ApplyAction(state, action); }
+	/** Apply the Action to the State and go to the next step in the simulation */
+	inline void ApplyActionAndStep(State* state, const Action* action) { engineMap.at(state)->ApplyActionAndStep(state, action); }
+	/** Apply the SimpleAction to the State and go to the next step in the simulation */
+	inline void ApplyActionAndStep(State* state, const SimpleAction& action) { engineMap.at(state)->ApplyActionAndStep(state, action); }
 	/** Generate an Action from the given SimpleAction */
 	inline const Action* GenerateAction(const State* state, const SimpleAction& action) const { return engineMap.at(state)->GenerateAction(state, action); }
 	/** Evaluate the given POSPlan for the given Scenario on the given Location */
 	inline bool EvaluatePlan(const string& location, const Scenario& scenario, const POSPlan& plan) { 
 		return GetOrLoadLocationEngine(location)->EvaluatePlan(scenario, plan); }
+	/** Checks if the given SimpleAction is valid in the given State or not. If not
+	 * provides a reason why. */
+	inline pair<bool, string> IsValidAction(const State* state, const SimpleAction& action) const { return engineMap.at(state)->IsValidAction(state, action); }
+	/** Checks if the given Action is valid in the given State or not. If not
+	 * provides a reason why. */
+	inline pair<bool, string> IsValidAction(const State* state, const Action* action) const { return engineMap.at(state)->IsValidAction(state, action); }
 	/** Start a session for the given Scenario and location and generate an initial State */
 	State* StartSession(const string& location, const Scenario& scenario);
 	/** Start a session for the original Scenario of a location and generate an initial State */

@@ -212,6 +212,14 @@ bool State::IsAnyInactive() const {
 	return false;
 }
 
+bool State::IsActionRequired() const {
+	if(IsAnyInactive()) return true;
+	for(auto inc: incomingTrains) {
+		if(inc->GetTime() == GetTime()) return true;
+	}
+	return false;
+}
+
 void State::RemoveActiveAction(const ShuntingUnit* su, const Action* action) {
 	auto& lst = shuntingUnitStates.at(su).activeActions;
 	auto it = find_if(lst.begin(), lst.end(), [action](const Action* a) -> bool { return *a == *action; } );

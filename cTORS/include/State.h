@@ -170,6 +170,8 @@ public:
 	bool IsActive() const;
 	/** Returns true if any of the ShuntingUnit%s is currently not active or waiting */
 	bool IsAnyInactive() const;
+	/**Returns true if any ShuntingUnit is inactive or if an Incoming train is available */
+	bool IsActionRequired() const;
 	/** Get the front Train for the given ShuntingUnit */
 	inline const Train* GetFrontTrain(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).frontTrain; }
 	/** Get a vector of all the Task%s for the given Train that have not been executed yet */

@@ -346,11 +346,17 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<LocationEngine>(m, "Engine")
 		.def(py::init<const std::string&>())
-		.def("step", &LocationEngine::Step, py::arg("state"), py::arg("scenario") = nullptr, py::return_value_policy::reference)
+		.def("step", &LocationEngine::Step, py::arg("state"))
 		.def("get_valid_actions", &LocationEngine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
-		.def("apply_action", static_cast<void (LocationEngine::*)(State*, const SimpleAction&)>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
-		.def("apply_action", static_cast<void (LocationEngine::*)(State*, const Action*)>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action", py::overload_cast<State*, const SimpleAction&>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action_and_step", py::overload_cast<State*, const SimpleAction&>(&LocationEngine::ApplyActionAndStep),
+			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
+		.def("apply_action_and_step", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyActionAndStep),
+			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
 		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
+		.def("is_valid_action", py::overload_cast<const State*, const SimpleAction&>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
+		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
 		.def("start_session", 
 			[](LocationEngine& e, Scenario *scenario) -> State* { 
 				if (scenario == nullptr) return e.StartSession();

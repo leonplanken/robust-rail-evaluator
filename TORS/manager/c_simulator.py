@@ -32,12 +32,13 @@ class Simulator:
 
         self.scenario = self.scenario_generator.generate_scenario()
         self.state = self.engine.start_session(self.scenario)
+        self.engine.step(self.state)
         self.result = 0
     
     def get_state(self):
         try:
             self.print("S [{}]> Get actions".format(self.state.time))
-            next_actions = self.engine.step(self.state)
+            next_actions = self.engine.get_valid_actions(self.state)
             #next_actions = [(a[0], a[1]) for a in next_actions]
         except ScenarioFailedError:
             next_actions = []
@@ -53,7 +54,7 @@ class Simulator:
     
     def apply_action(self, action):
         self.print("S [{}]> Applying action {}".format(self.state.time, str(action)))
-        self.engine.apply_action(self.state, action)
+        self.engine.apply_action_and_step(self.state, action)
     def get_time(self):
         return self.state.time
     

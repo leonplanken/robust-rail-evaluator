@@ -27,7 +27,8 @@ namespace cTORSTest
 				CHECK(!state->HasActiveAction(su));
 			}
 			SUBCASE("Test get actions") {
-				list<const Action*> &actions = engine.Step(state);
+				engine.Step(state);
+				list<const Action*> &actions = engine.GetValidActions(state);
 				CHECK(actions.size() > 0);
 				auto a = actions.front();
 				engine.ApplyAction(state, a);
@@ -50,15 +51,16 @@ namespace cTORSTest
 			CAPTURE("Test " + to_string(i));
 			Scenario sc3(sc1);
 			auto st2 = engine.StartSession(sc3);
+			engine.Step(st2);
 			int counter = 0;
 			while(true) {
 				try{
-					list<const Action*> &actions = engine.Step(st2);
+					list<const Action*> &actions = engine.GetValidActions(st2);
 					if(actions.size() == 0) break;
 					auto it = actions.begin();
 					advance(it, counter++ % actions.size());
 					auto a = *it;
-					engine.ApplyAction(st2, a);
+					engine.ApplyActionAndStep(st2, a);
 				} catch(ScenarioFailedException& e) { break; }
 			}
 			engine.EndSession(st2);
@@ -163,78 +165,31 @@ namespace cTORSTest
 		CHECK(!state->IsInNeutral(su2));
 
 		engine.Step(state);
-		engine.ApplyAction(state, Setback(su2));
+		engine.ApplyActionAndStep(state, Setback(su2));
+		engine.ApplyActionAndStep(state, BeginMove(su1b));
+		engine.ApplyActionAndStep(state, Setback(su1b));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, EndMove(su2));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su2));
+		engine.ApplyActionAndStep(state, Move(su1b, r3));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su2));
+		engine.ApplyActionAndStep(state, Move(su1b, r1));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su2));
+		engine.ApplyActionAndStep(state, EndMove(su1b));
+		engine.ApplyActionAndStep(state, BeginMove(su2));
+		engine.ApplyActionAndStep(state, Move(su2, r3));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su1b));
+		engine.ApplyActionAndStep(state, Move(su2, r6));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su1b));
+		engine.ApplyActionAndStep(state, Exit(su1b, state->GetOutgoingTrains().at(0)));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, EndMove(su2));
 
-		engine.Step(state);
-		engine.ApplyAction(state, BeginMove(su1b));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Setback(su1b));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-		
-		engine.Step(state);
-		engine.ApplyAction(state, EndMove(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Move(su1b, r3));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Move(su1b, r1));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, EndMove(su1b));
-
-		engine.Step(state);
-		engine.ApplyAction(state, BeginMove(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Move(su2, r3));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1b));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Move(su2, r6));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1b));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Exit(su1b, state->GetOutgoingTrains().at(0)));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, EndMove(su2));
-
-		engine.Step(state);
 		auto& train = su2->GetTrains().at(0);
 		auto& task = state->GetTasksForTrain(&train).at(0);
 		auto facility = engine.GetLocation().GetFacilities().at(0);
@@ -242,20 +197,10 @@ namespace cTORSTest
 		CHECK(state->GetTasksForTrain(&train).size() == 0);
 
 		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su1a));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Wait(su2));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Exit(su2, state->GetOutgoingTrains().at(0)));
-
-		engine.Step(state);
-		engine.ApplyAction(state, Exit(su1a, state->GetOutgoingTrains().at(0)));
-
-		engine.Step(state);
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su1a));
+		engine.ApplyActionAndStep(state, Wait(su2));
+		engine.ApplyActionAndStep(state, Exit(su2, state->GetOutgoingTrains().at(0)));
+		engine.ApplyActionAndStep(state, Exit(su1a, state->GetOutgoingTrains().at(0)));
 	}
 }
