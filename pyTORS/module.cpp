@@ -153,7 +153,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_train_units_in_order", &State::GetTrainUnitsInOrder, py::arg("shunting_unit"), py::return_value_policy::move)
 		.def("get_front_train", &State::GetFrontTrain, py::arg("shunting_unit"), py::return_value_policy::reference)
 		.def("get_active_actions", &State::GetActiveActions, py::return_value_policy::reference)
-		.def("get_tasks_for_train", &State::GetTasksForTrain, py::arg("train"), py::return_value_policy::reference);
+		.def("get_tasks_for_train", &State::GetTasksForTrain, py::arg("train"), py::return_value_policy::reference)
+		.def("print_state_info", &State::PrintStateInfo);
 
 	////////////////////////////////////
 	//// Action                     ////
@@ -354,6 +355,7 @@ PYBIND11_MODULE(pyTORS, m) {
 			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
 		.def("apply_action_and_step", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyActionAndStep),
 			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
+		.def("apply_wait_all_until", &LocationEngine::ApplyWaitAllUntil, py::arg("state"), py::arg("time"))
 		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
 		.def("is_valid_action", py::overload_cast<const State*, const SimpleAction&>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
 		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))

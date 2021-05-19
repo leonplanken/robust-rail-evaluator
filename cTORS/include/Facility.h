@@ -58,4 +58,8 @@ public:
 	inline bool operator!=(const Facility& t) const { return !(*this == t); }
 };
 
+//!\cond NO_DOC
+STREAM_OPERATOR(Facility);
+//!\endcond
+
 #endif

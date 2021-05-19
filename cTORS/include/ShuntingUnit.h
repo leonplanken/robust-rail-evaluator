@@ -55,6 +55,10 @@ public:
 	inline size_t GetNumberOfTrains() const { return trains.size(); }
 	/** Get the Train%s in this ShuntingUnit */
 	inline const vector<Train>& GetTrains() const { return trains; }
+	/** Checks if this ShuntingUnit has a Train with the given id */
+	bool HasTrainByID(int id) const;
+	/** Checks if this ShuntingUnit has a Train with any of the given ids */
+	bool HasAnyTrainByIDs(vector<int> ids) const;
 	/** Get the Setback time for this ShuntingUnit, based on the current front-train and the given parameters */
 	int GetSetbackTime(const Train* const frontTrain, bool normTime, bool walkTime, int setbackTime) const;
 	/** Get the Setback time for this ShuntingUnit, based on the current front-train and the given parameters */
@@ -110,6 +114,9 @@ struct ShuntingUnitEquals {
 		return lhs->GetID() == rhs->GetID();
 	}
 };
+
+STREAM_OPERATOR(ShuntingUnit);
+
 //!\endcond
 
 #endif

@@ -70,6 +70,17 @@ void LocationEngine::ApplyAction(State* state, const SimpleAction& action) {
 	}
 }
 
+void LocationEngine::ApplyWaitAllUntil(State* state, int time) {
+	for(auto& [su, suState]: state->GetShuntingUnitStates()) {
+		if(!suState.waiting && time - state->GetTime() > 0 && !suState.HasActiveAction()) {
+			const auto& action = new WaitAction(su, time - state->GetTime());
+			debug_out("Applying action " << action->toString() << " at T" << state->GetTime());
+			ApplyAction(state, action);
+		}
+	}
+	Step(state);
+}
+
 pair<bool, string> LocationEngine::IsValidAction(const State* state, const SimpleAction& action) const {
 	const Action* _action;
 	try {
@@ -151,16 +162,25 @@ void LocationEngine::ApplyActionAndStep(State* state, const SimpleAction& action
 
 bool LocationEngine::EvaluatePlan(const Scenario& scenario, const POSPlan& plan) {
 	auto state = StartSession(scenario);
+	Step(state);
 	auto it = plan.GetActions().begin();
     while(it != plan.GetActions().end()) {
         try {
-            Step(state);
+			if(DEBUG) state->PrintStateInfo();
             if(state->GetTime() >= it->GetSuggestedStart()) {
-                ApplyAction(state, *(it->GetAction()));
+                debug_out("Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime() 
+					<< " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]");
+				ApplyActionAndStep(state, *(it->GetAction()));
                 it++;
-            }
-        } catch (ScenarioFailedException e) {
-			cout << "Scenario failed.\n";
+            } else {
+				ApplyWaitAllUntil(state, it->GetSuggestedStart());
+			}
+        } catch (ScenarioFailedException& e) {
+			cout << "Scenario failed." << endl;
+			return false;
+			break;
+		} catch (InvalidActionException& e) {
+			cout << "Scenario failed. Invalid action: " << e.what() << "." << endl;
 			return false;
 			break;
 		}

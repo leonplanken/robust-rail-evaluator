@@ -265,6 +265,9 @@ public:
 	void RemoveTaskFromTrain(const Train* tu, const Task& task);
 	/** Remove the active Task%s for a given Train from the state */
 	void RemoveActiveTaskFromTrain(const Train* tu, const Task* task);
+
+	/** Print the state info */
+	void PrintStateInfo() const;
 };
 
 #endif

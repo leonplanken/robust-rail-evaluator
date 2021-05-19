@@ -42,7 +42,7 @@ struct TrainUnitType {
 		pb_tt.splitduration(), pb_tt.backnormtime(), pb_tt.backadditiontime(), pb_tt.travelspeed(), pb_tt.startuptime(), pb_tt.typeprefix(), 
 		pb_tt.needsloco(), pb_tt.isloco(), pb_tt.needselectricity()) {}
 	/** Get a string representation of this TrainUnitType */
-	const string toString() const { return displayName; }
+	const string& toString() const { return displayName; }
 	/** Returns true iff the two TrainUnitType%s have the same name */
 	bool operator==(const TrainUnitType& t) const { return (displayName == t.displayName); }
 	/** Returns true iff the two TrainUnitType%s do not have the same name */
@@ -137,6 +137,13 @@ struct TrainEquals {
 		return lhs->GetID() == rhs->GetID();
 	}
 };
+
+STREAM_OPERATOR(Train);
+STREAM_OPERATOR(Task);
+STREAM_OPERATOR(TrainUnitType);
+
 //!\endcond
+
+
 
 #endif

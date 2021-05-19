@@ -10,6 +10,7 @@ int main()
 	engine.Step(state);
 	while (true) {
 		try {
+			state->PrintStateInfo();
 			auto& actions = engine.GetValidActions(state);
 			cout << "[T = "  + to_string(state->GetTime()) + "]\tChoosing from " << actions.size() << " actions.\n";
 			if (actions.size() == 0) break;

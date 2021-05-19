@@ -202,5 +202,12 @@ namespace cTORSTest
 		engine.ApplyActionAndStep(state, Wait(su2));
 		engine.ApplyActionAndStep(state, Exit(su2, state->GetOutgoingTrains().at(0)));
 		engine.ApplyActionAndStep(state, Exit(su1a, state->GetOutgoingTrains().at(0)));
+
+		PBRun pb_run;
+		engine.GetResult(state)->Serialize(engine, &pb_run);
+		engine.EndSession(state);
+		auto runResult = RunResult::CreateRunResult(&engine.GetLocation(), pb_run);
+		CHECK(engine.EvaluatePlan(runResult->GetScenario(), runResult->GetPlan()));
+		delete runResult;
 	}
 }

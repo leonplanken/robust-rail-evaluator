@@ -192,4 +192,8 @@ public:
 	inline bool operator!=(const Track& t) const { return !(*this == t); }
 };
 
+//!\cond NO_DOC
+STREAM_OPERATOR(Track);
+//!\endcond
+
 #endif

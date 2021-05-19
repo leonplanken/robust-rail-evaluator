@@ -47,6 +47,8 @@ public:
 	void ApplyAction(State* state, const Action* action);
 	/** Apply the given SimpleAction to the State */
 	void ApplyAction(State* state, const SimpleAction& action);
+	/** Apply Wait actions for all non-waiting trains until the given time */
+	void ApplyWaitAllUntil(State* state, int time);
 	/** Generate an Action from the given SimpleAction */
 	const Action* GenerateAction(const State* state, const SimpleAction& action) const;
 	/** Checks if the given SimpleAction is valid in the given State or not. If not

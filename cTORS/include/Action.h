@@ -241,7 +241,7 @@ public:
 	Move(const Move& move) = default;
 	/** Get the id of the destination track */
 	inline const string& GetDestinationID() const { return destinationID; }
-	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to " +destinationID; }
+	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to track with id " + destinationID; }
 	inline const string GetGeneratorName() const override { return "move"; }
 	inline const Move* Clone() const override { return new Move(*this); }
 };
@@ -788,6 +788,8 @@ public:
 	OVERRIDE_ACTIONGENERATOR(SetbackActionGenerator)
 };
 
-
-
+//!\cond NO_DOC
+STREAM_OPERATOR(Action);
+STREAM_OPERATOR(SimpleAction);
+//!\endcond 
 #endif

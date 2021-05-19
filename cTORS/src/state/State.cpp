@@ -315,3 +315,19 @@ const Outgoing* State::GetOutgoingByID(int id) const {
 	if(it==outgoingTrains.end()) return nullptr;
 	return *it;
 }
+
+void State::PrintStateInfo() const {
+	cout << "State update at T" << GetTime() << endl;
+	for(auto& [su, suState]: GetShuntingUnitStates()) {
+		cout << su << "/" << su->GetTrainString() << ": " << endl
+			<< "\twaiting\t\t=\t" << suState.waiting << endl
+			<< "\tmoving\t\t=\t" << suState.moving << endl
+			<< "\tbegin moving\t=\t" << suState.beginMoving << endl
+			<< "\tin neutral\t=\t" << suState.inNeutral << endl
+			<< "\tfront train\t=\t" << suState.frontTrain << endl
+			<< "\tposition\t=\t" << suState.position << endl
+			<< "\tprevious\t=\t" << suState.previous << endl
+			<< "\tactive actions\t=\t" << Join(suState.activeActions.begin(), suState.activeActions.end(), ", ") << endl;
+	}
+	cout << endl;
+}

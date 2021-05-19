@@ -41,6 +41,18 @@ inline bool instanceof(const T* ptr) {
     return dynamic_cast<const Base*>(ptr) != nullptr;
 }
 
+#ifndef STREAM_OPERATOR
+#define STREAM_OPERATOR(name) \
+inline ostream& operator<<(ostream& str, const name& v) { \
+	str << v.toString(); \
+    return str; \
+} \
+inline ostream& operator<<(ostream& str, const name* v) { \
+	str << v->toString(); \
+    return str; \
+}
+#endif
+
 template<typename T>
 vector<const T*> copy_of(const vector<const T*>& objs) {
     vector<const T*> res(objs.size());
@@ -50,8 +62,7 @@ vector<const T*> copy_of(const vector<const T*>& objs) {
 }
 
 template <class It>
-string Join(It begin, const It end, const string& sep)
-{
+string Join(It begin, const It end, const string& sep) {
   ostringstream stream;
   if(begin!=end)
     stream << *begin++;
@@ -60,6 +71,16 @@ string Join(It begin, const It end, const string& sep)
     stream << *begin++;
   }
   return stream.str();
+}
+
+template <class Obj>
+string Join(vector<Obj> objects, const string& sep) {
+  return Join(objects.begin(), objects.end(), sep);
+}
+
+template <class Obj>
+string Join(list<Obj> objects, const string& sep) {
+  return Join(objects.begin(), objects.end(), sep);
 }
 
 inline void parse_json_to_pb(const fs::path& file_path, google::protobuf::Message* message) {

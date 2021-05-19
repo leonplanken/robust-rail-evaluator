@@ -7,10 +7,10 @@ void CombineAction::Start(State* state) const {
     auto suState = state->GetShuntingUnitState(frontSU);
     auto track = suState.position;
     auto previous = suState.previous;
-    auto frontTrain = suState.frontTrain;
+    auto frontTrainID = suState.frontTrain->GetID();
     state->RemoveShuntingUnit(frontSU);
     state->RemoveShuntingUnit(rearSU);
-    
+    auto frontTrain = combinedSU.GetTrainByID(frontTrainID);
     state->AddShuntingUnitOnPosition(&combinedSU, track, previous, frontTrain, position);
     state->SetInNeutral(&combinedSU, inNeutral);
     state->AddActiveAction(&combinedSU, this);
