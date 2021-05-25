@@ -46,7 +46,7 @@ const Action* SplitActionGenerator::Generate(const State* state, const SimpleAct
 	auto duration = suState.frontTrain->GetType()->splitDuration;
 	auto splitPosition = split->GetSplitIndex();
 	if(splitPosition < 1 || splitPosition >= su->GetTrains().size()) throw InvalidActionException("The split index is invalid.");
-	const vector<Train>& trains = su->GetTrains();
+	const vector<Train> trains = state->GetTrainUnitsInOrder(su);
 	ShuntingUnit suA = ShuntingUnit(su->GetID(), vector<Train>(trains.begin(), trains.begin() + splitPosition));
 	ShuntingUnit suB = ShuntingUnit(su->GetID()+1, vector<Train>(trains.begin()+splitPosition, trains.end()));
 	return new SplitAction(su, suState.position, duration, suA, suB);

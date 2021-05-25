@@ -14,7 +14,10 @@ class TrainGoal {
 protected:
 	const int id;						/**< The id of this TrainGoal */
 	const Track* parkingTrack;			/**< The parking track for the ShuntingUnit */
-	const Track* sideTrack;				/**< The side track for teh ShuntingUnit (Bumper track)*/
+	const Track* sideTrack;				/**< The side track for teh ShuntingUnit (Bumper track)
+										 * If Incoming, the Track from which the ShuntingUnit arrives
+	 									 * If Outgoing, the Track from which the ShuntingUnit departs
+										 */
 	const ShuntingUnit* shuntingUnit;	/**< The arriving/departing ShuntingUnit */
 	const int time;						/**< The time of arriving/departing */
 	const int standingIndex;			/**< If instanding, the position index on the Track of this ShuntingUnit */

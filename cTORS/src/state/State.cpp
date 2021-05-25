@@ -276,9 +276,9 @@ const vector<Train> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
 	auto& trains = su->GetTrains();
 	auto suState = GetShuntingUnitState(su);
 	bool frontFirst = *suState.frontTrain == trains.front();
-	if ((suState.previous == nullptr || (suState.position->IsASide(suState.previous)) && frontFirst))
+	if(frontFirst)
 		return trains;
-	vector<Train>reverse (trains.rbegin(), trains.rend());
+	vector<Train> reverse (trains.rbegin(), trains.rend());
 	return reverse;
 }
 
@@ -356,11 +356,16 @@ void State::PrintStateInfo() const {
 				for(auto su: trackState.occupations) {
 					cout << " SU-" << su->GetID() << " ( ";
 					auto trains = GetTrainUnitsInOrder(su);
-					bool front = track->IsASide(GetPrevious(su));
+					bool direction = track->IsASide(GetPrevious(su));
+					auto frontTrain = GetFrontTrain(su);
+					if(!direction)
+						trains = vector<Train>(trains.rbegin(), trains.rend());
 					for(size_t i=trains.size(); i--; ) {
-						cout << (!front && i == trains.size() - 1 ? "<" : "") 
-							<< trains[i].GetID()
-							<< (front && i == 0 ? ">" : "");
+						if(i == trains.size()-1 && trains[i] == *frontTrain && !direction)
+							cout << "<";
+						cout << trains[i].GetID();
+						if(i == 0 && trains[i] == *frontTrain && direction)
+							cout << ">";
 						if(i>0) cout << " - ";
 					}
 					cout << " ) -";
@@ -385,7 +390,7 @@ void State::PrintStateInfo() const {
 	else {
 		cout << "Arrivals:" << endl;
 		for(auto inc: incomingTrains) {
-			cout << "\tT" << inc->GetTime() << ": \t" << inc->GetShuntingUnit() << " at " 
+			cout << "\tT" << inc->GetTime() << ": \t" << inc->GetShuntingUnit() << " (" << inc->GetShuntingUnit()->GetTrainString() << ") at " 
 				<< inc->GetParkingTrack() << " from " << inc->GetSideTrack();
 			if(inc->IsInstanding())
 				cout << " (instanding)";
@@ -399,7 +404,7 @@ void State::PrintStateInfo() const {
 	else {
 		cout << "Departures:" << endl;
 		for(auto out: outgoingTrains) {
-			cout << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " at " 
+			cout << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " (" << out->GetShuntingUnit()->GetTrainString() << ") at " 
 				<< out->GetParkingTrack() << " to " << out->GetSideTrack();
 			if(out->IsInstanding())
 				cout << " (outstanding)";
