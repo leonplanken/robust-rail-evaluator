@@ -24,8 +24,14 @@ struct Path {
 	Path(list<const Track*> route, int length) : route(route), length(length) {}
 	/** Get a string representation of this path */
 	string toString() const;
+	/** Get the starting track of this path */
+	inline const Track* GetStart() const { return route.front(); }
 	/** Get the destination track of this path */
 	inline const Track* GetDestination() const { return route.back(); }
+	/** Get the number of Track%s in this Path */
+	inline int GetNumberOfTracks() const { return route.size(); }
+	/** Append a path to the Path */
+	void Append(const Path& other);
 };
 
 /** A Position is a tuple of (Track* previous, Track* current) */
@@ -46,10 +52,13 @@ private:
 	vector<Track*> tracks;
 	vector<Facility*> facilities;
 	unordered_map<Position, double> distanceMatrix;
-	//A shortest path map for each setbackTime. The map is from (start_position, end_position) -> path
+	/** A shortest path map for each setbackTime. The map is from (start_position, end_position) -> path */
 	map<int, unordered_map<pair<Position, Position>, Path>> shortestPath;
-	// Path from a Railroad position to all neighboring RailRoad positions
+	/** Path from a Railroad position to all neighboring RailRoad positions */
 	unordered_map<Position, unordered_map<Position, Path>> neighborPaths;
+	/** A list of all possible paths. The map is from (start_position, end_position), without setbacks */
+	unordered_map<pair<Position, Position>, vector<Path>> possiblePaths;
+	/** All the tracks indexed by their string id */
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
@@ -108,10 +117,18 @@ public:
 	void CalcShortestPaths(bool byType, const TrainUnitType* type);
 	
 	/**
+	 * Calculate all the possible paths. 
+	 * 
+	 * Calling this method once is required if you want to use GetPossiblePaths.
+	 * The parameter byType determines if distances are calculated by TrackPartType or by using the distance matrix
+	 */
+	void CalcAllPossiblePaths(bool byType);
+
+	/**
 	 * Get the shortest path from a certain position to a destination.
 	 * 
 	 * Both from and to are Position%s, a tuple describing the ShuntingUnit's current
-	 * position and its previous position.
+	 * position and its previous position. The current position must always be a track of type Railroad
 	 * Call CalcShortestPaths (once) to calculate all the shortest paths
 	 */
 	inline Path GetShortestPath(const TrainUnitType* type, const Position& from, const Position& to) const {

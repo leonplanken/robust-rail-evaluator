@@ -5,6 +5,7 @@ int main()
 {
 	LocationEngine engine("data/Demo");
 	engine.CalcShortestPaths();
+	engine.CalcAllPossiblePaths();
 	State* state = engine.StartSession();
 	cout << "\nBeginning of session\n";
 	engine.Step(state);

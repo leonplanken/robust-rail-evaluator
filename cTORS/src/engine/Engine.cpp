@@ -216,6 +216,11 @@ void LocationEngine::CalcShortestPaths() {
 	}
 } 
 
+void LocationEngine::CalcAllPossiblePaths() { 
+	bool byTrackType = true; //TODO read parameter for distance matrix from config file
+	location.CalcAllPossiblePaths(byTrackType);
+} 
+
 const Path LocationEngine::GetPath(const State* state, const Move& move) const {
 	static auto moveGenerator = static_cast<const MoveActionGenerator*>(actionManager.GetGenerator(move.GetGeneratorName()));
 	return moveGenerator->GeneratePath(state, move);
@@ -259,6 +264,12 @@ void Engine::EndSession(State* state) {
 void Engine::CalcShortestPaths() {
 	for(auto& [loc, engine]: engines) {
 		engine.CalcShortestPaths();
+	}
+}
+
+void Engine::CalcAllPossiblePaths() {
+	for(auto& [loc, engine]: engines) {
+		engine.CalcAllPossiblePaths();
 	}
 }
 

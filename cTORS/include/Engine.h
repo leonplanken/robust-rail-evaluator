@@ -72,6 +72,8 @@ public:
 	
 	/** Calculate all the shortest paths (run this once before requesting shortest paths) */ 
 	void CalcShortestPaths();
+	/** Calculate all the possible paths (run this once before requesting possible paths) */ 
+	void CalcAllPossiblePaths();
 	/** Get a path for the Move */
 	const Path GetPath(const State* state, const Move& move) const;
 	/** Get the RunResult for the given State/session */
@@ -133,6 +135,8 @@ public:
 	inline const Scenario& GetScenario(const string& location) const { return engines.at(location).GetScenario(); }
 	/** Calculate all the shortest paths (run this once before requesting shortest paths) */ 
 	void CalcShortestPaths();
+	/** Calculate all the possible paths (run this once before requesting possible paths) */ 
+	void CalcAllPossiblePaths();
 	/** Get a path for the Move */
 	inline const Path GetPath(const State* state, const Move& move) const { return engineMap.at(state)->GetPath(state, move); }
 	/** Get the RunResult for the given State/session */

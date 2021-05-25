@@ -152,6 +152,75 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 	#endif
 }
 
+void CalcPossiblePaths(const Location& location, unordered_map<pair<Position,Position>, vector<Path>>& possiblePaths,
+	unordered_map<Position, bool>& visited, const Position& orgFrom, const Position& from, const Position& to, Path currentPath) {
+	visited[from] = true;
+	if(from == to) {
+		if(currentPath.GetNumberOfTracks() > 0) {
+			possiblePaths[{orgFrom, to}].push_back(currentPath);
+			debug_out("Found path: " << currentPath.toString());
+		}
+	} else if (possiblePaths[{from, to}].size() > 0) {
+		for(auto& path: possiblePaths.at({from, to})) {
+			bool cycle = false;
+			const Track* prev =  nullptr;
+			for(auto t: path.route) {
+				if(prev != nullptr && t->GetType() == TrackPartType::Railroad && visited.at({prev, t})) {
+					cycle = true;
+					break;
+				}
+				prev = t;
+			}
+			if(cycle) continue;
+			Path updatedPath(currentPath);
+			updatedPath.Append(path);
+			debug_out("Found path: " << updatedPath.toString());
+			possiblePaths[{orgFrom, to}].push_back(updatedPath);
+		}
+	} else {
+		for(auto& [pos, path]: location.GetNeighboringPaths(from)) {
+			if(visited.at(pos)) continue;
+			Path updatedPath(currentPath);
+			updatedPath.Append(path);
+			CalcPossiblePaths(location, possiblePaths, visited, orgFrom, pos, to, updatedPath);
+		}
+		// TODO also consider set-back?
+	}
+	visited[from] = false;
+}
+
+void Location::CalcAllPossiblePaths(bool byType) {
+	if(possiblePaths.size() > 0) return;
+	#if DEBUG
+	auto begin = chrono::steady_clock::now();
+	#endif
+	//Initialize all railroad to railroad distances
+	CalcNeighboringPaths(byType);
+
+	//Initialize Algorithm
+	auto positions = GetAllPositions(tracks);
+	unordered_map<Position, bool> visited_init;
+	for(auto& pos: positions) visited_init[pos] = false;
+	for(auto& pos1: positions) {
+		for(auto& pos2: positions) {
+			possiblePaths[{pos1, pos2}];
+			if(pos1 == pos2) continue;
+			unordered_map<Position, bool> visited(visited_init);
+			debug_out("Calculate all possible paths from (" << pos1.first << "->" << pos1.second 
+				<< ") to (" << pos2.first << "->" << pos2.second << ").");
+			CalcPossiblePaths(*this, possiblePaths, visited, pos1, pos1, pos2, Path());
+		}
+	}
+	#if DEBUG
+	auto end = chrono::steady_clock::now();
+	debug_out("Calculating all possible paths finished in "
+		<< chrono::duration_cast<chrono::microseconds>(end - begin).count() << "µs" << " // "
+		<< chrono::duration_cast<chrono::milliseconds>(end - begin).count() << "ms" << " // "
+		<< chrono::duration_cast<chrono::seconds>(end - begin).count() << "s");
+	#endif
+
+}
+
 const Path& Location::GetNeighborPath(const Position& from, const Track* destination) const {
 	auto& prev_list = from.first == nullptr ? from.second->GetNeighbors() : vector<const Track*>({from.first});
 	for(auto& prev: prev_list) {
@@ -219,4 +288,21 @@ string Path::toString() const {
 	for(auto t: route) path << t->name << ", ";
 	path << "length: " << length;
 	return path.str();
+}
+void Path::Append(const Path& other) {
+	if(other.route.size() == 0) return;
+	assert(route.size() == 0 || route.back() == other.route.front() || route.back()->IsNeighbor(other.route.front()));
+	if(route.size() == 0) {
+		length = other.length;
+		route = other.route;
+	} else {
+		if(route.back() == other.route.front()) {
+			route.insert(route.end(), next(other.route.begin()), other.route.end());
+		} else if (route.back()->IsNeighbor(other.route.front())) {
+			route.insert(route.end(), other.route.begin(), other.route.end());
+		} else {
+			throw invalid_argument("The two paths " + toString() + " and " + other.toString() + " cannot be appended.");
+		}
+		length += other.length;
+	} 
 }
