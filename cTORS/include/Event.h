@@ -63,6 +63,8 @@ struct EventCompare
 {
     bool operator()(const Event* left, const Event* right) { return *left > *right; }
 };
+
+STREAM_OPERATOR(Event);
 //!\endcond
 
 /**

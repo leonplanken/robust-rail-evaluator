@@ -317,9 +317,13 @@ const Outgoing* State::GetOutgoingByID(int id) const {
 }
 
 void State::PrintStateInfo() const {
-	cout << "State update at T" << GetTime() << endl;
+	cout << "|---------------------------|" << endl;
+	cout << "|   State at T" << setw(6) << left << GetTime() << "        |" << endl;
+	cout << "|---------------------------|" << endl;
+	if(GetShuntingUnits().size() == 0)
+		cout << "No shunting units on the yard." << endl;
 	for(auto& [su, suState]: GetShuntingUnitStates()) {
-		cout << su << "/" << su->GetTrainString() << ": " << endl
+		cout << su << ": " << endl
 			<< "\twaiting\t\t=\t" << suState.waiting << endl
 			<< "\tmoving\t\t=\t" << suState.moving << endl
 			<< "\tbegin moving\t=\t" << suState.beginMoving << endl
@@ -328,6 +332,79 @@ void State::PrintStateInfo() const {
 			<< "\tposition\t=\t" << suState.position << endl
 			<< "\tprevious\t=\t" << suState.previous << endl
 			<< "\tactive actions\t=\t" << Join(suState.activeActions.begin(), suState.activeActions.end(), ", ") << endl;
+		for(auto& train: su->GetTrains()) {
+			cout << "\t> " << train;
+			auto& tasks = GetTasksForTrain(&train);
+			auto& activeTasks = GetActiveTasksForTrain(&train);
+			if(tasks.size() + activeTasks.size() > 0) cout << ": ";
+			if(tasks.size() > 0) cout << "Tasks: " << Join(tasks,", ");
+			if(tasks.size() > 0 && activeTasks.size() > 0) cout << " / ";
+			if(activeTasks.size() > 0) cout << "Active: " << Join(activeTasks, ", ") << endl;
+			cout << endl;
+		}
+	}
+	if(shuntingUnits.size() > 0)
+		cout << endl << "Track occupations:" << endl;
+	for(auto& [track, trackState]: trackStates) {
+		if(trackState.reserved || trackState.occupations.size() > 0) {
+			cout << "\t" << track;
+			if(trackState.reserved) cout << " (reserved) \t|";
+			else cout << "            \t|";
+			if(trackState.occupations.size() > 0) {
+				//A < --- suB ( T3 - T2> ) - suA ( T1> ) ---- > B
+				cout << "  A <--";
+				for(auto su: trackState.occupations) {
+					cout << " SU-" << su->GetID() << " ( ";
+					auto trains = GetTrainUnitsInOrder(su);
+					bool front = track->IsASide(GetPrevious(su));
+					for(size_t i=trains.size(); i--; ) {
+						cout << (!front && i == trains.size() - 1 ? "<" : "") 
+							<< trains[i].GetID()
+							<< (front && i == 0 ? ">" : "");
+						if(i>0) cout << " - ";
+					}
+					cout << " ) -";
+				}
+				cout << "-> B";
+			}
+			cout << endl;
+		}
 	}
 	cout << endl;
+	if(GetNumberOfEvents() == 0)
+		cout << "No events in the Event Queue" << endl;
+	else {
+		auto evt = PeekEvent();
+		cout << "Next event at T" << evt->GetTime() << ": " << evt << endl;
+		cout << GetNumberOfEvents() << " remaining events." << endl;
+	}
+	cout << endl;
+
+	if(incomingTrains.size() == 0)
+		cout << "No arrivals" << endl << endl;
+	else {
+		cout << "Arrivals:" << endl;
+		for(auto inc: incomingTrains) {
+			cout << "\tT" << inc->GetTime() << ": \t" << inc->GetShuntingUnit() << " at " 
+				<< inc->GetParkingTrack() << " from " << inc->GetSideTrack();
+			if(inc->IsInstanding())
+				cout << " (instanding)";
+			cout << endl;
+		}
+		cout << endl;
+	}
+
+	if(outgoingTrains.size() == 0)
+		cout << "No departures" << endl << endl;
+	else {
+		cout << "Departures:" << endl;
+		for(auto out: outgoingTrains) {
+			cout << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " at " 
+				<< out->GetParkingTrack() << " to " << out->GetSideTrack();
+			if(out->IsInstanding())
+				cout << " (outstanding)";
+			cout << endl;
+		}
+		cout << endl;
+	}
 }

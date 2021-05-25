@@ -120,7 +120,7 @@ list<const Action*> &LocationEngine::GetValidActions(State* state) {
 	auto& actions = stateActionMap.at(state);
 	int i=0;
 	for (auto a : actions) {
-		debug_out(to_string(i++) << ":\t" + a->toString() << ".\n");
+		debug_out("\t" << setw(3) << right << to_string(i++) << ": " + a->toString());
 	}
 	return actions;
 }
