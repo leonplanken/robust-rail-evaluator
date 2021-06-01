@@ -1,5 +1,6 @@
 {
 	"data folder": "../data/Demo",
+	"scenario": "../data/Demo/scenario.json",
 	"verbose": 1,
 	"n_runs": 100,
 	"generator": {

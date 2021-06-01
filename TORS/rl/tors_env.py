@@ -2,6 +2,7 @@ import gym
 import importlib
 from gym import spaces
 from rl.conv import TORSConverter
+from manager.scenario_generator import ScenarioGeneratorFromFolder
 from pyTORS import Engine, Action, ScenarioFailedError, InvalidActionError
 
 class TORSEnv(gym.Env):
@@ -13,10 +14,9 @@ class TORSEnv(gym.Env):
         self.config = config
         self.engine = Engine(config['data folder']) 
         self.location = self.engine.get_location()
-        self.org_scenario = self.engine.get_scenario()
         self.number_of_trains = 2
         self.scenario_generator = self._get_generator(self.number_of_trains)
-        self.scenario_generator.initialize(self.org_scenario, self.location)
+        self.scenario_generator.initialize(self.engine, config['scenario'])
         self.state = None
         self.scenario = None
         self.converter = self._get_converter()
@@ -99,7 +99,7 @@ class TORSEnv(gym.Env):
         del config['class']
         if generator_str in self.config:
             config.update(self.config[generator_str])
-        return _class(n_trains=n_trains, **config)
+        return ScenarioGeneratorFromFolder(_class, n_trains=n_trains, **config)
 
     def _get_converter(self):
         converter_str = self.config.converter['class']

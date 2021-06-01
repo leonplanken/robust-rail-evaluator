@@ -16,8 +16,6 @@ using namespace std;
 class Scenario
 {
 private:
-	static const string scenarioFileString;
-
 	int startTime, endTime;
 	EventQueue disturbances;
 	vector<const Employee*> employees;

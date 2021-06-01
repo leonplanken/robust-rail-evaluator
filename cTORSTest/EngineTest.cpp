@@ -6,7 +6,7 @@ namespace cTORSTest
 	TEST_CASE("Engine Test") {
 		LocationEngine engine("data/Demo");
 		auto& tracks = engine.GetLocation().GetTracks();
-		auto& scenario = engine.GetScenario();
+		auto& scenario = engine.GetScenario("data/Demo/scenario.json");
 		Track* railTrack;
 		auto it  = find_if(tracks.begin(), tracks.end(),
 				[](auto t) -> bool { return t->GetType()==TrackPartType::Railroad; });
@@ -16,7 +16,7 @@ namespace cTORSTest
 		}
 		auto previous = railTrack->GetNeighbors().front();
 		SUBCASE("Test create state") {
-			auto state = engine.StartSession();
+			auto state = engine.StartSession(scenario);
 			SUBCASE("Test active actions") {
 				ShuntingUnit* su = new ShuntingUnit(0, {Train(0, TrainUnitType::types.begin()->second)});
 				state->AddShuntingUnit(su, railTrack, previous);
@@ -39,7 +39,7 @@ namespace cTORSTest
 
 	TEST_CASE("Scenario test") {
 		LocationEngine engine("data/Demo");
-		auto& sc1 = engine.GetScenario();
+		auto& sc1 = engine.GetScenario("data/Demo/scenario.json");
 		{
 			Scenario sc2(sc1);
 		}
@@ -70,6 +70,7 @@ namespace cTORSTest
 
 	TEST_CASE("Actions test") {
 		LocationEngine engine("data/Demo");
+		auto& scenario = engine.GetScenario("data/Demo/scenario.json");
 		auto s1 = engine.GetLocation().GetTrackByID("2");
 		auto s2 = engine.GetLocation().GetTrackByID("6");
 		auto r1 = engine.GetLocation().GetTrackByID("1");
@@ -78,7 +79,7 @@ namespace cTORSTest
 		auto r4 = engine.GetLocation().GetTrackByID("7");
 		auto r5 = engine.GetLocation().GetTrackByID("8");
 		auto r6 = engine.GetLocation().GetTrackByID("11");
-		auto state = engine.StartSession();
+		auto state = engine.StartSession(scenario);
 		engine.Step(state);
 		auto inc1 = state->GetIncomingTrains().at(0);
 		engine.ApplyAction(state, Arrive(inc1));

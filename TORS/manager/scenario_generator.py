@@ -5,6 +5,7 @@ import itertools
 from functools import reduce
 import operator as op
 from abc import ABC, abstractmethod
+import os
 
 from warnings import warn
 
@@ -21,9 +22,10 @@ class ScenarioGenerator(ABC):
         self.max_length = n_trains if max_length is None else max_length
         self.max_trains_per_track = max_trains_per_track
     
-    def initialize(self, scenario: Scenario, location: Location) -> None:
-        self.original_scenario = scenario
-        self.location = location
+    def initialize(self, engine, scenario_file_string) -> None:
+        self.engine = engine
+        self.location = engine.get_location()
+        self.scenario_file_string = scenario_file_string
         
     @abstractmethod
     def generate_scenario(self) -> Scenario: pass
@@ -51,18 +53,19 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
         if self.max_trains_per_track != self.max_trains_per_track:
             warn("parameter 'max_trains_per_track' not supported for ScenarioGeneratorFromScenario.")
         
-    def initialize(self, scenario: Scenario, location: Location) -> None:
-        super(ScenarioGeneratorFromScenario, self).initialize(scenario, location)
-        max_trains = scenario.number_of_trains
-        max_disturbances = len(scenario.get_disturbance_list())
-        max_workers = len(list(scenario.employees))
+    def initialize(self, engine, scenario_file_string) -> None:
+        super(ScenarioGeneratorFromScenario, self).initialize(engine, scenario_file_string)
+        self.scenario = engine.get_scenario(scenario_file_string)
+        max_trains = self.scenario.number_of_trains
+        max_disturbances = len(self.scenario.get_disturbance_list())
+        max_workers = len(list(self.scenario.employees))
         self.n_trains = self._get_number(self.n_trains, max_trains)
         self.n_disturbances = self._get_number(self.n_disturbances, max_disturbances, min=0)
         self.n_workers = self._get_number(self.n_workers, max_workers)
         self.combination_generator = self._combination_generator()
         
     def _combination_generator(self):
-        max_trains = self.original_scenario.number_of_trains
+        max_trains = self.scenario.number_of_trains
         combination_generator = itertools.combinations(range(max_trains), self.n_trains)
         combinations_left = self.n_combinations
         seen_combinations = 0
@@ -88,7 +91,7 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
         return given
 
     def generate_scenario(self) -> Scenario:
-        scenario = self.original_scenario.get_copy() 
+        scenario = self.scenario.get_copy() 
         self._select_trains(scenario)
         self._select_disturbances(scenario, self.n_disturbances)
         self._select_workers(scenario, self.n_workers)
@@ -290,7 +293,37 @@ class RandomScenarioGenerator(ScenarioGenerator):
             scenario.add_disturbance(d)
         scenario.set_end_time(max([o.time for o in outgoing]))
         return scenario
-            
+
+class ScenarioGeneratorFromFolder(ScenarioGenerator):
+
+    def __init__(self, subclass, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subclass = subclass
+        self.args = args
+        self.kwargs = kwargs
+
+    def initialize(self, engine, scenario_file_string) -> None:
+        super().initialize(engine, scenario_file_string)
+        self.generators = {}
+        scenarios = []
+        if isinstance(scenario_file_string, list):
+            scenarios = scenario_file_string
+        elif os.path.isdir(scenario_file_string):
+            for file in os.listdir(scenario_file_string):
+                scenarios.append(os.path.join(scenario_file_string, file))
+        elif os.path.isfile(scenario_file_string):
+            scenarios = [scenario_file_string]
+        else:
+            raise NotImplementedError("No scenarios can be obtained from " + scenario_file_string)
+        for scenario in scenarios:
+            self.generators[scenario] = self.subclass(*self.args, **self.kwargs)
+            self.generators[scenario].initialize(self.engine, scenario)
+
+    def generate_scenario(self) -> Scenario:
+        scenario = random.choice(list(self.generators.keys()))
+        return self.generators[scenario].generate_scenario()
+
+
 def _find_matching_train(train, train_list):
     if train.id != -1:
         mu = next((t for t in train_list if train.id == t.id), None)

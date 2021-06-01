@@ -81,7 +81,8 @@ To use cTORS in python, you need to import they `pyTORS` library. E.g.
 from pyTORS import Engine
 
 engine = Engine("data/Demo")
-state = engine.start_session()
+scenario = engine.get_scenario("data/Demo/scenario.json")
+state = engine.start_session(scenario)
 
 actions = engine.step(state)
 engine.apply_action(actions[0])

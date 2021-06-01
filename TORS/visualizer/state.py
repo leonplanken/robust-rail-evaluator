@@ -39,7 +39,7 @@ class State(Resource):
             current_app.action_index = 0
             current_app.state = current_app.engine.start_session(current_app.result.scenario)
         else:
-            current_app.state = current_app.engine.start_session()
+            current_app.state = current_app.engine.start_session(current_app.scenario)
         current_app.done = False
         current_app.message = ""
         current_app.engine.step(current_app.state)

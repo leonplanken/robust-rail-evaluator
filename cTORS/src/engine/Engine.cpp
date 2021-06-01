@@ -2,7 +2,7 @@
 using namespace std;
 
 LocationEngine::LocationEngine(const string &path) : path(path), location(Location(path, true)), 
-	originalScenario(Scenario(path, location)), config(Config(path)), actionManager(ActionManager(&config, &location)) {}
+	config(Config(path)), actionManager(ActionManager(&config, &location)) {}
 
 
 LocationEngine::~LocationEngine() {
@@ -18,8 +18,22 @@ LocationEngine::~LocationEngine() {
 	for(auto state: states)
 		EndSession(state);
 	stateActionMap.clear();
+	for(auto& [file, scenario]: scenarios) {
+		delete scenario;
+	}
+	scenarios.clear();
 	results.clear();
 	debug_out("Done deleting LocationEngine");
+}
+
+const Scenario& LocationEngine::GetScenario(const string& scenarioFileString) {
+	auto it = scenarios.find(scenarioFileString);
+	if(it == scenarios.end()) {
+		auto scenario = new Scenario(scenarioFileString, location);
+		scenarios[scenarioFileString] = scenario;
+		return *scenario;
+	}
+	return *it->second;
 }
 
 void LocationEngine::Step(State * state) {
@@ -239,13 +253,6 @@ LocationEngine* Engine::GetOrLoadLocationEngine(const string& location) {
 State* Engine::StartSession(const string& location, const Scenario& scenario) {
 	auto e = GetOrLoadLocationEngine(location);
 	auto state = e->StartSession(scenario);
-	engineMap[state] = e;
-	return state;
-}
-
-State* Engine::StartSession(const string& location) {
-	auto e = GetOrLoadLocationEngine(location);
-	auto state = e->StartSession(e->GetScenario());
 	engineMap[state] = e;
 	return state;
 }

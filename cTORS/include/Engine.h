@@ -20,11 +20,11 @@ class LocationEngine
 private:
 	string path;
 	Location location;
-	Scenario originalScenario;
 	Config config;
 	ActionManager actionManager;
 	unordered_map<State*, list<const Action*>> stateActionMap;
 	unordered_map<State*, RunResult*> results;
+	unordered_map<string, Scenario*> scenarios;
 
 	void ExecuteEvent(State* state, const Event* e);
 	void ExecuteImmediateEvents(State * state);
@@ -60,14 +60,12 @@ public:
 	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
 	/** Start a session for the given Scenario and generate an initial State */
 	State* StartSession(const Scenario& scenario);
-	/** Start a session for the original Scenario and generate an initial State */
-	inline State* StartSession() { return StartSession(originalScenario); }
 	/** End the session that belongs to the given State */
 	void EndSession(State* state);
 	/** Get a reference to the Location of this Engine */
 	inline const Location& GetLocation() const { return location; }
-	/** Get the original Scenario for this Location (to be updated) */
-	inline const Scenario& GetScenario() const { return originalScenario; }
+	/** Get the Scenario given in the file path */
+	const Scenario& GetScenario(const string& scenarioFileString);
 	
 	/** Calculate all the shortest paths (run this once before requesting shortest paths) */ 
 	void CalcShortestPaths();
@@ -123,15 +121,15 @@ public:
 	inline pair<bool, string> IsValidAction(const State* state, const Action* action) const { return engineMap.at(state)->IsValidAction(state, action); }
 	/** Start a session for the given Scenario and location and generate an initial State */
 	State* StartSession(const string& location, const Scenario& scenario);
-	/** Start a session for the original Scenario of a location and generate an initial State */
-	State* StartSession(const string& location );
 	/** End the session that belongs to the given State */
 	void EndSession(State* state);
 	
 	/** Get a reference to the Location of the given location string */
 	inline const Location& GetLocation(const string& location) const { return engines.at(location).GetLocation(); }
-	/** Get a reference to the origial Scenario of the given location string (to be updated) */
-	inline const Scenario& GetScenario(const string& location) const { return engines.at(location).GetScenario(); }
+	/** Get a reference to the Scenario given by the path and the given location string */
+	inline const Scenario& GetScenario(const string& location, const string& scenarioFileString) {
+		return engines.at(location).GetScenario(scenarioFileString);
+	}
 	/** Calculate all the shortest paths (run this once before requesting shortest paths) */ 
 	void CalcShortestPaths();
 	/** Calculate all the possible paths (run this once before requesting possible paths) */ 

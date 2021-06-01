@@ -260,6 +260,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_track_by_id", &Location::GetTrackByID, py::arg("id"), py::return_value_policy::reference)
 		.def("calc_all_possible_paths", &Location::CalcAllPossiblePaths)
 		.def("calc_shortest_paths", &Location::CalcShortestPaths, py::arg("trainUnitType"))
+		.def("get_distance", py::overload_cast<const vector<const Track*>&>(&Location::GetDistance, py::const_), py::arg("tracks"))
 		.def("get_shortest_path", 
 			[](const Location& loc, const TrainUnitType* trainType, const Track* f1, const Track* f2, const Track* t1, const Track* t2) {
 				return loc.GetShortestPath(trainType, {f1,f2}, {t1, t2});
@@ -365,14 +366,10 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
 		.def("is_valid_action", py::overload_cast<const State*, const SimpleAction&>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
 		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
-		.def("start_session", 
-			[](LocationEngine& e, Scenario *scenario) -> State* { 
-				if (scenario == nullptr) return e.StartSession();
-				else return e.StartSession(*scenario); 
-		}, py::arg("scenario") = nullptr, py::return_value_policy::reference)
+		.def("start_session", &LocationEngine::StartSession, py::arg("scenario"), py::return_value_policy::reference)
 		.def("end_session", &LocationEngine::EndSession, py::arg("state"))
 		.def("get_location", &LocationEngine::GetLocation, py::return_value_policy::reference)
-		.def("get_scenario", &LocationEngine::GetScenario, py::return_value_policy::reference)
+		.def("get_scenario", &LocationEngine::GetScenario, py::arg("file_path"), py::return_value_policy::reference)
 		.def("get_result", &LocationEngine::GetResult, py::arg("state"), py::return_value_policy::copy)
 		.def("get_path", &LocationEngine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
 		.def("import_result", &LocationEngine::ImportResult, py::arg("file_path"), py::return_value_policy::take_ownership)

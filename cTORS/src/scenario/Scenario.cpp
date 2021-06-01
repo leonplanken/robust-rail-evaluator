@@ -1,12 +1,10 @@
 #include "Scenario.h"
 
-const string Scenario::scenarioFileString = "scenario.json";
-
 Scenario::Scenario() : startTime(0), endTime(0) {}
 
-Scenario::Scenario(string folderName, const Location& location) {
+Scenario::Scenario(string scenarioFileString, const Location& location) {
 	PBScenario pb_scenario;
-	parse_json_to_pb(fs::path(folderName) / fs::path(scenarioFileString), &pb_scenario);
+	parse_json_to_pb(fs::path(scenarioFileString), &pb_scenario);
 	Init(pb_scenario, location);
 }
 

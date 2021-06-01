@@ -4,9 +4,8 @@
 int main()
 {
 	LocationEngine engine("data/Demo");
-	engine.CalcShortestPaths();
-	engine.CalcAllPossiblePaths();
-	State* state = engine.StartSession();
+	auto& scenario = engine.GetScenario("data/Demo/scenario.json");
+	State* state = engine.StartSession(scenario);
 	cout << "\nBeginning of session\n";
 	engine.Step(state);
 	while (true) {
