@@ -55,8 +55,8 @@ struct TrackState {
  * The TrainState struct describes the state of a Train 
  */
 struct TrainState {
-	vector<Task> tasks;				/**< A vector containing all the Task%s for this Train that have not been executed yet */
-	list<const Task*> activeTasks;	/**< A list of all the Task%s for this Train that are currently being executed */
+	vector<Task> tasks;			/**< A vector containing all the Task%s for this Train that have not been executed yet */
+	vector<Task> activeTasks;	/**< A vector of all the Task%s for this Train that are currently being executed */
 };
 
 /**
@@ -177,7 +177,7 @@ public:
 	/** Get a vector of all the Task%s for the given Train that have not been executed yet */
 	inline const vector<Task>& GetTasksForTrain(const Train* tu) const { return trainStates.at(tu).tasks; }
 	/** Get a list of all the Task%s for the given Train that are currently being executed */
-	inline const list<const Task*>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
+	inline const vector<Task>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
 	/** Get the ShuntingUnitState for the given ShuntingUnit */
 	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return shuntingUnitStates.at(su); }
 	/** Get the ShuntingUnitState%s for all the ShuntingUnit%s in the shunting yard */
@@ -186,7 +186,7 @@ public:
 	inline const ShuntingUnit* GetShuntingUnitByTrainID(int id) const { return trainIDToShuntingUnit.at(id); }
 	/** Get the Train with the given id */
 	inline const Train* GetTrainByTrainID(int id) const { return trainIDToTrain.at(id); }
-	/** Get the ShuntingUnit that currently contains the Train%s with the given ids */
+	/** Get the ShuntingUnit that currently contains the Train%s with the given ids, or null if not found*/
 	const ShuntingUnit* GetShuntingUnitByTrainIDs(const vector<int>& ids) const;
 	/** Get the Incoming event by the given id */
 	const Incoming* GetIncomingByID(int id) const;
@@ -212,7 +212,7 @@ public:
 	/** Add a Task to a Train */
 	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
 	/** Add an active Task to a Train */
-	inline void AddActiveTaskToTrain(const Train* tu, const Task* task) { trainStates.at(tu).activeTasks.push_back(task); }
+	inline void AddActiveTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).activeTasks.push_back(task); }
 	/** Add an active Action to a ShuntingUnit */
 	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->Clone()); }
 	/** Add a ShuntingUnitState to the State */
@@ -264,7 +264,7 @@ public:
 	/** Remove the Task%s for a given Train from the state */
 	void RemoveTaskFromTrain(const Train* tu, const Task& task);
 	/** Remove the active Task%s for a given Train from the state */
-	void RemoveActiveTaskFromTrain(const Train* tu, const Task* task);
+	void RemoveActiveTaskFromTrain(const Train* tu, const Task& task);
 
 	/** Print the state info */
 	void PrintStateInfo() const;

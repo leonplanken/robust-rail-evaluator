@@ -1,9 +1,8 @@
 #include "Engine.h"
 using namespace std;
 
-LocationEngine::LocationEngine(const string &path) : path(path), location(Location(path)), 
-	originalScenario(Scenario(path, location)), config(Config(path)),
-	actionValidator(ActionValidator(&config)), actionManager(ActionManager(&config, &location)) {}
+LocationEngine::LocationEngine(const string &path) : path(path), location(Location(path, true)), 
+	originalScenario(Scenario(path, location)), config(Config(path)), actionManager(ActionManager(&config, &location)) {}
 
 
 LocationEngine::~LocationEngine() {
@@ -58,7 +57,7 @@ void LocationEngine::ApplyAction(State* state, const Action* action) {
 void LocationEngine::ApplyAction(State* state, const SimpleAction& action) {
 	debug_out("\tApplying action " + action.toString());
 	const Action* _action = GenerateAction(state, action);
-	auto is_valid = actionValidator.IsValid(state, _action);
+	auto is_valid = actionManager.IsValid(state, _action);
 	if(!is_valid.first) {
 		delete _action;
 		throw InvalidActionException(is_valid.second);
@@ -88,13 +87,13 @@ pair<bool, string> LocationEngine::IsValidAction(const State* state, const Simpl
 	} catch(InvalidActionException& e) {
 		return make_pair(false, e.what());
 	}
-	auto result = actionValidator.IsValid(state, _action);
+	auto result = actionManager.IsValid(state, _action);
 	delete _action;
 	return result;
 }
 
 pair<bool, string> LocationEngine::IsValidAction(const State* state, const Action* action) const {
-	return actionValidator.IsValid(state, action);
+	return actionManager.IsValid(state, action);
 }
 
 const Action* LocationEngine::GenerateAction(const State* state, const SimpleAction& action) const {
@@ -112,8 +111,6 @@ list<const Action*> &LocationEngine::GetValidActions(State* state) {
 		DELETE_LIST(actions)
 		actionManager.Generate(state, actions);
 		debug_out("Generated "+ to_string(actions.size())+" actions");
-		actionValidator.FilterValid(state, actions);
-		debug_out("GetValidActions list filtered");
 		state->SetUnchanged();
 	}
 	debug_out("Return valid actions: ");
@@ -210,15 +207,13 @@ void LocationEngine::EndSession(State* state) {
 }
 
 void LocationEngine::CalcShortestPaths() { 
-	bool byTrackType = true; //TODO read parameter for distance matrix from config file
 	for(const auto& [trainTypeName, trainType]: TrainUnitType::types) {
-		location.CalcShortestPaths(byTrackType, trainType);
+		location.CalcShortestPaths(trainType);
 	}
 } 
 
 void LocationEngine::CalcAllPossiblePaths() { 
-	bool byTrackType = true; //TODO read parameter for distance matrix from config file
-	location.CalcAllPossiblePaths(byTrackType);
+	location.CalcAllPossiblePaths();
 } 
 
 const Path LocationEngine::GetPath(const State* state, const Move& move) const {

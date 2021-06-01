@@ -38,7 +38,7 @@ class Plan:
         for train, train_state in self.trains.items():
             train_state.set_same_shunting_unit()
         for train in self.trains:
-            self.location.calc_shortest_paths(True, train.type)
+            self.location.calc_shortest_paths(train.type)
 
     def find_match(self, trains, train):
         for t in trains:

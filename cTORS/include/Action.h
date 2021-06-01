@@ -105,13 +105,13 @@ public: \
  * The BeginMove action changes the state of a ShuntingUnit to moving.
  * After this action the ShuntingUnit can be moved.
  */
-SIMPLE_ACTION_DEFINE(BeginMove, "begin_move")
+SIMPLE_ACTION_DEFINE(BeginMove, "move_helper")
 
 /**
  * The EndMove action changes the state of a ShuntingUnit to not moving.
  * After this action the ShuntingUnit can no longer be moved.
  */
-SIMPLE_ACTION_DEFINE(EndMove, "end_move")
+SIMPLE_ACTION_DEFINE(EndMove, "move_helper")
 
 /**
  * The Wait action instructs this ShuntingUnit to wait until the next Event.
@@ -244,6 +244,35 @@ public:
 	inline const string toString() const override { return "Move: " + GetTrainsToString() + " to track with id " + destinationID; }
 	inline const string GetGeneratorName() const override { return "move"; }
 	inline const Move* Clone() const override { return new Move(*this); }
+};
+
+/**
+ * The MultiMove action moves a ShuntingUnit from one Track to another Railroad Track.
+ */
+class MultiMove : public SimpleAction {
+private:
+	vector<string> trackIDs;
+public:
+	MultiMove() = delete;
+	/** Construct a MultiMove action for the ShuntingUnit described by the train ids over the given list of Track IDs */
+	MultiMove(const vector<int>& trainIDs, const vector<string>& trackIDs) : SimpleAction(trainIDs), trackIDs(trackIDs) {}
+	/** Construct a MultiMove action for the ShuntingUnit described by the train ids over the given vector of Track%s */
+	MultiMove(const vector<int>& trainIDs, const vector<const Track*>& tracks);
+	/** Construct a MultiMove action for the ShuntingUnit su over the given vector of Track%s */
+	MultiMove(const ShuntingUnit* su, const vector<const Track*>& tracks);
+	/** Construct a MultiMove action for the ShuntingUnit described by the train ids over the given list of Track%s */
+	MultiMove(const vector<int>& trainIDs, const list<const Track*>& tracks);
+	/** Construct a MultiMove action for the ShuntingUnit su over the given list of Track%s */
+	MultiMove(const ShuntingUnit* su, const list<const Track*>& tracks);
+	/** Default copy constructor */
+	MultiMove(const MultiMove& move) = default;
+	/** Get the id of the destination track */
+	inline const string& GetDestinationID() const { return trackIDs.back(); }
+	/** Get the Track IDs of the route */
+	inline const vector<string>& GetTrackIDs() const {return trackIDs; }
+	inline const string toString() const override { return "Move: " + GetTrainsToString() + " along path " + Join(trackIDs," - "); }
+	inline const string GetGeneratorName() const override { return "move"; }
+	inline const MultiMove* Clone() const override { return new MultiMove(*this); }
 };
 
 /**
@@ -500,6 +529,7 @@ public:
 class MoveAction : public Action {
 private:
 	const vector<const Track*> tracks;
+	bool stepMove;
 public:
 	MoveAction() = delete;
 	/**
@@ -508,14 +538,16 @@ public:
 	 * The tracks are all the tracks that the ShuntingUnit passes in reaching its destination.
 	 * The reserved tracks are all those tracks except the first track, the current track of the ShuntingUnit. 
 	 */
-	MoveAction(const ShuntingUnit* su, const vector<const Track*> &tracks, int duration) : 
-		Action(su, vector<const Track*>(tracks.begin()+1, tracks.end()), {}, duration), tracks(tracks) {};
+	MoveAction(const ShuntingUnit* su, const vector<const Track*> &tracks, int duration, bool stepMove) : 
+		Action(su, vector<const Track*>(tracks.begin()+1, tracks.end()), {}, duration), tracks(tracks), stepMove(stepMove) {};
 	/** Get the destination Track of this MoveAction */
 	inline const Track* GetDestinationTrack() const { return tracks.back(); }
 	/** Get the previous Track of the moving ShuntingUnit when it has arrived on its destination Track */
 	inline const Track* GetPreviousTrack() const { return tracks[tracks.size()-2]; }
 	/** Get all the tracks that are used for this MoveAction */
 	inline const vector<const Track*>& GetTracks() const { return tracks; }
+	/** True if this MoveAction is a step-by-step move, otherwise false */
+	inline bool IsStepMove() const { return stepMove; }
 	inline const Move* CreateSimple() const {return new Move(GetShuntingUnit(), GetDestinationTrack()); }
 	ACTION_OVERRIDE(MoveAction)
 };
@@ -637,42 +669,6 @@ public:
 };
 
 ///////////////////////////////
-////// Action Validator ///////
-///////////////////////////////
-
-/**
- * The ActionValidator uses the configured business rules to filter valid actions.
- */
-class ActionValidator {
-private:
-	vector<BusinessRule*> validators;
-	const Config* config;
-	void AddValidators();
-public:
-
-	/** Construct an ActionValidator from a given Config object */
-	ActionValidator(const Config* config) : config(config) {
-		AddValidators();
-	}
-	/** Destruct this action validator with all its business rules */
-	~ActionValidator();
-	
-	/** 
-	 * Check the validity of an Action in a certain State 
-	 * 
-	 * @return a tuple (bool, string) describing
-	 * 1. Whether the Action is valid
-	 * 2. If not valid, why
-	 */
-	pair<bool, string> IsValid(const State* state, const Action* action) const;
-	
-	/**
-	 * Filter the given list of actions and delete all non-valid actions
-	 */
-	void FilterValid(const State* state, list<const Action*>& actions) const;
-};
-
-///////////////////////////////
 ////// Action Generator ///////
 ///////////////////////////////
 
@@ -684,6 +680,12 @@ public:
 class ActionGenerator {
 protected:
 	const Location* location; /**< a reference to the Location object */
+	/** Run an initial error check on the action and return the ShuntingUnit from the State */
+	inline const ShuntingUnit* InitialCheck(const State* state, const SimpleAction& action) const {
+		return InitialCheck(state, action.GetTrainIDs());
+	}
+	/** Run an initial error check on ShuntingUnit described the train IDs and return the ShuntingUnit from the State */
+	const ShuntingUnit* InitialCheck(const State* state, const vector<int>& trainIDs) const;
 public:
 	ActionGenerator() = delete;
 	ActionGenerator(const ActionGenerator& am) = delete;
@@ -698,14 +700,19 @@ public:
 };
 
 /**
- * An ActionManager contains all the ActionGenerators and is used to generate actions
+ * An ActionManager contains all the ActionGenerators and ActionValidators
+ * 
+ * The ActionManager is used to generate actions and to use the configured business rules to filter valid actions.
  */
 class ActionManager {
 private:
-	unordered_map<string,const ActionGenerator*> generators;
+	unordered_map<string,const ActionGenerator*> generatorMap;
+	vector<const ActionGenerator*> generators;
+	vector<const BusinessRule*> validators;
 	const Config* config;
 	const Location* location;
 	void AddGenerators();
+	void AddValidators();
 	void AddGenerator(const string& name, const ActionGenerator* generator);
 public:
 	ActionManager() = delete;
@@ -713,13 +720,24 @@ public:
 	/** Construct the ActionManager from the given Config object */
 	ActionManager(const Config* config, const Location* location) : config(config), location(location) {
 		AddGenerators();
+		AddValidators();
 	}
 	/** Destruct this ActionManager by destructing all its ActionGenerators */
 	~ActionManager();
-	/** Generate actions given the State and store the result in the out list */
+	/** Generate valid Action%s given the State and store the result in the out list */
 	void Generate(const State* state, list<const Action*>& out) const;
 	/** Get the ActionGenerator based on its name */
-	inline const ActionGenerator* GetGenerator(const string& name) const { return generators.at(name); }
+	inline const ActionGenerator* GetGenerator(const string& name) const { return generatorMap.at(name); }
+	
+	/** 
+	 * Check the validity of an Action in a certain State 
+	 * 
+	 * @return a tuple (bool, string) describing
+	 * 1. Whether the Action is valid
+	 * 2. If not valid, why
+	 */
+	pair<bool, string> IsValid(const State* state, const Action* action) const;
+	
 };
 
 #ifndef OVERRIDE_ACTIONGENERATOR
@@ -748,10 +766,8 @@ public: \
 DEFINE_ACTIONGENERATOR(ArriveActionGenerator)
 /** The ExitActionGenerator generates ExitAction%s */
 DEFINE_ACTIONGENERATOR(ExitActionGenerator)
-/** The BeginMoveActionGenerator generates BeginMoveAction%s */
-DEFINE_ACTIONGENERATOR(BeginMoveActionGenerator)
-/** The EndMoveActionGenerator generates EndMoveAction%s */
-DEFINE_ACTIONGENERATOR(EndMoveActionGenerator)
+/** The MoveHelperGenerator generates BeginMoveAction%s, EndMoveAction%s and single step MoveAction%s */
+DEFINE_ACTIONGENERATOR(MoveHelperGenerator)
 /** The WaitActionGenerator generates WaitAction%s */
 DEFINE_ACTIONGENERATOR(WaitActionGenerator)
 /** The ServiceActionGenerator generates ServiceAction%s */

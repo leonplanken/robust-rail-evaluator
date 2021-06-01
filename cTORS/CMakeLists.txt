@@ -64,12 +64,12 @@ set(PROJECT_INCLUDE_DIR "include")
 set(TORS_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/action/Action.cpp
 	${PROJECT_SOURCE_DIR}/action/ActionManager.cpp
-	${PROJECT_SOURCE_DIR}/action/ActionValidator.cpp
 	${PROJECT_SOURCE_DIR}/action/ArriveAction.cpp
 	${PROJECT_SOURCE_DIR}/action/BeginMoveAction.cpp
 	${PROJECT_SOURCE_DIR}/action/EndMoveAction.cpp
 	${PROJECT_SOURCE_DIR}/action/ExitAction.cpp
 	${PROJECT_SOURCE_DIR}/action/MoveAction.cpp
+	${PROJECT_SOURCE_DIR}/action/MoveHelper.cpp
 	${PROJECT_SOURCE_DIR}/action/ServiceAction.cpp
 	${PROJECT_SOURCE_DIR}/action/SetbackAction.cpp
 	${PROJECT_SOURCE_DIR}/action/SplitAction.cpp

@@ -14,7 +14,8 @@ class TORSEnv(gym.Env):
         self.engine = Engine(config['data folder']) 
         self.location = self.engine.get_location()
         self.org_scenario = self.engine.get_scenario()
-        self.scenario_generator = self._get_generator(2)
+        self.number_of_trains = 2
+        self.scenario_generator = self._get_generator(self.number_of_trains)
         self.scenario_generator.initialize(self.org_scenario, self.location)
         self.state = None
         self.scenario = None
@@ -50,9 +51,14 @@ class TORSEnv(gym.Env):
                 reward = 0
                 done = True
         if not done:
-            if self.state.end_time == self.state.time and len(pos_actions)==0 and self.state.peek_event() is None:
+            if len(pos_actions)==0:
                 done = True
-                reward = 1 if len(self.state.incoming_trains) == 0 and len(self.state.outgoing_trains) == 0 else 0
+                reward = 0 
+                if len(self.state.incoming_trains) == 0:
+                    n_trains_left = 0
+                    for out in self.state.outgoing_trains:
+                        n_trains_left += out.shunting_unit.number_of_trains
+                    reward = 1.0 - float(n_trains_left) / float(self.number_of_trains)
                 print("End of scenario. Reward: " + str(reward))
         return self.converter.convert_state(self.state), reward, done, info
         

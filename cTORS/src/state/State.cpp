@@ -243,7 +243,7 @@ void State::RemoveTaskFromTrain(const Train* tu, const Task& task) {
 		lst.erase(it);
 }
 
-void State::RemoveActiveTaskFromTrain(const Train* tu, const Task* task) {
+void State::RemoveActiveTaskFromTrain(const Train* tu, const Task& task) {
 	auto& lst = trainStates.at(tu).activeTasks;
 	auto it = find(lst.begin(), lst.end(), task);
 	if (it != lst.end())
@@ -274,7 +274,7 @@ bool State::CanMoveToSide(const ShuntingUnit* su, const Track* side) const {
 
 const vector<Train> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
 	auto& trains = su->GetTrains();
-	auto suState = GetShuntingUnitState(su);
+	auto& suState = GetShuntingUnitState(su);
 	bool frontFirst = *suState.frontTrain == trains.front();
 	if(frontFirst)
 		return trains;
@@ -299,7 +299,11 @@ const ShuntingUnit* State::GetShuntingUnitByTrainIDs(const vector<int>& ids) con
 		su = current;
 	}
 	#endif
-	return GetShuntingUnitByTrainID(ids.at(0));
+	try {
+		return GetShuntingUnitByTrainID(ids.at(0));
+	} catch (exception& e) {
+		return nullptr;
+	}
 }
 
 const Incoming* State::GetIncomingByID(int id) const {

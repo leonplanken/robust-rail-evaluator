@@ -258,8 +258,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def_property_readonly("track_parts", &Location::GetTracks, py::return_value_policy::reference)
 		.def_property_readonly("facilities", &Location::GetFacilities, py::return_value_policy::reference)
 		.def("get_track_by_id", &Location::GetTrackByID, py::arg("id"), py::return_value_policy::reference)
-		.def("calc_all_possible_paths", &Location::CalcAllPossiblePaths, py::arg("byTrackType"))
-		.def("calc_shortest_paths", &Location::CalcShortestPaths, py::arg("byTrackType"), py::arg("trainUnitType"))
+		.def("calc_all_possible_paths", &Location::CalcAllPossiblePaths)
+		.def("calc_shortest_paths", &Location::CalcShortestPaths, py::arg("trainUnitType"))
 		.def("get_shortest_path", 
 			[](const Location& loc, const TrainUnitType* trainType, const Track* f1, const Track* f2, const Track* t1, const Track* t2) {
 				return loc.GetShortestPath(trainType, {f1,f2}, {t1, t2});

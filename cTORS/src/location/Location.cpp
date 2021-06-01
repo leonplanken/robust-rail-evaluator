@@ -8,7 +8,7 @@ using namespace std;
 
 const string Location::locationFileString = "location.json";
 
-Location::Location(const string &folderName) {
+Location::Location(const string &folderName, bool byType) : byType(byType) {
 	path = folderName;
 	try {
 		PBLocation pb_location;
@@ -25,7 +25,8 @@ Location::Location(const string &folderName) {
 		moveDuration[TrackPartType::HalfEnglishSwitch] = 2 * movementSwitchCoefficient;
 		moveDuration[TrackPartType::InterSection] = 0;
 		moveDuration[TrackPartType::Bumper] = 0;
-		CalcNeighboringPaths(true); // TODO read parameter from config file
+		CalcNeighboringPaths(); 
+		CalcAllPossiblePaths();
 	}
 	catch (exception& e) {
 		cout << "Error in loading location: " << e.what() << "\n";
@@ -47,6 +48,22 @@ const Facility* Location::GetFacilityByID(int id) const {
 	return it == facilities.end() ? nullptr : *it;
 }
 
+
+int Location::GetDistance(const list<const Track*>& tracks) const {
+	return GetDistance(vector<const Track*>(tracks.begin(), tracks.end()));
+}
+
+int Location::GetDistance(const vector<const Track*>& tracks) const {
+	int length = 0;
+	const Track* prev = nullptr;
+	for(auto t: tracks) {
+		if(byType) length += GetDurationByType(t);
+		else if(prev != nullptr) length += GetDistance(prev, t);
+		prev = t;
+	}
+	return length;
+}
+
 list<Position> GetAllPositions(const vector<Track*>& tracks) {
 	list<Position> positions;
 	for(auto track: tracks) {
@@ -58,7 +75,7 @@ list<Position> GetAllPositions(const vector<Track*>& tracks) {
 	return positions;
 }
 
-void Location::CalcNeighboringPaths(bool byType) {
+void Location::CalcNeighboringPaths() {
 	if(neighborPaths.size() > 0) return;
 	auto positions = GetAllPositions(tracks);
 	for(auto& pos: positions) {
@@ -91,10 +108,9 @@ void Location::CalcNeighboringPaths(bool byType) {
 
 /**
  * Calculate the shortest paths.
- * Param byType: whether the basic distance is based on track type, or on the distance matrix
  * Param type: The train type for which the shortest paths are calculated. 
  */
-void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
+void Location::CalcShortestPaths(const TrainUnitType* type) {
 	auto setbackTime = type->setbackTime;
 	auto& shortestPath = this->shortestPath[setbackTime];
 	if(shortestPath.size() > 0) return;
@@ -109,7 +125,7 @@ void Location::CalcShortestPaths(bool byType, const TrainUnitType* type) {
 		}
 	}
 	//Initialize all railroad to railroad distances
-	CalcNeighboringPaths(byType);
+	CalcNeighboringPaths();
 	for(auto& [pos, paths]: neighborPaths)
 		for(auto& [dest, path]: paths)
 			shortestPath[{pos, dest}] = path;
@@ -189,13 +205,13 @@ void CalcPossiblePaths(const Location& location, unordered_map<pair<Position,Pos
 	visited[from] = false;
 }
 
-void Location::CalcAllPossiblePaths(bool byType) {
+void Location::CalcAllPossiblePaths() {
 	if(possiblePaths.size() > 0) return;
 	#if DEBUG
 	auto begin = chrono::steady_clock::now();
 	#endif
 	//Initialize all railroad to railroad distances
-	CalcNeighboringPaths(byType);
+	CalcNeighboringPaths();
 
 	//Initialize Algorithm
 	auto positions = GetAllPositions(tracks);
@@ -209,6 +225,7 @@ void Location::CalcAllPossiblePaths(bool byType) {
 			debug_out("Calculate all possible paths from (" << pos1.first << "->" << pos1.second 
 				<< ") to (" << pos2.first << "->" << pos2.second << ").");
 			CalcPossiblePaths(*this, possiblePaths, visited, pos1, pos1, pos2, Path());
+			possibleMovements[pos1].insert(possibleMovements[pos1].end(), possiblePaths[{pos1, pos2}].begin(), possiblePaths[{pos1, pos2}].end());
 		}
 	}
 	#if DEBUG

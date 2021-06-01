@@ -33,10 +33,9 @@ pair<bool, string> blocked_first_track_rule::IsValid(const State* state, const A
 			}
 		}
 	} else if (auto bma = dynamic_cast<const BeginMoveAction*>(action)) {
-		if (occ.size() > 2) {
-			if(occ.front() != su && occ.back() != su)
-				return make_pair(false, "ShuntingUnit-" + su->toString() + " cannot leave Track " + start->toString() + ". Both sides blocked.");
-		} else if (occ.size() == 2) { //Blocked from one side
+		if (occ.size() > 2 && occ.front() != su && occ.back() != su) { //More than 2 SU's and not standing at the end of the Track
+			return make_pair(false, "ShuntingUnit-" + su->toString() + " cannot leave Track " + start->toString() + ". Both sides blocked.");
+		} else if (occ.size() >= 2) { //Blocked from at least one side, but standing at the end of the Track
 			auto& sides = (occ.front() == su ? start->GetASideTracks() : start->GetBSideTracks());
 			assert(sides.size() == 1); //Current location is a RailRoad track, thus contains only one aSide and one bSide.
 			if(sides.at(0)->GetType() == TrackPartType::Bumper) {

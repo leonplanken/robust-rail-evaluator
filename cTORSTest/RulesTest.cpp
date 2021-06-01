@@ -43,8 +43,8 @@ namespace cTORSTest
 
 		vector<const Track*> elecMove = {&r1, &s0, &r0};
 		vector<const Track*> nonElecMove = {&r0, &s0, &r2};
-		MoveAction elecMoveAction(elecSU, elecMove, 0);
-		MoveAction nonElecMoveAction(nonElecSU, nonElecMove, 0);
+		MoveAction elecMoveAction(elecSU, elecMove, 0, false);
+		MoveAction nonElecMoveAction(nonElecSU, nonElecMove, 0, false);
 
 		Config config;
 		electric_move_rule emr(&config);

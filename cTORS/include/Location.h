@@ -58,18 +58,24 @@ private:
 	unordered_map<Position, unordered_map<Position, Path>> neighborPaths;
 	/** A list of all possible paths. The map is from (start_position, end_position), without setbacks */
 	unordered_map<pair<Position, Position>, vector<Path>> possiblePaths;
+	/** A list of all possible paths starting from a Position, without setbacks */
+	unordered_map<Position, vector<Path>> possibleMovements;
 	/** All the tracks indexed by their string id */
 	map<string, Track*> trackIndex;
 	int movementConstant;
 	map<const TrackPartType, int> moveDuration;
+	bool byType;
 	
 	void ImportTracks(const PBLocation& pb_location);
 	void ImportFacilities(const PBLocation& pb_location);
 	void ImportDistanceMatrix(const PBLocation& pb_location);
 public:
 	Location() = delete;
-	/** Construct a Location from a protobuf file */
-	Location(const string &path);
+	/** Construct a Location from a protobuf file 
+	 * 
+	 * The parameter byType determines if distances are calculated by TrackPartType or by using the distance matrix
+	 */
+	Location(const string &path, bool byType);
 	/** Default copy constructor */
 	Location(const Location& location) = default;
 	/** Destruct this location */
@@ -100,29 +106,36 @@ public:
 		return (track->GetType() == TrackPartType::Railroad && track->GetLength() == 0) ? 0  : moveDuration.at(track->GetType()); }
 	
 	/**
+	 * Get the duration for the route described by the Track%s
+	 */
+	int GetDistance(const list<const Track*>& tracks) const;
+
+	/**
+	 * Get the duration for the route described by the Track%s
+	 */
+	int GetDistance(const vector<const Track*>& tracks) const;
+
+	/**
 	 * Calculate all the neighboring paths. 
 	 * 
-	 * Calling this method once is required if you want to use GetNeighborPath. The parameter byType determines if distances
-	 * are calculated by TrackPartType or by using the distance matrix
+	 * Calling this method once is required if you want to use GetNeighborPath.
 	 */
-	void CalcNeighboringPaths(bool byType);
+	void CalcNeighboringPaths();
 	
 	/**
 	 * Calculate all the shortest paths. 
 	 * 
 	 * Calling this method once (per TrainUnitType) is required if you want to use GetShortestPath.
-	 * The parameter byType determines if distances are calculated by TrackPartType or by using the distance matrix
 	 * The parameter type is used because different train types have different Setback times.
 	 */
-	void CalcShortestPaths(bool byType, const TrainUnitType* type);
+	void CalcShortestPaths(const TrainUnitType* type);
 	
 	/**
 	 * Calculate all the possible paths. 
 	 * 
 	 * Calling this method once is required if you want to use GetPossiblePaths.
-	 * The parameter byType determines if distances are calculated by TrackPartType or by using the distance matrix
 	 */
-	void CalcAllPossiblePaths(bool byType);
+	void CalcAllPossiblePaths();
 
 	/**
 	 * Get the shortest path from a certain position to a destination.
@@ -155,6 +168,20 @@ public:
 	 * Call CalcNeighboringPaths (once) to calculate all the neighboring paths
 	 */
 	const Path& GetNeighborPath(const Position& from, const Track* destination) const;
+
+	/**
+	 * Get all the possible Path%s from Position from to Position to (without setbacks)
+	 * 
+	 * Call CalcAllPossiblePaths (once) to callculate all possible paths
+	 */
+	inline const vector<Path>& GetPossiblePaths(const Position& from, const Position& to) const { return possiblePaths.at({from, to}); }
+
+	/**
+	 * Get all the possible Path%s from Position from to any other Position (without setbacks)
+	 * 
+	 * Call CalcAllPossiblePaths (once) to callculate all possible paths
+	 */
+	inline const vector<Path>& GetPossiblePaths(const Position& from) const { return possibleMovements.at(from); }
 };
 
 #endif

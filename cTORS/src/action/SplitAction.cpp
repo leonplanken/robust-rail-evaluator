@@ -34,15 +34,15 @@ void SplitAction::Finish(State* state) const {
 }
 
 const string SplitAction::toString() const {
-	return "SplitAction " + suString + " into " + suA.GetTrainString() + " and " +suB.GetTrainString();
+	return "Split " + suString + " into " + suA.GetTrainString() + " and " +suB.GetTrainString();
 }
 
 const Action* SplitActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto split = static_cast<const Split*>(&action);
-	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
-	auto suState = state->GetShuntingUnitState(su);
+	auto su = InitialCheck(state, action);
+	auto& suState = state->GetShuntingUnitState(su);
 	if(su->GetTrains().size() <= 1) throw InvalidActionException("The shunting unit consists of only one train unit.");
-	if(suState.moving || suState.waiting || suState.HasActiveAction()) throw InvalidActionException("The shunting unit is already occupied.");
+	if(suState.moving || suState.waiting) throw InvalidActionException("The shunting unit is already occupied.");
 	auto duration = suState.frontTrain->GetType()->splitDuration;
 	auto splitPosition = split->GetSplitIndex();
 	if(splitPosition < 1 || splitPosition >= su->GetTrains().size()) throw InvalidActionException("The split index is invalid.");

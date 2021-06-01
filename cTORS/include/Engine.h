@@ -22,7 +22,6 @@ private:
 	Location location;
 	Scenario originalScenario;
 	Config config;
-	ActionValidator actionValidator;
 	ActionManager actionManager;
 	unordered_map<State*, list<const Action*>> stateActionMap;
 	unordered_map<State*, RunResult*> results;
