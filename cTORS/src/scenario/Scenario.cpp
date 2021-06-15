@@ -116,13 +116,10 @@ TrainGoal* ImportTrainGoal(const Location& location, const PBTrainGoal& m, bool 
 
 void Scenario::ImportShuntingUnits(const PBScenario& pb_scenario, const Location& location) {
 	for (auto& pb_train_type: pb_scenario.trainunittypes()) {
-		TrainUnitType* tt = new TrainUnitType(pb_train_type);
-		if (TrainUnitType::types.find(tt->displayName) != TrainUnitType::types.end()) {
-			delete TrainUnitType::types.at(tt->displayName);
-			TrainUnitType::types.erase(tt->displayName);
-			//TODO implement TrainUnitTypes in such a way that it does not need to be deleted
+		if (TrainUnitType::types.find(pb_train_type.displayname()) == TrainUnitType::types.end()) {
+			TrainUnitType* tt = new TrainUnitType(pb_train_type);
+			TrainUnitType::types[tt->displayName] = tt;
 		}
-		TrainUnitType::types[tt->displayName] = tt;
 	}
 	for(auto& [name, type]: TrainUnitType::types) {
 		cout << "TrainType " << name << ": " << type << endl;
