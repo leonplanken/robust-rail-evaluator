@@ -52,8 +52,10 @@ class Simulator:
         self.print("S [{}]> Applying action {}".format(self.state.time, str(action)))
         try:
             self.engine.apply_action_and_step(self.state, action)
+            return True
         except ScenarioFailedError:
             self.print("S [{}]> Scenario failed".format(self.state.time))
+            return False
 
     def get_time(self):
         return self.state.time

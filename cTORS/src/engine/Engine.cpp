@@ -36,8 +36,17 @@ const Scenario& LocationEngine::GetScenario(const string& scenarioFileString) {
 	return *it->second;
 }
 
+inline void CheckScenarioEnded(const State* state) {
+	if (state->GetTime() > state->GetEndTime()) {
+		if ((state->GetIncomingTrains().size() + state->GetOutgoingTrains().size()) > 0) {
+			throw ScenarioFailedException("End of Scenario reached, but there are remaining incoming or outgoing trains.");
+		} 
+	}
+}
+
 void LocationEngine::Step(State * state) {
 	ExecuteImmediateEvents(state);
+	CheckScenarioEnded(state);
 	EventQueue disturbances; // Currently an empty queue of disturbances. TODO get the disturbances from the Scenario
 	while (!state->IsActionRequired() && state->GetNumberOfEvents() > 0) {
 		debug_out("All shunting units are still active, but still " << state->GetNumberOfEvents() 
@@ -49,11 +58,7 @@ void LocationEngine::Step(State * state) {
 			evnt = state->PopEvent();
 		ExecuteEvent(state, evnt);
 		ExecuteImmediateEvents(state);
-		if (state->GetTime() > state->GetEndTime()) {
-			if ((state->GetIncomingTrains().size() + state->GetOutgoingTrains().size()) > 0) {
-				throw ScenarioFailedException("End of Scenario reached, but there are remaining incoming or outgoing trains.");
-			} 
-		}
+		CheckScenarioEnded(state);
 	} 
 	debug_out("Step done.");
 }

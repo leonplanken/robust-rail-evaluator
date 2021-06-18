@@ -41,7 +41,7 @@ class Manager:
             if not actions: break
             try:
                 action = self.planner.get_action(state, actions)
-                self.simulator.apply_action(action)
+                if not self.simulator.apply_action(action): break
             except Exception as e:
                 print(e)
                 raise e
