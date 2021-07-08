@@ -29,6 +29,9 @@ class ScenarioGenerator(ABC):
         
     @abstractmethod
     def generate_scenario(self) -> Scenario: pass
+
+    @abstractmethod
+    def get_max_trains(self): pass
     
     def get_scenario(self) -> Scenario:
         scenario = self.generate_scenario()
@@ -56,24 +59,26 @@ class ScenarioGeneratorFromScenario(ScenarioGenerator):
     def initialize(self, engine, scenario_file_string) -> None:
         super(ScenarioGeneratorFromScenario, self).initialize(engine, scenario_file_string)
         self.scenario = engine.get_scenario(scenario_file_string)
-        max_trains = self.scenario.number_of_trains
+        self.max_trains = self.scenario.number_of_trains
         max_disturbances = len(self.scenario.get_disturbance_list())
         max_workers = len(list(self.scenario.employees))
-        self.n_trains = self._get_number(self.n_trains, max_trains)
+        self.n_trains = self._get_number(self.n_trains, self.max_trains)
         self.n_disturbances = self._get_number(self.n_disturbances, max_disturbances, min=0)
         self.n_workers = self._get_number(self.n_workers, max_workers)
         self.combination_generator = self._combination_generator()
-        
+
+    def get_max_trains(self):
+        return self.max_trains
+
     def _combination_generator(self):
-        max_trains = self.scenario.number_of_trains
-        combination_generator = itertools.combinations(range(max_trains), self.n_trains)
+        combination_generator = itertools.combinations(range(self.max_trains), self.n_trains)
         combinations_left = self.n_combinations
         seen_combinations = 0
-        total_combinations = ScenarioGeneratorFromScenario.__ncr(max_trains, self.n_trains)
+        total_combinations = ScenarioGeneratorFromScenario.__ncr(self.max_trains, self.n_trains)
         while True:
             combination = next(combination_generator, None)
             if combination is None:
-                combination_generator = itertools.combinations(range(max_trains), self.n_trains)
+                combination_generator = itertools.combinations(range(self.max_trains), self.n_trains)
                 combination = next(combination_generator)
             probability = (seen_combinations + combinations_left) / total_combinations 
             if probability >= 1.0 or random.random() < probability:
@@ -155,6 +160,9 @@ class RandomScenarioGenerator(ScenarioGenerator):
         workers = self._generate_workers()
         return self._generate_scenario(incoming, outgoing, workers, disturbances)
     
+    def get_max_trains(self):
+        return self.n_trains
+
     def _generate_trains(self):
         return [Train(i, self._get_random_train_type(), self._get_task_list()) for i in range(1, self.n_trains+1)]
     
@@ -319,9 +327,15 @@ class ScenarioGeneratorFromFolder(ScenarioGenerator):
             self.generators[scenario] = self.subclass(*self.args, **self.kwargs)
             self.generators[scenario].initialize(self.engine, scenario)
 
+    def get_max_trains(self):
+        return super().get_max_trains()
+
     def generate_scenario(self) -> Scenario:
-        scenario = random.choice(list(self.generators.keys()))
-        return self.generators[scenario].generate_scenario()
+        while True:
+            scenario_key = random.choice(list(self.generators.keys()))
+            scenario_gen = self.generators[scenario_key]
+            if scenario_gen.get_max_trains() < self.n_trains: continue
+            return scenario_gen.generate_scenario()
 
 
 def _find_matching_train(train, train_list):
