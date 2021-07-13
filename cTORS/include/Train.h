@@ -100,11 +100,10 @@ class Train {
 private:
 	int id;
 	TrainUnitType *type;
-	bool forcedMatch;
 public:
 	Train() = delete;
 	/** Construct a Train from the given parameters */
-	Train(int id, TrainUnitType *type) : id(id), type(type), forcedMatch(false) {}
+	Train(int id, TrainUnitType *type) : id(id), type(type) {}
 	/** Construct a Train from a protobuf object */
 	Train(const PBTrainUnit& pb_train);
 	/** The default copy constructor */
@@ -121,6 +120,8 @@ public:
 	const string toString() const;
 	/** Get the id of the Train */
 	inline int GetID() const { return id; }
+	/** Set the id (if the id is yet not set (-1)) */
+	void SetID(int id) { if(this->id==-1) this->id = id; }
 	/** Serialize this Train to a protobuf object */
 	void Serialize(PBTrainUnit* pb_t) const;
 };
