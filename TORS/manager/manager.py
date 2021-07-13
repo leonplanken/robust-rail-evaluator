@@ -1,6 +1,7 @@
 from manager.simulator import Simulator
 import importlib
 import threading
+import os
 #from planner.planner import RemotePlanner
 
 class Manager:
@@ -10,7 +11,25 @@ class Manager:
         self.agent_config = agent_config
         self.simulator = Simulator(episode_config)
         self.planner = self.get_planner()
-        
+        self.print_episode_info()
+        self.print_agent_info()
+    
+    def print_episode_info(self):
+        self.print("M> ### Episode info ###")
+        self.print("M> Data folder: {}".format(self.episode_config['data folder']))
+        self.print("M> Scenario(s): {}".format(self.episode_config['scenario']))
+        self.print("M> Number of runs: {}".format(self.episode_config['n_runs']))
+        self.print("M> Maximum number of trains: {}".format(self.episode_config['max_trains']))
+    	
+    def print_agent_info(self):
+        self.print("M> ### Agent info ###")
+        planner_class = self.agent_config.planner['class']
+        self.print("M> Agent class: {}".format(planner_class))
+        if planner_class in self.agent_config:
+            config = self.agent_config[planner_class]
+            for key, val in config.items():
+                self.print("M> \t{}: {}".format(key, val))
+      
     def run(self):
         self.simulator.start()
         self.planner.set_location(self.simulator.get_location())
