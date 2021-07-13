@@ -423,5 +423,6 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::register_exception<ScenarioFailedException>(m, "ScenarioFailedError");
 	py::register_exception<InvalidActionException>(m, "InvalidActionError");
+	py::register_exception<InvalidStateRequest>(m, "InvalidStateRequestError");
 }
 

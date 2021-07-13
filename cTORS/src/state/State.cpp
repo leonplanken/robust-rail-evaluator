@@ -68,14 +68,22 @@ void State::AddEvent(const Action* action) {
 void State::StartAction(const Action* action) {
 	if (action == nullptr) return;
 	changed = true;
-	action->Start(this);
+	try {
+		action->Start(this);
+	} catch(const exception& e) {
+		throw InvalidActionException("Exception in starting action.", e);
+	}
 	AddEvent(action);
 }
 
 void State::FinishAction(const Action* action) {
 	if (action == nullptr) return;
 	changed = true;
-	action->Finish(this);
+	try {
+		action->Finish(this);
+	} catch(const exception& e) {
+		throw InvalidActionException("Exception in finishing action.", e);
+	}
 }
 
 const ShuntingUnit* State::AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain) {
@@ -189,6 +197,13 @@ bool State::HasShuntingUnit(const ShuntingUnit* su) const {
 	return (it2 != shuntingUnits.end());
 }
 
+const ShuntingUnit* State::GetShuntingUnitByID(int id) const {
+	auto it = find_if(shuntingUnits.begin(), shuntingUnits.end(), [id](const ShuntingUnit* s) -> bool 
+		{ return s->GetID() == id; });
+	if(it == shuntingUnits.end()) return nullptr;
+	return *it;
+}
+
 const ShuntingUnit* State::GetMatchingShuntingUnit(const ShuntingUnit* su) const {
 	auto it = shuntingUnitStates.find(su);
 	if(it != shuntingUnitStates.end()) return it->first;
@@ -221,11 +236,13 @@ bool State::IsActionRequired() const {
 }
 
 void State::RemoveActiveAction(const ShuntingUnit* su, const Action* action) {
-	auto& lst = shuntingUnitStates.at(su).activeActions;
-	auto it = find_if(lst.begin(), lst.end(), [action](const Action* a) -> bool { return *a == *action; } );
-	if (it != lst.end()) {
-		lst.erase(it);
-	}
+	ce(
+		auto& lst = shuntingUnitStates.at(su).activeActions;
+		auto it = find_if(lst.begin(), lst.end(), [action](const Action* a) -> bool { return *a == *action; } );
+		if (it != lst.end()) {
+			lst.erase(it);
+		}
+	)
 }
 
 void State::AddTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks) {
@@ -237,17 +254,21 @@ void State::AddTasksToTrains(const unordered_map<const Train*, vector<Task>, Tra
 }
 
 void State::RemoveTaskFromTrain(const Train* tu, const Task& task) {
-	auto& lst = trainStates.at(tu).tasks;
-	auto it = find(lst.begin(), lst.end(), task);
-	if (it != lst.end())
-		lst.erase(it);
+	ce(
+		auto& lst = trainStates.at(tu).tasks;
+		auto it = find(lst.begin(), lst.end(), task);
+		if (it != lst.end())
+			lst.erase(it);
+	)
 }
 
 void State::RemoveActiveTaskFromTrain(const Train* tu, const Task& task) {
-	auto& lst = trainStates.at(tu).activeTasks;
-	auto it = find(lst.begin(), lst.end(), task);
-	if (it != lst.end())
-		lst.erase(it);
+	ce(
+		auto& lst = trainStates.at(tu).activeTasks;
+		auto it = find(lst.begin(), lst.end(), task);
+		if (it != lst.end())
+			lst.erase(it);
+	)
 }
 
 const vector<const Track*> State::GetReservedTracks() const {
@@ -273,13 +294,15 @@ bool State::CanMoveToSide(const ShuntingUnit* su, const Track* side) const {
 }
 
 const vector<Train> State::GetTrainUnitsInOrder(const ShuntingUnit* su) const {
-	auto& trains = su->GetTrains();
-	auto& suState = GetShuntingUnitState(su);
-	bool frontFirst = *suState.frontTrain == trains.front();
-	if(frontFirst)
-		return trains;
-	vector<Train> reverse (trains.rbegin(), trains.rend());
-	return reverse;
+	ce(
+		auto& trains = su->GetTrains();
+		auto& suState = GetShuntingUnitState(su);
+		bool frontFirst = *suState.frontTrain == trains.front();
+		if(frontFirst)
+			return trains;
+		vector<Train> reverse (trains.rbegin(), trains.rend());
+		return reverse;
+	)
 }
 
 void State::SwitchFrontTrain(const ShuntingUnit* su) {

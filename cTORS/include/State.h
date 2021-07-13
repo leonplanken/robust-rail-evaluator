@@ -131,11 +131,11 @@ public:
 	/** Get the Outgoing trains */
 	inline const vector<const Outgoing*>& GetOutgoingTrains() const { return outgoingTrains; }
 	/** Get the position of the ShuntingUnit su */
-	inline const Track* GetPosition(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).position; }
+	inline const Track* GetPosition(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).position); }
 	/** Get the previous position of the ShuntingUnit su */
-	inline const Track* GetPrevious(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).previous; }
+	inline const Track* GetPrevious(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).previous); }
 	/** Get all the ShuntingUnit%s at Track track */
-	inline const list<const ShuntingUnit*>& GetOccupations(const Track* track) const { return trackStates.at(track).occupations; }
+	inline const list<const ShuntingUnit*>& GetOccupations(const Track* track) const { return_ce(trackStates.at(track).occupations); }
 	/** Get all the reserved Track%s */
 	const vector<const Track*> GetReservedTracks() const;
 	/** Get the position of a ShuntingUnit on a Track, with 0 refering to the ShuntingUnit at the A-side */
@@ -147,15 +147,15 @@ public:
 	/** Return true if the given ShuntingUnit can move to the given Track */
 	bool CanMoveToSide(const ShuntingUnit* su, const Track* side) const;
 	/** Return true if the given ShuntingUnit is currently moving */
-	inline bool IsMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).moving; }
+	inline bool IsMoving(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).moving); }
 	/** Return true if the given Track is currently reserved */
-	inline bool IsReserved(const Track* track) const { return trackStates.at(track).reserved; }
+	inline bool IsReserved(const Track* track) const { return_ce(trackStates.at(track).reserved); }
 	/** Return true if the given ShuntingUnit is currently waiting */
-	inline bool IsWaiting(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).waiting; }
+	inline bool IsWaiting(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).waiting); }
 	/** Return true if the given ShuntingUnit is currently in neutral position (to be updated) */
-	inline bool IsInNeutral(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).inNeutral; }
+	inline bool IsInNeutral(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).inNeutral); }
 	/** Return true if the given ShuntingUnit is currently has just started moving */
-	inline bool IsBeginMoving(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).beginMoving; }
+	inline bool IsBeginMoving(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).beginMoving); }
 	/** Return all ShuntingUnit%s on the shunting yard */
 	inline const vector<const ShuntingUnit*> GetShuntingUnits() const { return shuntingUnits; }
 	/** Return true iff the given ShuntingUnit is on the Shunting yard */
@@ -163,9 +163,9 @@ public:
 	/** Returns a matching ShuntingUnit on the shunting yard. See ShuntingUnit::MatchesShuntingUnit */
 	const ShuntingUnit* GetMatchingShuntingUnit(const ShuntingUnit* su) const;
 	/** Returns true if the given ShuntingUnit currently has an active Action */
-	inline bool HasActiveAction(const ShuntingUnit* su) const { return GetActiveActions(su).size() > 0; }
+	inline bool HasActiveAction(const ShuntingUnit* su) const { return_ce(GetActiveActions(su).size() > 0); }
 	/** Returns all the current active Actions for the given ShuntingUnit */
-	inline const list<const Action*> &GetActiveActions(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).activeActions; }
+	inline const list<const Action*> &GetActiveActions(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).activeActions); }
 	/** Returns true if any of the ShuntingUnit%s is currently active or waiting */
 	bool IsActive() const;
 	/** Returns true if any of the ShuntingUnit%s is currently not active or waiting */
@@ -173,19 +173,23 @@ public:
 	/**Returns true if any ShuntingUnit is inactive or if an Incoming train is available */
 	bool IsActionRequired() const;
 	/** Get the front Train for the given ShuntingUnit */
-	inline const Train* GetFrontTrain(const ShuntingUnit* su) const { return shuntingUnitStates.at(su).frontTrain; }
+	inline const Train* GetFrontTrain(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su).frontTrain); }
 	/** Get a vector of all the Task%s for the given Train that have not been executed yet */
-	inline const vector<Task>& GetTasksForTrain(const Train* tu) const { return trainStates.at(tu).tasks; }
+	inline const vector<Task>& GetTasksForTrain(const Train* tu) const { return_ce(trainStates.at(tu).tasks); }
 	/** Get a list of all the Task%s for the given Train that are currently being executed */
-	inline const vector<Task>& GetActiveTasksForTrain(const Train* tu) const { return trainStates.at(tu).activeTasks; }
+	inline const vector<Task>& GetActiveTasksForTrain(const Train* tu) const { return_ce(trainStates.at(tu).activeTasks); }
 	/** Get the ShuntingUnitState for the given ShuntingUnit */
-	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return shuntingUnitStates.at(su); }
+	inline const ShuntingUnitState& GetShuntingUnitState(const ShuntingUnit* su) const { return_ce(shuntingUnitStates.at(su)); }
 	/** Get the ShuntingUnitState%s for all the ShuntingUnit%s in the shunting yard */
 	inline const unordered_map<const ShuntingUnit*, ShuntingUnitState, ShuntingUnitHash, ShuntingUnitEquals>& GetShuntingUnitStates() const { return shuntingUnitStates; }
+	/** Get the ShuntingUnit by ShuntingUnit id */
+	const ShuntingUnit* GetShuntingUnitByID(int id) const;
+	/** Returns true if a ShuntingUnit with this id exists */
+	inline const bool HasShuntingUnitByID(int id) const { return GetShuntingUnitByID(id) != nullptr; }
 	/** Get the ShuntingUnit that currently contains the Train with the given id */
-	inline const ShuntingUnit* GetShuntingUnitByTrainID(int id) const { return trainIDToShuntingUnit.at(id); }
+	inline const ShuntingUnit* GetShuntingUnitByTrainID(int id) const { return_ce(trainIDToShuntingUnit.at(id)); }
 	/** Get the Train with the given id */
-	inline const Train* GetTrainByTrainID(int id) const { return trainIDToTrain.at(id); }
+	inline const Train* GetTrainByTrainID(int id) const { return_ce(trainIDToTrain.at(id)); }
 	/** Get the ShuntingUnit that currently contains the Train%s with the given ids, or null if not found*/
 	const ShuntingUnit* GetShuntingUnitByTrainIDs(const vector<int>& ids) const;
 	/** Get the Incoming event by the given id */
@@ -195,26 +199,26 @@ public:
 
 	//Setters and Adders
 	/** Set the ShuntingUnit's moving state */
-	inline void SetMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).moving = b; }
+	inline void SetMoving(const ShuntingUnit* su, bool b) { ce(shuntingUnitStates.at(su).moving = b); }
 	/** Set the ShuntingUnit's waiting state */
-	inline void SetWaiting(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).waiting = b; }
+	inline void SetWaiting(const ShuntingUnit* su, bool b) { ce(shuntingUnitStates.at(su).waiting = b); }
 	/** Set the ShuntingUnit's neutral state (to be updated) */
-	inline void SetInNeutral(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).inNeutral = b; }
+	inline void SetInNeutral(const ShuntingUnit* su, bool b) { ce(shuntingUnitStates.at(su).inNeutral = b); }
 	/** Set the ShuntingUnit's begin moving state */
-	inline void SetBeginMoving(const ShuntingUnit* su, bool b) { shuntingUnitStates.at(su).beginMoving = b; }
+	inline void SetBeginMoving(const ShuntingUnit* su, bool b) { ce(shuntingUnitStates.at(su).beginMoving = b); }
 	/** Set the ShuntingUnit's current position */
-	inline void SetPosition(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).position = track; }
+	inline void SetPosition(const ShuntingUnit* su, const Track* track) { ce(shuntingUnitStates.at(su).position = track); }
 	/** Set the ShuntingUnit's previous position */
-	inline void SetPrevious(const ShuntingUnit* su, const Track* track) { shuntingUnitStates.at(su).previous = track; }
+	inline void SetPrevious(const ShuntingUnit* su, const Track* track) { ce(shuntingUnitStates.at(su).previous = track); }
 
 	/** Add tasks a train as given by the map Train -> vector<Task>  */
 	void AddTasksToTrains(const unordered_map<const Train*, vector<Task>, TrainHash, TrainEquals>& tasks);
 	/** Add a Task to a Train */
-	inline void AddTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).tasks.push_back(task); }
+	inline void AddTaskToTrain(const Train* tu, const Task& task) { ce(trainStates.at(tu).tasks.push_back(task)); }
 	/** Add an active Task to a Train */
-	inline void AddActiveTaskToTrain(const Train* tu, const Task& task) { trainStates.at(tu).activeTasks.push_back(task); }
+	inline void AddActiveTaskToTrain(const Train* tu, const Task& task) { ce(trainStates.at(tu).activeTasks.push_back(task)); }
 	/** Add an active Action to a ShuntingUnit */
-	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { shuntingUnitStates.at(su).activeActions.push_back(action->Clone()); }
+	inline void AddActiveAction(const ShuntingUnit* su, const Action* action) { ce(shuntingUnitStates.at(su).activeActions.push_back(action->Clone())); }
 	/** Add a ShuntingUnitState to the State */
 	const ShuntingUnit* AddShuntingUnitToState(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain);
 	/** Add a ShuntingUnit to the State */
@@ -224,7 +228,7 @@ public:
 	/** Add a ShuntingUnit to the State on the given position */
 	void AddShuntingUnitOnPosition(const ShuntingUnit* su, const Track* track, const Track* previous, const Train* frontTrain, int positionOnTrack);
 	/** Set the front Train of the ShuntingUnit */
-	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { shuntingUnitStates.at(su).frontTrain = frontTrain; }
+	inline void SetFrontTrain(const ShuntingUnit* su, const Train* frontTrain) { ce(shuntingUnitStates.at(su).frontTrain = frontTrain); }
 	/** Switch the front Train of the ShuntingUnit */
 	void SwitchFrontTrain(const ShuntingUnit* su);
 	
@@ -234,13 +238,13 @@ public:
 	/** Reserve the Track%s */
 	void ReserveTracks(const list<const Track*>& tracks);
 	/** Reserve the Track */
-	inline void ReserveTrack(const Track* track) { trackStates.at(track).reserved = true; };
+	inline void ReserveTrack(const Track* track) { ce(trackStates.at(track).reserved = true); };
 	/** Remove the Track reservation for the given Track%s */
 	void FreeTracks(const vector<const Track*>& tracks);
 	/** Remove the Track reservation for the given Track%s */
 	void FreeTracks(const list<const Track*>& tracks);
 	/** Remove the Track reservation for the given Track */
-	inline void FreeTrack(const Track* track) { trackStates.at(track).reserved = false; };
+	inline void FreeTrack(const Track* track) { ce(trackStates.at(track).reserved = false); };
 
 	//Moving
 	/** Change the position of the ShuntingUnit to the new position described by the tuple (previous, to) */
