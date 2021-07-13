@@ -34,7 +34,6 @@ class Simulator:
     
     def get_state(self):
         try:
-            self.print("S [{}]> Get actions".format(self.state.time))
             next_actions = self.engine.get_valid_actions(self.state)
         except ScenarioFailedError:
             next_actions = []
@@ -67,7 +66,7 @@ class Simulator:
         return self.engine.get_location()
     
     def get_max_trains(self):
-        raise NotImplementedError("TODO: Get max trains from config")
+        return self.config["max_trains"]
     
     def set_n_trains(self, n):
         self.n_trains = n

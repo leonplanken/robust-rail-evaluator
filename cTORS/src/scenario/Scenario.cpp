@@ -121,9 +121,6 @@ void Scenario::ImportShuntingUnits(const PBScenario& pb_scenario, const Location
 			TrainUnitType::types[tt->displayName] = tt;
 		}
 	}
-	for(auto& [name, type]: TrainUnitType::types) {
-		cout << "TrainType " << name << ": " << type << endl;
-	}
 	for(auto& pb_in : pb_scenario.in())
 		incomingTrains.push_back(dynamic_cast<Incoming*>(ImportTrainGoal(location, pb_in, true, false)));
 	for(auto& pb_in : pb_scenario.instanding())

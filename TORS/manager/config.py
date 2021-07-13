@@ -58,7 +58,7 @@ class Config(dict):
                 d[k] = v
                
     def _check_required_fields(self,typ):
-        required_fields = {"episode": ['data folder', 'generator', 'generator/class'],
+        required_fields = {"episode": ['data folder', 'scenario', 'generator', 'generator/class'],
                             "agent": ['planner', 'planner/seed', 'planner/class']}[typ]
         for field in required_fields:
             if not field in self:
@@ -92,11 +92,12 @@ class Config(dict):
         
     __default_values__ = {
         "episode": {
-            "n_runs": 6
+            "n_runs": 1,
+            "max_trains": 1
         },
         "agent": {
             "planner": {
-                'class': 'planner.simple_rl_planner.SimpleRLPlanner',
+                'class': 'planner.random_planner.RandomPlanner',
                 'seed': 42
             } 
         }

@@ -16,7 +16,7 @@ class Manager:
         self.planner.set_location(self.simulator.get_location())
         results = {}
         fails = {}
-        for t in range(1, 3):#self.simulator.get_max_trains()+1):
+        for t in range(1, self.simulator.get_max_trains()+1):
             results[t] = 0
             fails[t] = 0
             self.simulator.set_n_trains(t)
@@ -28,7 +28,10 @@ class Manager:
                 result, failure = self.run_one()
                 results[t] += result
                 fails[t] += failure
+                if failure: self.print("M> Scenario failed")
+                else: self.print("M> Result: {}".format(result))
             self.print("M> Average score: {}%, Failures: {}%".format(results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
+            if fails[t] > 0 or results[t] == 0: break
         for t in results:
             self.print("M> {} Trains |\tAverage score: {}%, Failures: {}%".format(t, results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
             

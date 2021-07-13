@@ -3,10 +3,10 @@
 	"scenario": "../data/Demo/scenario.json",
 	"verbose": 1,
 	"n_runs": 100,
+	"max_trains": 5,
 	"generator": {
 		"class": "manager.scenario_generator.ScenarioGeneratorFromScenario",
 		"n_workers": 2,
-		"max_length": 1,
 		"n_disturbances": 0,
 		"match_outgoing_trains": true,
 		"max_trains_per_track": 1
