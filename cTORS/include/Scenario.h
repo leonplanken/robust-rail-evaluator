@@ -37,6 +37,9 @@ public:
 	Scenario(const Scenario& scenario);
 	/** Scenario destructor */
 	~Scenario();
+
+	/** Print the Scenario Info */
+	void PrintScenarioInfo() const;
 	
 	/** Get the start time of this Scenario */
 	inline int GetStartTime() const { return startTime; }

@@ -358,12 +358,13 @@ void State::PrintStateInfo() const {
 			<< "\tfront train\t=\t" << suState.frontTrain << endl
 			<< "\tposition\t=\t" << suState.position << endl
 			<< "\tprevious\t=\t" << suState.previous << endl
-			<< "\tactive actions\t=\t" << Join(suState.activeActions.begin(), suState.activeActions.end(), ", ") << endl;
+			<< "\tactive actions\t=\t" << (suState.activeActions.size() == 0 ? "None" : Join(suState.activeActions.begin(), suState.activeActions.end(), ", ")) << endl;
 		for(auto& train: su->GetTrains()) {
 			cout << "\t> " << train;
 			auto& tasks = GetTasksForTrain(&train);
 			auto& activeTasks = GetActiveTasksForTrain(&train);
 			if(tasks.size() + activeTasks.size() > 0) cout << ": ";
+			else cout << ": no tasks.";
 			if(tasks.size() > 0) cout << "Tasks: " << Join(tasks,", ");
 			if(tasks.size() > 0 && activeTasks.size() > 0) cout << " / ";
 			if(activeTasks.size() > 0) cout << "Active: " << Join(activeTasks, ", ") << endl;

@@ -19,18 +19,20 @@ class Simulator:
         
     def reset(self):
         if not self.state is None:
-            self.print("S> End previous session")
             self.engine.end_session(self.state)
-        self.print("S> Delete scenario")
         del self.scenario
 
         # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
         # and also in the state, which is deleted when the state is deleted.
 
         self.scenario = self.scenario_generator.generate_scenario()
+        if self.config.verbose >= 1:
+            self.scenario.print_scenario_info()
         self.state = self.engine.start_session(self.scenario)
         self.engine.step(self.state)
         self.result = 0
+        if self.config.verbose >= 2:
+            self.state.print_state_info()
     
     def get_state(self):
         try:
@@ -51,6 +53,8 @@ class Simulator:
         self.print("S [{}]> Applying action {}".format(self.state.time, str(action)))
         try:
             self.engine.apply_action_and_step(self.state, action)
+            if self.config.verbose >= 2:
+                self.state.print_state_info()
             return True
         except ScenarioFailedError:
             self.print("S [{}]> Scenario failed".format(self.state.time))

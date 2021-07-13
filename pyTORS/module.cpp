@@ -346,6 +346,7 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_disturbance_list", &Scenario::GetDisturbanceVector, py::return_value_policy::reference)
 		.def("set_disturbances", &Scenario::SetDisturbances, py::arg("disturbances"), py::keep_alive<1, 2>())
 		.def("add_disturbance", &Scenario::AddDisturbance, py::arg("disturbance"), py::keep_alive<1, 2>())
+		.def("print_scenario_info", &Scenario::PrintScenarioInfo)
 		.def("get_copy", [](const Scenario& scenario) { return new Scenario(scenario); }, py::return_value_policy::take_ownership);
 	
 

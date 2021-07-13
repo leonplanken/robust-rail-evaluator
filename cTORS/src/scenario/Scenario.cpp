@@ -152,3 +152,37 @@ void Scenario::Serialize(PBScenario* pb_scenario) const {
 		type->Serialize(pb_scenario->add_trainunittypes());
 	}
 }
+
+void Scenario::PrintScenarioInfo() const {
+	cout << "|---------------------------|" << endl;
+	cout << "|   Scenario                |" << endl;
+	cout << "|---------------------------|" << endl;
+	cout << "Start time: " << startTime << ", end time: " << endTime << endl << endl;
+	if(incomingTrains.size() == 0)
+		cout << "No arrivals" << endl << endl;
+	else {
+		cout << "Arrivals:" << endl;
+		for(auto inc: incomingTrains) {
+			cout << "\tT" << inc->GetTime() << ": \t" << inc->GetShuntingUnit() << " (" << inc->GetShuntingUnit()->GetTrainString() << ") at " 
+				<< inc->GetParkingTrack() << " from " << inc->GetSideTrack();
+			if(inc->IsInstanding())
+				cout << " (instanding)";
+			cout << endl;
+		}
+		cout << endl;
+	}
+
+	if(outgoingTrains.size() == 0)
+		cout << "No departures" << endl << endl;
+	else {
+		cout << "Departures:" << endl;
+		for(auto out: outgoingTrains) {
+			cout << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " (" << out->GetShuntingUnit()->GetTrainString() << ") at " 
+				<< out->GetParkingTrack() << " to " << out->GetSideTrack();
+			if(out->IsInstanding())
+				cout << " (outstanding)";
+			cout << endl;
+		}
+		cout << endl;
+	}
+}
