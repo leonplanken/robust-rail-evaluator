@@ -1,4 +1,4 @@
-from manager.c_simulator import Simulator
+from manager.simulator import Simulator
 import importlib
 import threading
 #from planner.planner import RemotePlanner
