@@ -116,6 +116,8 @@ pair<bool, string> LocationEngine::IsValidAction(const State* state, const Actio
 }
 
 const Action* LocationEngine::GenerateAction(const State* state, const SimpleAction& action) const {
+	if(!config.IsGeneratorActive(action.GetGeneratorName()))
+		throw InvalidActionException("Error in generating action (" + action.toString() +"): Action generator " + action.GetGeneratorName() + " is disabled.");
 	try {
 		return actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, action);
 	} catch(exception& e) {

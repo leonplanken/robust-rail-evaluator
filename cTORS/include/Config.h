@@ -34,13 +34,13 @@ public:
 	/** Construct a default Config object */
 	Config() = default;
 	/** Construct a Config object based on the given json file */
-	Config(string path);
+	Config(const string& path);
 	/** Returns true iff the BusinessRule defined by the name is active */
-	bool IsBusinessRuleActive(string name) const;
+	bool IsBusinessRuleActive(const string& name) const;
 	/** Returns true iff the ActionGenerator defined by the name is active */
-	bool IsGeneratorActive(string name) const;
+	bool IsGeneratorActive(const string& name) const;
 	/** Get the parameters for the ActionGenerator defined by the name */
-	const json GetActionParameters(string name) const;
+	const json GetActionParameters(const string& name) const;
 };
 
 #endif
