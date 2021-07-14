@@ -2,6 +2,7 @@ from manager.simulator import Simulator
 import importlib
 import threading
 import os
+from time import time
 #from planner.planner import RemotePlanner
 
 class Manager:
@@ -31,14 +32,28 @@ class Manager:
                 self.print("M> \t{}: {}".format(key, val))
       
     def run(self):
+        self.sol_runtime = 0
+        self.sim_runtime = 0
+        self.gen_runtime = 0
+        
+        sim_start = time()
         self.simulator.start()
+        self.sim_runtime += time() - sim_start
+
+        start = time()
         self.planner.set_location(self.simulator.get_location())
+        self.sol_runtime += time() - start
+
         results = {}
         fails = {}
         for t in range(1, self.simulator.get_max_trains()+1):
             results[t] = 0
             fails[t] = 0
+            
+            gen_start = time()
             self.simulator.set_n_trains(t)
+            self.gen_runtime += time() - gen_start
+            
             self.print("M> ###############################")
             self.print("M> ### Testing with {:3} trains ###".format(t))
             self.print("M> ###############################")
@@ -53,24 +68,37 @@ class Manager:
             if fails[t] > 0 or results[t] == 0: break
         for t in results:
             self.print("M> {} Trains |\tAverage score: {}%, Failures: {}%".format(t, results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
-            
+        print("M> Time spent in solver: {}s".format(self.sol_runtime))
+        print("M> Time spent in simulator: {}s".format(self.sim_runtime))
+        print("M> Time spent in scenario generator: {}s".format(self.gen_runtime))
+        print("M> Total accounted time: {}s".format(self.sol_runtime + self.sim_runtime + self.gen_runtime))    
     def run_one(self):
         failure = 0
         self.simulator.reset()
+        start = time()
         self.planner.reset()
+        self.sol_runtime += time() - start
         while True:
+            sim_start = time()
             state, actions = self.simulator.get_state()
+            self.sim_runtime += time() - sim_start
             if not actions: break
             try:
+                start = time()
                 action = self.planner.get_action(state, actions)
+                self.sol_runtime += time() - start
+                sim_start = time()
                 if not self.simulator.apply_action(action): break
+                self.sim_runtime += time() - sim_start
             except Exception as e:
                 print(e)
                 raise e
                 failure = 1
                 break
         result = self.simulator.get_result()
+        start = time()
         self.planner.report_result(result)
+        self.sol_runtime += time() - start
         return result, failure
      
     def print(self, m):

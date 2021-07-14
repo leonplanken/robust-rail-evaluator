@@ -3,6 +3,7 @@
 #include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 
 #include "Engine.h"
 
@@ -154,7 +155,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_front_train", &State::GetFrontTrain, py::arg("shunting_unit"), py::return_value_policy::reference)
 		.def("get_active_actions", &State::GetActiveActions, py::return_value_policy::reference)
 		.def("get_tasks_for_train", &State::GetTasksForTrain, py::arg("train"), py::return_value_policy::reference)
-		.def("print_state_info", &State::PrintStateInfo);
+		.def("print_state_info", &State::PrintStateInfo,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
 	////////////////////////////////////
 	//// Action                     ////
@@ -346,7 +348,8 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_disturbance_list", &Scenario::GetDisturbanceVector, py::return_value_policy::reference)
 		.def("set_disturbances", &Scenario::SetDisturbances, py::arg("disturbances"), py::keep_alive<1, 2>())
 		.def("add_disturbance", &Scenario::AddDisturbance, py::arg("disturbance"), py::keep_alive<1, 2>())
-		.def("print_scenario_info", &Scenario::PrintScenarioInfo)
+		.def("print_scenario_info", &Scenario::PrintScenarioInfo,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("get_copy", [](const Scenario& scenario) { return new Scenario(scenario); }, py::return_value_policy::take_ownership);
 	
 
@@ -355,18 +358,27 @@ PYBIND11_MODULE(pyTORS, m) {
 	////////////////////////////////////
 	py::class_<LocationEngine>(m, "Engine")
 		.def(py::init<const std::string&>())
-		.def("step", &LocationEngine::Step, py::arg("state"))
+		.def("step", &LocationEngine::Step, py::arg("state"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("get_valid_actions", &LocationEngine::GetValidActions, py::arg("state"), py::return_value_policy::reference)
-		.def("apply_action", py::overload_cast<State*, const SimpleAction&>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
-		.def("apply_action", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"))
+		.def("apply_action", py::overload_cast<State*, const SimpleAction&>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("apply_action", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyAction), py::arg("state"), py::arg("action"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("apply_action_and_step", py::overload_cast<State*, const SimpleAction&>(&LocationEngine::ApplyActionAndStep),
-			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
+			py::arg("state"), py::arg("action"), py::return_value_policy::reference,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("apply_action_and_step", py::overload_cast<State*, const Action*>(&LocationEngine::ApplyActionAndStep),
-			py::arg("state"), py::arg("action"), py::return_value_policy::reference)
-		.def("apply_wait_all_until", &LocationEngine::ApplyWaitAllUntil, py::arg("state"), py::arg("time"))
-		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership)
-		.def("is_valid_action", py::overload_cast<const State*, const SimpleAction&>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
-		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"))
+			py::arg("state"), py::arg("action"), py::return_value_policy::reference,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("apply_wait_all_until", &LocationEngine::ApplyWaitAllUntil, py::arg("state"), py::arg("time"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("generate_action", &LocationEngine::GenerateAction, py::arg("state"), py::arg("action"), py::return_value_policy::take_ownership,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("is_valid_action", py::overload_cast<const State*, const SimpleAction&>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), py::arg("state"), py::arg("action"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("start_session", &LocationEngine::StartSession, py::arg("scenario"), py::return_value_policy::reference)
 		.def("end_session", &LocationEngine::EndSession, py::arg("state"))
 		.def("get_location", &LocationEngine::GetLocation, py::return_value_policy::reference)
@@ -374,8 +386,10 @@ PYBIND11_MODULE(pyTORS, m) {
 		.def("get_result", &LocationEngine::GetResult, py::arg("state"), py::return_value_policy::copy)
 		.def("get_path", &LocationEngine::GetPath, py::arg("state"), py::arg("move"), py::return_value_policy::take_ownership)
 		.def("import_result", &LocationEngine::ImportResult, py::arg("file_path"), py::return_value_policy::take_ownership)
-		.def("calc_all_possible_paths", &LocationEngine::CalcAllPossiblePaths)
-		.def("calc_shortest_paths", &LocationEngine::CalcShortestPaths);
+		.def("calc_all_possible_paths", &LocationEngine::CalcAllPossiblePaths,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("calc_shortest_paths", &LocationEngine::CalcShortestPaths,
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>());
 
 	////////////////////////////////////
 	//// Event                      ////
