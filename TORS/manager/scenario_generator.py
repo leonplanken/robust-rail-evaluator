@@ -351,9 +351,14 @@ class ScenarioGeneratorFromFolder(ScenarioGenerator):
             scenarios = [scenario_file_string]
         else:
             raise NotImplementedError("No scenarios can be obtained from " + scenario_file_string)
+        to_be_deleted = []
         for scenario in scenarios:
             self.generators[scenario] = self.subclass(*self.args, **self.kwargs)
             self.generators[scenario].initialize(self.engine, scenario)
+            if self.generators[scenario].get_max_trains() < self.n_trains:
+                to_be_deleted.append(scenario)
+        for scenario in to_be_deleted:
+            del self.generators[scenario]
 
     def get_max_trains(self):
         return super().get_max_trains()
@@ -362,7 +367,6 @@ class ScenarioGeneratorFromFolder(ScenarioGenerator):
         while True:
             scenario_key = random.choice(list(self.generators.keys()))
             scenario_gen = self.generators[scenario_key]
-            if scenario_gen.get_max_trains() < self.n_trains: continue
             return scenario_gen.generate_scenario()
 
 
