@@ -61,6 +61,29 @@ endif()
 set(PROJECT_SOURCE_DIR "src")
 set(PROJECT_INCLUDE_DIR "include")
 
+# Includes
+set(TORS_HEADER_FILES
+	${PROJECT_INCLUDE_DIR}/Action.h
+	${PROJECT_INCLUDE_DIR}/BusinessRules.h
+	${PROJECT_INCLUDE_DIR}/Config.h
+	${PROJECT_INCLUDE_DIR}/Disturbance.h
+	${PROJECT_INCLUDE_DIR}/Employee.h
+	${PROJECT_INCLUDE_DIR}/Engine.h
+	${PROJECT_INCLUDE_DIR}/Event.h
+	${PROJECT_INCLUDE_DIR}/Exceptions.h
+	${PROJECT_INCLUDE_DIR}/Facility.h
+	${PROJECT_INCLUDE_DIR}/Location.h
+	${PROJECT_INCLUDE_DIR}/Plan.h
+	${PROJECT_INCLUDE_DIR}/Proto.h
+	${PROJECT_INCLUDE_DIR}/Scenario.h
+	${PROJECT_INCLUDE_DIR}/ShuntingUnit.h
+	${PROJECT_INCLUDE_DIR}/State.h
+	${PROJECT_INCLUDE_DIR}/Track.h
+	${PROJECT_INCLUDE_DIR}/TrainGoals.h
+	${PROJECT_INCLUDE_DIR}/Train.h
+	${PROJECT_INCLUDE_DIR}/Utils.h
+)
+
 set(TORS_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/action/Action.cpp
 	${PROJECT_SOURCE_DIR}/action/ActionManager.cpp
@@ -124,26 +147,7 @@ set(TORS_SOURCE_FILES
 	
 	${PROJECT_SOURCE_DIR}/main.cpp
 
-	# Includes
-	${PROJECT_INCLUDE_DIR}/Action.h
-	${PROJECT_INCLUDE_DIR}/BusinessRules.h
-	${PROJECT_INCLUDE_DIR}/Config.h
-	${PROJECT_INCLUDE_DIR}/Disturbance.h
-	${PROJECT_INCLUDE_DIR}/Employee.h
-	${PROJECT_INCLUDE_DIR}/Engine.h
-	${PROJECT_INCLUDE_DIR}/Event.h
-	${PROJECT_INCLUDE_DIR}/Exceptions.h
-	${PROJECT_INCLUDE_DIR}/Facility.h
-	${PROJECT_INCLUDE_DIR}/Location.h
-	${PROJECT_INCLUDE_DIR}/Plan.h
-	${PROJECT_INCLUDE_DIR}/Proto.h
-	${PROJECT_INCLUDE_DIR}/Scenario.h
-	${PROJECT_INCLUDE_DIR}/ShuntingUnit.h
-	${PROJECT_INCLUDE_DIR}/State.h
-	${PROJECT_INCLUDE_DIR}/Track.h
-	${PROJECT_INCLUDE_DIR}/TrainGoals.h
-	${PROJECT_INCLUDE_DIR}/Train.h
-	${PROJECT_INCLUDE_DIR}/Utils.h
+	${TORS_HEADER_FILES}
 )
 
 #Protobuf
@@ -161,6 +165,20 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Run.proto
 	${PROTOS_DIR}/Plan.proto
 )
+
+#python make docs
+set(Python3_FIND_STRATEGY LOCATION)
+set(Python3_FIND_VIRTUALENV ONLY)
+find_package(Python3 COMPONENTS Interpreter)
+if (Python3_Interpreter_FOUND)
+	execute_process(COMMAND ${Python3_EXECUTABLE} -m pybind11_mkdoc -o ../pyTORS/docstrings.h ${TORS_HEADER_FILES} -I ${CMAKE_CURRENT_BINARY_DIR}
+    	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} RESULT_VARIABLE py_mkdoc_result)
+	if(${py_mkdoc_result})
+		message(STATUS "pybind11_mkdoc failed")
+	else()
+		message(STATUS "pybind11 documentation succesfully generated")
+	endif()
+endif()
 
 add_library(cTORS SHARED ${PROTO_SRCS} ${PROTO_HDRS} ${TORS_SOURCE_FILES} )
 

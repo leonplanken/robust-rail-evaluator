@@ -1,6 +1,7 @@
 from planner.planner import Planner
 from pyTORS import BeginMoveAction, EndMoveAction, MoveAction, ArriveAction, ExitAction, \
-    WaitAction, SetbackAction, SplitAction, CombineAction, TrackPartType
+    WaitAction, SetbackAction, SplitAction, CombineAction, TrackPartType,\
+    State, Location, ShuntingUnit, Train, Incoming, Outgoing
 import random
 
 class GreedyPlanner(Planner):
@@ -20,7 +21,7 @@ class GreedyPlanner(Planner):
 
 class Plan:
 
-    def __init__(self, state, location):
+    def __init__(self, state: State, location: Location):
         self.location = location
         self.incoming = state.incoming_trains
         self.outgoing = state.outgoing_trains
@@ -45,7 +46,7 @@ class Plan:
             if t.type == train.type: return t
         return None
 
-    def get_action(self, state, actions):
+    def get_action(self, state: State, actions):
         for su in state.shunting_units:
             prev = state.get_position(su)
             pos = state.get_previous(su)
@@ -59,7 +60,7 @@ class Plan:
 
 class TrainState:
     
-    def __init__(self, train, incoming, location):
+    def __init__(self, train: Train, incoming: Incoming, location: Location):
         self.train = train
         self.location = location
         self.incoming = incoming
