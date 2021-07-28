@@ -56,6 +56,8 @@ public:
 	/** Checks if the given Action is valid in the given State or not. If not
 	 * provides a reason why. */
 	pair<bool, string> IsValidAction(const State* state, const Action* action) const; 
+	/** Returns true iff the given state is still active (ie the scenario is not ended or failed yet) */
+	bool IsStateActive(const State* state) const;
 	/** Evaluate the given POSPlan for the given Scenario */
 	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
 	/** Start a session for the given Scenario and generate an initial State */

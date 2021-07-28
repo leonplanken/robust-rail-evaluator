@@ -841,6 +841,10 @@ static const char *__doc_LocationEngine_GetValidActions = R"doc(Get a list of va
 
 static const char *__doc_LocationEngine_ImportResult = R"doc(Import a RunResult from a protobuf file */)doc";
 
+static const char *__doc_LocationEngine_IsStateActive =
+R"doc(Returns true iff the given state is still active (ie the scenario is
+not ended or failed yet) */)doc";
+
 static const char *__doc_LocationEngine_IsValidAction =
 R"doc(Checks if the given SimpleAction is valid in the given State or not.
 If not provides a reason why.)doc";

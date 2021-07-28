@@ -63,6 +63,11 @@ void LocationEngine::Step(State * state) {
 	debug_out("Step done.");
 }
 
+bool LocationEngine::IsStateActive(const State* state) const {
+	CheckScenarioEnded(state);
+	return state->IsActionRequired();
+}
+
 void LocationEngine::ApplyAction(State* state, const Action* action) {
 	debug_out("\tApplying action " + action->toString());
 	int startTime = state->GetTime();

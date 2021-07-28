@@ -383,6 +383,8 @@ PYBIND11_MODULE(pyTORS, m) {
 			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("is_valid_action", py::overload_cast<const State*, const Action*>(&LocationEngine::IsValidAction, py::const_), DOC(LocationEngine, IsValidAction), py::arg("state"), py::arg("action"),
 			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
+		.def("is_state_active", &LocationEngine::IsStateActive, DOC(LocationEngine, IsStateActive), py::arg("state"),
+			py::call_guard<py::scoped_ostream_redirect, py::scoped_estream_redirect>())
 		.def("start_session", &LocationEngine::StartSession, DOC(LocationEngine, StartSession), py::arg("scenario"), py::return_value_policy::reference)
 		.def("end_session", &LocationEngine::EndSession, DOC(LocationEngine, EndSession), py::arg("state"))
 		.def("get_location", &LocationEngine::GetLocation, DOC(LocationEngine, GetLocation), py::return_value_policy::reference)

@@ -46,7 +46,7 @@ class Config(dict):
         Config._nested_update(result, data)
         config = Config(**result)
         config._check_required_fields(typ)
-        config._check_valid_fields()
+        config._check_valid_fields(typ)
         return config
     
     @staticmethod
@@ -57,19 +57,23 @@ class Config(dict):
             else:
                 d[k] = v
                
-    def _check_required_fields(self,typ):
+    def _check_required_fields(self, typ):
         required_fields = {"episode": ['data folder', 'scenario', 'generator', 'generator/class'],
-                            "agent": ['planner', 'planner/seed', 'planner/class']}[typ]
+                            "agent": ['class']}[typ]
         for field in required_fields:
             if not field in self:
                 raise Exception("Field {} missing in configuration".format(field))
                         
-    def _check_valid_fields(self):
+    def _check_valid_fields(self, typ):
         validations = {
-            'planner/class': Config._valid_class,
-            'generator/class': Config._valid_class,
-            'data folder': Config._valid_data_folder 
-        }
+            "episode": {
+                'generator/class': Config._valid_class,
+                'data folder': Config._valid_data_folder 
+            },
+            "agent": {
+                'class': Config._valid_class
+            }
+        }[typ]
         for field, validation_function in validations.items():
             if field in self:
                 try: validation_function(self[field])
@@ -98,11 +102,9 @@ class Config(dict):
             "verbose": 1
         },
         "agent": {
-            "planner": {
-                "class": "planner.random_planner.RandomPlanner",
-                "seed": 42,
-                "verbose": 1
-            } 
+            "class": "planner.random_planner.RandomPlanner",
+            "seed": 42,
+            "verbose": 1
         }
     }
         

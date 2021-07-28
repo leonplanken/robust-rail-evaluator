@@ -1,18 +1,21 @@
 from planner.planner import Planner
 from pyTORS import BeginMoveAction, EndMoveAction, MoveAction, ArriveAction, ExitAction, \
     WaitAction, SetbackAction, SplitAction, CombineAction, TrackPartType,\
-    State, Location, ShuntingUnit, Train, Incoming, Outgoing
+    State, Location, ShuntingUnit, Train, Incoming, Outgoing, Engine, Action, Track
 import random
+from typing import List, Tuple, Type, Optional
 
 class GreedyPlanner(Planner):
     
-    def __init__(self, seed, verbose, time_limit, config):
-        super(GreedyPlanner, self).__init__(seed, verbose, time_limit, config)
+    def __init__(self, config, greedy_config):
+        super(GreedyPlanner, self).__init__(config)
         self.reset()
     
-    def get_action(self, state, actions):
+    def get_action(self, state: State) -> Optional[Action]:
         if self.plan is None:
-            self.plan = Plan(state, self.location)
+            self.plan = Plan(state, self.get_location())
+        actions = self.get_valid_actions(state)
+        if len (actions) == 0: return None
         return self.plan.get_action(state, actions)
 
     def reset(self):
@@ -44,12 +47,12 @@ class Plan:
         for train in self.trains:
             self.location.calc_shortest_paths(train.type)
 
-    def find_match(self, trains, train):
+    def find_match(self, trains: List[Train], train: Train):
         for t in trains:
             if t.type == train.type: return t
         return None
 
-    def get_action(self, state: State, actions):
+    def get_action(self, state: State, actions: List[Action]):
         for su in state.shunting_units:
             prev = state.get_position(su)
             pos = state.get_previous(su)
@@ -78,7 +81,7 @@ class TrainState:
         self.departure_time = None
         self.same_shunting_unit = True
 
-    def update_outgoing(self, outgoing, train_match):
+    def update_outgoing(self, outgoing: Outgoing, train_match: Train):
         self.outgoing = outgoing
         self.train_match = train_match
         self.end_track = outgoing.parking_track
@@ -86,7 +89,7 @@ class TrainState:
         self.out_su = outgoing.shunting_unit
         self.departure_time = outgoing.time
 
-    def update_current_state(self, previous, position, su):
+    def update_current_state(self, previous: Track, position: Track, su: ShuntingUnit):
         self.in_su = su
         self.begin_track = position
         self.begin_side_track = previous
@@ -95,7 +98,7 @@ class TrainState:
     def set_same_shunting_unit(self):
         self.same_shunting_unit = self.in_su.matches_shunting_unit(self.out_su)
 
-    def get_action_priority(self, state, actions):
+    def get_action_priority(self, state: State, actions: List[Action]):
         su = self.in_su
         priority = [(0, actions[0])]
         if state.time == self.arrival_time:
@@ -131,12 +134,13 @@ class TrainState:
         return priority
     
     @staticmethod
-    def add_action_if_found(actions, priority_list, priority, action_type, su, track=None, prev=None):
+    def add_action_if_found(actions: List[Action], priority_list: List[Tuple[int, Action]], priority: int, \
+            action_type: Type[Action], su: ShuntingUnit, track: Track = None, prev: Track = None):
         action = TrainState.find_action(actions, action_type, su, track, prev)
         if action: priority_list.append((priority, action))
 
     @staticmethod
-    def find_action(actions, action_type, su, track=None, prev=None):
+    def find_action(actions: List[Action], action_type: Type[Action], su: ShuntingUnit, track: Track = None, prev: Track = None):
         return next((a for a in actions if isinstance(a, action_type) \
             and (a.shunting_unit == su \
                 or (action_type==CombineAction and a.shunting_unit.matches_shunting_unit(su)))\

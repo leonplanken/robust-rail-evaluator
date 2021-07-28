@@ -22,9 +22,6 @@ class Simulator:
             self.engine.end_session(self.state)
         del self.scenario
 
-        # TODO: Shunting units are stored in incoming and outgoin goals, which are deleted when the scenario is deleted,
-        # and also in the state, which is deleted when the state is deleted.
-
         self.scenario = self.scenario_generator.generate_scenario()
         if self.config.verbose >= 1:
             self.scenario.print_scenario_info()
@@ -35,14 +32,12 @@ class Simulator:
             self.state.print_state_info()
     
     def get_state(self):
-        try:
-            next_actions = self.engine.get_valid_actions(self.state)
-        except ScenarioFailedError:
-            next_actions = []
-            self.print("S [{}]> Scenario failed".format(self.state.time))
-        if len(next_actions) == 0:
+        if not self.is_active():
             self.result = self.calculate_reward()
-        return self.state, next_actions
+        return self.state
+
+    def is_active(self):
+        return self.engine.is_state_active(self.state)
     
     def calculate_reward(self):
         if len(self.state.incoming_trains) == 0 and len(self.state.outgoing_trains) == 0: return 1
@@ -68,6 +63,9 @@ class Simulator:
     
     def get_location(self):
         return self.engine.get_location()
+
+    def get_engine(self):
+        return self.engine
     
     def get_max_trains(self):
         return self.config["max_trains"]

@@ -8,15 +8,16 @@ from pyTORS import Engine, Action, ScenarioFailedError, InvalidActionError
 class TORSEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, config):
+    def __init__(self, episode_config, agent_config):
         super(TORSEnv, self).__init__()
         print("Init Env")
-        self.config = config
-        self.engine = Engine(config['data folder']) 
+        self.episode_config = episode_config
+        self.agent_config = agent_config
+        self.engine = Engine(episode_config['data folder']) 
         self.location = self.engine.get_location()
         self.number_of_trains = 2
         self.scenario_generator = self._get_generator(self.number_of_trains)
-        self.scenario_generator.initialize(self.engine, config['scenario'])
+        self.scenario_generator.initialize(self.engine, episode_config['scenario'])
         self.state = None
         self.scenario = None
         self.converter = self._get_converter()
@@ -91,25 +92,31 @@ class TORSEnv(gym.Env):
         self.result = 0
 
     def _get_generator(self, n_trains):
-        generator_str = self.config.generator['class']
+        generator_str = self.episode_config.generator['class']
         generator_lst = generator_str.split('.')
         _module = importlib.import_module(".".join(generator_lst[:-1]))
         _class = getattr(_module, generator_lst[-1])
-        config = self.config.generator.copy()
+        config = self.episode_config.generator.copy()
         del config['class']
-        if generator_str in self.config:
-            config.update(self.config[generator_str])
+        if generator_str in self.episode_config:
+            config.update(self.episode_config[generator_str])
         return ScenarioGeneratorFromFolder(_class, n_trains=n_trains, **config)
 
     def _get_converter(self):
-        converter_str = self.config.converter['class']
+        planner = self.agent_config["class"]
+        if not planner in self.agent_config:
+            raise ValueError("The configured agent class {} does not have a converter class specified".format(planner))
+        planner_config = self.agent_config[planner]
+        if not "converter" in planner_config or not "class" in planner_config.converter:
+            raise ValueError("The configured agent class {} does not have a converter class specified".format(planner))
+        converter_str = planner_config.converter['class']
         converter_lst = converter_str.split('.')
         _module = importlib.import_module(".".join(converter_lst[:-1]))
         _class = getattr(_module, converter_lst[-1])
-        config = self.config.converter.copy()
+        config = planner_config.converter.copy()
         del config['class']
-        if converter_str in self.config:
-            config.update(self.config[converter_str])
+        if converter_str in planner_config:
+            config.update(planner_config[converter_str])
         return _class(self.engine, self.location, **config)
 	
     def print(self, text):

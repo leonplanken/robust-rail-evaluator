@@ -1,3 +1,4 @@
+from pyTORS import InvalidActionError, ScenarioFailedError
 from manager.simulator import Simulator
 import importlib
 from time import time
@@ -22,7 +23,7 @@ class Manager:
     	
     def print_agent_info(self):
         self.print("M> ### Agent info ###")
-        planner_class = self.agent_config.planner['class']
+        planner_class = self.agent_config['class']
         self.print("M> Agent class: {}".format(planner_class))
         if planner_class in self.agent_config:
             config = self.agent_config[planner_class]
@@ -40,7 +41,7 @@ class Manager:
 
         start = time()
         with timeout(self, 10):
-            self.planner.set_location(self.simulator.get_location())
+            self.planner.initialize(self.simulator.get_engine(), self.simulator.get_location())
         self.sol_runtime += time() - start
 
         results = {}
@@ -88,18 +89,23 @@ class Manager:
         self.sol_runtime += time() - start
         while True:
             sim_start = time()
-            state, actions = self.simulator.get_state()
+            state = self.simulator.get_state()
             self.sim_runtime += time() - sim_start
-            if not actions: break
+            if not self.simulator.is_active(): break
             try:
                 start = time()
                 with timeout(self):
-                    action = self.planner.get_action(state, actions)
+                    action = self.planner.get_action(state)
                 self.sol_runtime += time() - start
                 sim_start = time()
-                if not self.simulator.apply_action(action): break
+                if action is None:
+                    valid_actions = self.simulator.get_engine().get_valid_actions(state)
+                    if len(valid_actions) == 0: break
+                    raise ScenarioFailedError("The planner returned no action, but valid actions are still available.")
+                elif not self.simulator.apply_action(action): break
                 self.sim_runtime += time() - sim_start
             except TimeoutError:
+                self.sol_runtime += time() - start
                 self.print("M> Timeout reached.")
                 break
             except Exception as e:
@@ -118,14 +124,15 @@ class Manager:
         if self.episode_config.verbose >= 1: print(m)   
                 
     def get_planner(self):
-        planner_str = self.agent_config.planner['class']
+        planner_str = self.agent_config['class']
         planner_lst = planner_str.split('.')
         _module = importlib.import_module(".".join(planner_lst[:-1]))
         _class = getattr(_module, planner_lst[-1])
         if planner_str in self.agent_config:
             config = self.agent_config[planner_str]
         else: config = {} 
-        planner = _class(self.agent_config.planner.seed, self.agent_config.planner.verbose, self.episode_config.time_limit, config)
+        self.agent_config["time_limit"] = self.episode_config.time_limit
+        planner = _class(self.agent_config, config)
         return planner
 
     # Get the remaining time left for the planner (in seconds)
@@ -172,7 +179,7 @@ try:
 except: # If the package signal cannot be imported
     
     @contextmanager
-    def timeout(manager):
+    def timeout(manager, minimum=None):
         if manager.get_remaining_planning_time() != -1:
             raise NotImplementedError("Time out is only supported on UNIX systems")
         yield
