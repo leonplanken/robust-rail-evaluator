@@ -6,8 +6,8 @@ import random
 
 class GreedyPlanner(Planner):
     
-    def __init__(self, seed, verbose, config):
-        super(GreedyPlanner, self).__init__(seed, verbose, config)
+    def __init__(self, seed, verbose, time_limit, config):
+        super(GreedyPlanner, self).__init__(seed, verbose, time_limit, config)
         self.reset()
     
     def get_action(self, state, actions):
@@ -18,6 +18,9 @@ class GreedyPlanner(Planner):
     def reset(self):
         Planner.reset(self)
         self.plan = None
+
+    def close(self):
+        pass
 
 class Plan:
 

@@ -1,9 +1,7 @@
 from manager.simulator import Simulator
 import importlib
-import threading
-import os
 from time import time
-#from planner.planner import RemotePlanner
+from contextlib import contextmanager
 
 class Manager:
     
@@ -41,7 +39,8 @@ class Manager:
         self.sim_runtime += time() - sim_start
 
         start = time()
-        self.planner.set_location(self.simulator.get_location())
+        with timeout(self, 10):
+            self.planner.set_location(self.simulator.get_location())
         self.sol_runtime += time() - start
 
         results = {}
@@ -58,25 +57,34 @@ class Manager:
             self.print("M> ### Testing with {:3} trains ###".format(t))
             self.print("M> ###############################")
             for r in range(self.episode_config.n_runs):
+                if self.get_remaining_planning_time() < 0 and self.get_remaining_planning_time() != -1: break
                 self.print("M> ### Run {:3}                 ###".format(r+1))
-                result, failure = self.run_one()
+                try:
+                    result, failure = self.run_one()
+                except TimeoutError:
+                    break
                 results[t] += result
                 fails[t] += failure
                 if failure: self.print("M> Scenario failed")
                 else: self.print("M> Result: {}".format(result))
             self.print("M> Average score: {}%, Failures: {}%".format(results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
             if fails[t] > 0 or results[t] == 0: break
+            if self.get_remaining_planning_time() < 0 and self.get_remaining_planning_time() != -1: break
+        with timeout(self, 10):
+            self.planner.close()
         for t in results:
             self.print("M> {} Trains |\tAverage score: {}%, Failures: {}%".format(t, results[t]/self.episode_config.n_runs * 100., fails[t]/self.episode_config.n_runs * 100))
         print("M> Time spent in solver: {}s".format(self.sol_runtime))
         print("M> Time spent in simulator: {}s".format(self.sim_runtime))
         print("M> Time spent in scenario generator: {}s".format(self.gen_runtime))
         print("M> Total accounted time: {}s".format(self.sol_runtime + self.sim_runtime + self.gen_runtime))    
+    
     def run_one(self):
         failure = 0
         self.simulator.reset()
         start = time()
-        self.planner.reset()
+        with timeout(self, 10):
+            self.planner.reset()
         self.sol_runtime += time() - start
         while True:
             sim_start = time()
@@ -85,11 +93,15 @@ class Manager:
             if not actions: break
             try:
                 start = time()
-                action = self.planner.get_action(state, actions)
+                with timeout(self):
+                    action = self.planner.get_action(state, actions)
                 self.sol_runtime += time() - start
                 sim_start = time()
                 if not self.simulator.apply_action(action): break
                 self.sim_runtime += time() - sim_start
+            except TimeoutError:
+                self.print("M> Timeout reached.")
+                break
             except Exception as e:
                 print(e)
                 raise e
@@ -97,7 +109,8 @@ class Manager:
                 break
         result = self.simulator.get_result()
         start = time()
-        self.planner.report_result(result)
+        with timeout(self, 10):
+            self.planner.report_result(result)
         self.sol_runtime += time() - start
         return result, failure
      
@@ -112,8 +125,56 @@ class Manager:
         if planner_str in self.agent_config:
             config = self.agent_config[planner_str]
         else: config = {} 
-        planner = _class(self.agent_config.planner.seed, self.agent_config.planner.verbose, config)
-        #if self.agent_config.planner.remote:
-        #    planner = RemotePlanner(planner, self.agent_config)
+        planner = _class(self.agent_config.planner.seed, self.agent_config.planner.verbose, self.episode_config.time_limit, config)
         return planner
+
+    # Get the remaining time left for the planner (in seconds)
+    def get_remaining_planning_time(self):
+        time_limit = self.episode_config.time_limit
+        if time_limit == -1: return -1
+        return float(time_limit) - self.sol_runtime
+
+# Code for time out #######################################################################
+#From https://www.jujens.eu/posts/en/2018/Jun/02/python-timeout-function/
+#From https://stackoverflow.com/questions/492519/timeout-on-a-function-call/494273#494273
+#Note, only works on UNIX
+try:
+    import signal
+
+    def raise_timeout(signum, frame):
+        raise TimeoutError
+
+    @contextmanager
+    def timeout(manager, minimum=None):
+        time = manager.get_remaining_planning_time()
+        if time != -1 and not minimum is None and time < minimum:
+            time = minimum
+        if time != -1 and time <= 0:
+            raise TimeoutError()
+        if time != -1:
+            # Register a function to raise a TimeoutError on the signal.
+            signal.signal(signal.SIGALRM, raise_timeout)
+            # Schedule the signal to be sent after ``time``.
+            signal.alarm(int(time+2)) # add some extra time 
+        timeout_error = False
+        try:
+            yield
+        except TimeoutError:
+            timeout_error = True
+        finally:
+            # Unregister the signal so it won't be triggered
+            # if the timeout is not reached.
+            if time != -1:
+                signal.signal(signal.SIGALRM, signal.SIG_IGN)
+            if timeout_error:
+                raise TimeoutError()
+
+except: # If the package signal cannot be imported
     
+    @contextmanager
+    def timeout(manager):
+        if manager.get_remaining_planning_time() != -1:
+            raise NotImplementedError("Time out is only supported on UNIX systems")
+        yield
+
+# End code for time out ###################################################################

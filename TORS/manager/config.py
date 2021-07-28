@@ -93,12 +93,15 @@ class Config(dict):
     __default_values__ = {
         "episode": {
             "n_runs": 1,
-            "max_trains": 1
+            "max_trains": 1,
+            "time_limit": -1,
+            "verbose": 1
         },
         "agent": {
             "planner": {
-                'class': 'planner.random_planner.RandomPlanner',
-                'seed': 42
+                "class": "planner.random_planner.RandomPlanner",
+                "seed": 42,
+                "verbose": 1
             } 
         }
     }
