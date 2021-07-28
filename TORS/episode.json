@@ -9,8 +9,7 @@
 		"class": "manager.scenario_generator.ScenarioGeneratorFromScenario",
 		"n_workers": 2,
 		"n_disturbances": 0,
-		"match_outgoing_trains": true,
-		"max_length": 1
+		"match_outgoing_trains": true
 	},
 	"tors.core.scenario.scenario_generator.ScenarioGeneratorFromScenario": {
 		"n_combinations": 100

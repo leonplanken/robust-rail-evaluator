@@ -1,4 +1,4 @@
-from pyTORS import InvalidActionError, ScenarioFailedError
+from pyTORS import ScenarioFailedError
 from manager.simulator import Simulator
 import importlib
 from time import time

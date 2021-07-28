@@ -1,7 +1,7 @@
 from planner.planner import Planner
-from pyTORS import BeginMoveAction, EndMoveAction, MoveAction, ArriveAction, ExitAction, \
+from pyTORS import BeginMoveAction, EndMoveAction, MoveAction, ArriveAction, ExitAction, ServiceAction, \
     WaitAction, SetbackAction, SplitAction, CombineAction, TrackPartType,\
-    State, Location, ShuntingUnit, Train, Incoming, Outgoing, Engine, Action, Track
+    State, Location, ShuntingUnit, Train, Incoming, Outgoing, Engine, Action, Track, Task
 import random
 from typing import List, Tuple, Type, Optional
 
@@ -57,7 +57,8 @@ class Plan:
             prev = state.get_position(su)
             pos = state.get_previous(su)
             for tr in su.trains:
-                self.trains[tr].update_current_state(prev, pos, su)
+                serv = state.get_tasks_for_train(tr)
+                self.trains[tr].update_current_state(prev, pos, serv, su)
         action_priority = sum([train_state.get_action_priority(state, actions) for train_state in self.trains.values()], [])
         action_priority = sorted(action_priority, key=lambda ap: ap[0], reverse=True)
         if(action_priority[0][0] == 0):
@@ -75,6 +76,7 @@ class TrainState:
         self.in_su = incoming.shunting_unit
         self.arrival_time = incoming.time
         self.outgoing = None
+        self.service_track = None
         self.end_track = None
         self.end_side_track = None
         self.end_su = None
@@ -89,10 +91,18 @@ class TrainState:
         self.out_su = outgoing.shunting_unit
         self.departure_time = outgoing.time
 
-    def update_current_state(self, previous: Track, position: Track, su: ShuntingUnit):
+    def update_current_state(self, previous: Track, position: Track, tasks: List[Task], su: ShuntingUnit):
         self.in_su = su
         self.begin_track = position
         self.begin_side_track = previous
+        if len(tasks) == 0:
+            self.service_track = None
+        else:
+            task = tasks[0]
+            for f in self.location.facilities:
+                if f.executes_task(task):
+                    self.service_track = f.tracks[0]
+                    break
         self.set_same_shunting_unit()
 
     def set_same_shunting_unit(self):
@@ -108,13 +118,26 @@ class TrainState:
                 prev = state.get_previous(su)
                 pos = state.get_position(su)
                 moving = state.is_moving(su)
+                if not self.service_track is None and pos == self.service_track:
+                    if moving: TrainState.add_action_if_found(actions, priority, 5, EndMoveAction, su)
+                    else: TrainState.add_action_if_found(actions, priority, 20, ServiceAction, su)
                 if pos == self.end_track and self.end_side_track in pos.get_next_track_parts(prev):
                     if moving: TrainState.add_action_if_found(actions, priority, 5, EndMoveAction, su)
                     else: TrainState.add_action_if_found(actions, priority, 100, ExitAction, su)
                 else:
                     if not moving: TrainState.add_action_if_found(actions, priority, 5, BeginMoveAction, su)
                     else:
-                        path = self.location.get_shortest_path(self.train.type, prev, pos, self.end_track.get_next_track_parts(self.end_side_track)[0], self.end_track)
+                        if not self.service_track is None:
+                            side_track1 = self.service_track.neighbors[0]
+                            side_track2 = self.service_track.neighbors[1]
+                            path1 = self.location.get_shortest_path(self.train.type, prev, pos, side_track1, self.service_track)
+                            path2 = self.location.get_shortest_path(self.train.type, prev, pos, side_track2, self.service_track)
+                            if path1.length > path2.length:
+                                path = path2
+                            else: path = path1
+                        else:
+                            side_track = self.end_track.get_next_track_parts(self.end_side_track)[0]
+                            path = self.location.get_shortest_path(self.train.type, prev, pos, side_track, self.end_track)
                         nextTrack = None
                         nextTrackPrev = pos
                         for track in path.route[1:]:
@@ -127,6 +150,7 @@ class TrainState:
                                 TrainState.add_action_if_found(actions, priority, 20, SetbackAction, su)   
                             else:
                                 TrainState.add_action_if_found(actions, priority, 20, MoveAction, su, track=nextTrack, prev=nextTrackPrev)   
+                
                 TrainState.add_action_if_found(actions, priority, 1, WaitAction, su)
         else:
             TrainState.add_action_if_found(actions, priority, 10, SplitAction, su)   

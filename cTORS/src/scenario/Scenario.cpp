@@ -180,7 +180,7 @@ void Scenario::PrintScenarioInfo() const {
 			cout << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " (" << out->GetShuntingUnit()->GetTrainString() << ") at " 
 				<< out->GetParkingTrack() << " to " << out->GetSideTrack();
 			if(out->IsInstanding())
-				cout << " (outstanding)";
+				cout << " (outstanding ix-" << to_string(out->GetStandingIndex()) << ")";
 			cout << endl;
 		}
 		cout << endl;
