@@ -41,7 +41,9 @@ class ScenarioGenerator(ABC):
     
     def match_trains(self, scenario: Scenario) -> None:
         if self.match_outgoing_trains:
-            _match_trains(scenario.incoming_trains, scenario.outgoing_trains)
+            incoming = [t for su in [incoming.shunting_unit for incoming in scenario.incoming_trains] for t in su.trains]
+            outgoing = [t for su in [outgoing.shunting_unit for outgoing in scenario.outgoing_trains] for t in su.trains]
+            _match_trains(incoming, outgoing)
         else:
             for o in scenario.outgoing_trains:
                 for tu in o.shunting_unit.trains:

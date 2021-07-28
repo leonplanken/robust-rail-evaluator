@@ -22,7 +22,7 @@ class Simulator:
             self.engine.end_session(self.state)
         del self.scenario
 
-        self.scenario = self.scenario_generator.generate_scenario()
+        self.scenario = self.scenario_generator.get_scenario()
         if self.config.verbose >= 1:
             self.scenario.print_scenario_info()
         self.state = self.engine.start_session(self.scenario)
