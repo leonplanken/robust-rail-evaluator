@@ -11,6 +11,8 @@ option(BUILD_DOC "Build documentation" ON)
 
 include(FetchContent)
 
+message(STATUS "------- Very First step -------")
+
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -31,22 +33,25 @@ endif()
 
 
 #Doxygen documentation generation (optional)
-if(BUILD_DOC)
-	find_package(Doxygen)
-	if (DOXYGEN_FOUND)
-	    message(STATUS "Doxygen build started")
-	    # note the option ALL which allows to build the docs together with the application
-	    add_custom_target( doc_doxygen ALL
-		COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
-		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-		COMMENT "Generating API documentation with Doxygen"
-		VERBATIM )
-	else (DOXYGEN_FOUND)
-	  message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
-	endif (DOXYGEN_FOUND)
-endif(BUILD_DOC)
+# if(BUILD_DOC)
+# 	find_package(Doxygen)
+# 	if (DOXYGEN_FOUND)
+# 	    message(STATUS "Doxygen build started")
+# 	    # note the option ALL which allows to build the docs together with the application
+# 	    add_custom_target( doc_doxygen ALL
+# 		COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+# 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+# 		COMMENT "Generating API documentation with Doxygen"
+# 		VERBATIM )
+# 	else (DOXYGEN_FOUND)
+# 	  message(STATUS "Doxygen need to be installed to generate the doxygen documentation")
+# 	endif (DOXYGEN_FOUND)
+# endif(BUILD_DOC)
 
 #Fetch the JSON library
+message(STATUS "------- First step -------")
+
+
 FetchContent_Declare(json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG v3.7.3)
@@ -56,6 +61,9 @@ if(NOT json_POPULATED)
   FetchContent_Populate(json)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+message(STATUS "------- Second step -------")
+
 
 # Headers
 set(PROJECT_SOURCE_DIR "src")
@@ -151,9 +159,45 @@ set(TORS_SOURCE_FILES
 )
 
 #Protobuf
+# include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
+# link_directories(/home/roland/anaconda3/envs/my_proto_env/lib)
+
+message(STATUS "------- Third step -------")
+
+set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
 find_package(Protobuf REQUIRED)
-set(PROTOS_DIR "../protos")
-set(PROTOBUF_IMPORT_DIRS ${PROTOS_DIR})
+
+# set(PROTOS_DIR "../protos")
+# set(PROTOBUF_IMPORT_DIRS ${PROTOS_DIR})
+
+message(STATUS "------- Fourth step -------")
+
+
+#Display the paths being used
+message(STATUS "********************************************************")
+
+message(STATUS "Using protoc executable: ${Protobuf_PROTOC_EXECUTABLE}")
+message(STATUS "Using protobuf library: ${Protobuf_LIBRARIES}")
+
+
+
+
+
+# set(Protobuf_PROTOC_EXECUTABLE "/home/roland/anaconda3/envs/my_proto_env/bin/protoc")
+# set(Protobuf_LIBRARIES "/home/roland/anaconda3/envs/my_proto_env/lib/libprotobuf.so")
+# set(Protobuf_INCLUDE_DIRS "/home/roland/anaconda3/envs/my_proto_env/include/google/protobuf")
+
+
+
+
+message(STATUS "********************************************************")
+
+message(STATUS "Using protoc executable: ${Protobuf_PROTOC_EXECUTABLE}")
+message(STATUS "Using protobuf library: ${Protobuf_LIBRARIES}")
+message(STATUS "Protobuf include directories: ${Protobuf_INCLUDE_DIRS}")
+include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
+set(PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS/protos")
+
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Utilities.proto
 
@@ -165,6 +209,10 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Run.proto
 	${PROTOS_DIR}/Plan.proto
 )
+
+message(STATUS "------- Fifth step -------")
+
+
 
 #python make docs
 set(Python3_FIND_STRATEGY LOCATION)
