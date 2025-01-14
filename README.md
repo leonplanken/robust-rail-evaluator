@@ -1,6 +1,43 @@
 # THIS REPOSITORY HAS BEEN MOVED TO https://github.com/AlgTUDelft/cTORS
 
 
+# Before build
+
+Create and activate a `conda` environment. 
+
+Create enc:
+```bash
+conda env create -f env.yml
+```
+
+Activate environment:
+```bash
+conda activate my_proto_env
+```
+
+In [CMakeLists.txt](./cTORS/CMakeLists.txt) modifiy
+```bash
+set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
+include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
+```
+to your path to the `my_proto_env` environment. And also the path to the protobufs to be compiled:
+
+```bash
+set(PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS/protos")
+```
+
+
+In [CMakeLists.txt](./pyTORS/CMakeLists.txt) modify the path:
+
+```bash
+set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
+```
+to your path to the `my_proto_env`. And the path to the `include` directory of your python library in the  `my_proto_env`:
+
+```bash
+include_directories("/home/roland/anaconda3/envs/my_proto_env/include/python3.8")
+```
+
 # Treinonderhoud- en -rangeersimulator (TORS)
 This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
 
