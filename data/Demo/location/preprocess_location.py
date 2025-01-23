@@ -100,6 +100,11 @@ class DynamicJSONGenerator:
                 {**self.default_distance_entry, **distance_entry}  # Only update missing keys, keep existing structure
                 for distance_entry in self.data["distanceEntries"]
             ]
+        
+        for track in self.data["trackParts"]:
+            if track["name"] == "Spoor906a":
+                track["length"] = 600
+
 
     def add_track_part(self, **kwargs):
         """Adds a track part to the data."""
