@@ -24,7 +24,7 @@ def sort_actions(actions):
 
             # Secondary sort: duration (if same starting time)
             return duration1 - duration2
-
+          
     # Implementing Bubble Sort (or any sorting algorithm)
         n = len(actions)
         for i in range(n):
@@ -345,7 +345,36 @@ class JSONGenerator:
         for _alpha_action in alpha_actions_ext:
             self.data["plan"]["actions"].append(_alpha_action)
         
+        alpha_actions_endtime = copy.deepcopy(alpha_actions_ext)
+        globalCounter_endTime = 0
+        for index, _alpha_action in enumerate(alpha_actions_ext):
+            if "taks" not in _alpha_action and "movement" in _alpha_action:
+                feseable = False
+                next_index = index
+                while feseable is not True:                        
+                    next_action = alpha_actions_ext[next_index]        
+                    if int(next_action["suggestedStartingTime"]) == int(_alpha_action["suggestedFinishingTime"]):
+                        feseable = True
+                        print(f'{_alpha_action} --- EndMove --- \n {next_action}')
+                        _actions = {
+                                "suggestedStartingTime": next_action["suggestedStartingTime"],
+                                "suggestedFinishingTime": next_action["suggestedStartingTime"],
+                                "trainUnitIds": next_action["trainUnitIds"],
+                                "task": { "type": { "predefined": "EndMove"}}
+                            }
+                        alpha_actions_endtime.insert(next_index+globalCounter_endTime, _actions)      
+                        globalCounter_endTime = globalCounter_endTime + 1  
+                    next_index = next_index + 1
+                    if next_index >= len(alpha_actions_ext):
+                        feseable = True
+                
+                #Check when next action can be inserted 
+                # when another action's suggestedStartingTime is equal to suggestedFinishingTime of the movement action 
         
+        self.data["plan"]["actions"].clear()
+        
+        for _alpha_action in alpha_actions_endtime:
+            self.data["plan"]["actions"].append(_alpha_action)
         # for _alpha_action in alpha_actions:
         #     self.data["plan"]["actions"].append(_alpha_action)
                                 
@@ -358,4 +387,4 @@ if __name__ == "__main__":
     generator = JSONGenerator(input_json_file=input_file)
     generator.createActions_inputJSON()
 
-    generator.save_json("generated_structure.json")
+    generator.save_json("generated_hip_plan.json")
