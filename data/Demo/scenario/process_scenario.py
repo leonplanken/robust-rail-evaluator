@@ -190,5 +190,5 @@ if __name__ == "__main__":
     generator.getTrainUnitTypes()
     generator.setStartEndTimes()
     
-    generator.save_json("generated_structure_bis.json")
+    generator.save_json("generated_main_cTORS.json")
     
