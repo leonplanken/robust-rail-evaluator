@@ -4,6 +4,9 @@
 #ifndef PLAN_H
 #define PLAN_H
 #include "Engine.h"
+#include "Utils.h"
+namespace fs = std::filesystem;
+
 
 class Engine;
 class LocationEngine;
@@ -45,6 +48,7 @@ public:
     void Serialize(const LocationEngine& engine, const State* state, PBAction* pb_action) const;
     /** Construct a POSAction from a protobuf action */
     static POSAction CreatePOSAction(const Location* location, const Scenario* scenario, const PBAction& pb_action);
+   
 };
 
 /**
@@ -134,8 +138,10 @@ public:
     static RunResult* CreateRunResult(const Engine& engine, const PBRun& pb_run);
     /** Construct a RunResult from a protobuf object by using the provided Location */
     static RunResult* CreateRunResult(const Location* location, const PBRun& pb_run);
+
 };
-
-
+    /** Read Plean from JSON and create protobuf fromat plan (run result)*/
+    /** Added on 27 January 2025, by R.G. Kromes - extentions for HIP - cTORS compatibility*/
+    void GetRunResultProto(string planFileString, PBRun &pb_runResult);
 
 #endif
