@@ -26,12 +26,20 @@ const string ServiceAction::toString() const {
 
 const Action* ServiceActionGenerator::Generate(const State* state, const SimpleAction& action) const {
 	auto service = static_cast<const Service*>(&action);
-	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());
+	auto su = state->GetShuntingUnitByTrainIDs(action.GetTrainIDs());	
 	if(su == nullptr) throw InvalidActionException("Shunting unit with trains " + Join(action.GetTrainIDs(), "-") + " not found");
 	auto train = su->GetTrainByID(service->GetTrain().GetID());
 	auto tasks = state->GetTasksForTrain(train);
 	auto& task = service->GetTask();
 	auto it = find(tasks.begin(), tasks.end(), task);
+	// Testing
+	// cout << "--------------------------------------------\n";
+	// cout << "					Tasks";
+	// cout << "--------------------------------------------\n";
+
+	// for(auto i=tasks.begin(); i!=tasks.end();  ++i)
+	// 	cout << *i << "\n";
+
 	if(it==tasks.end())
 		throw invalid_argument("The service task " + task.toString() + " for train " + train->toString() + " could not be found.");
 	auto facility = location->GetFacilityByID(service->GetFacilityID());
@@ -39,6 +47,7 @@ const Action* ServiceActionGenerator::Generate(const State* state, const SimpleA
 }
 
 void ServiceActionGenerator::Generate(const State* state, list<const Action*>& out) const {
+	cout << "Hi from here" << endl;
 	if(state->GetTime()==state->GetEndTime()) return;
 	for (const auto& [su, suState] : state->GetShuntingUnitStates()) {
 		if (suState.moving || suState.waiting || suState.HasActiveAction()) continue;
