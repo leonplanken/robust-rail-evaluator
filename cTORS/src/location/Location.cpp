@@ -1,4 +1,5 @@
 #include "Location.h"
+#define DEBUG 1
 #if DEBUG
 #include <chrono>
 #endif
@@ -205,6 +206,7 @@ void CalcPossiblePaths(const Location& location, unordered_map<pair<Position,Pos
 	visited[from] = false;
 }
 
+
 void Location::CalcAllPossiblePaths() {
 	if(possiblePaths.size() > 0) return;
 	#if DEBUG
@@ -238,6 +240,9 @@ void Location::CalcAllPossiblePaths() {
 
 }
 
+// TODO : check the exact path of neigbor paths
+// Probably a full path verification is needed the 'possibleMovements'
+// contains all the possible path from a given FromTrack to a destionation DestinationTrack
 const Path& Location::GetNeighborPath(const Position& from, const Track* destination) const {
 	auto& prev_list = from.first == nullptr ? from.second->GetNeighbors() : vector<const Track*>({from.first});
 	for(auto& prev: prev_list) {
