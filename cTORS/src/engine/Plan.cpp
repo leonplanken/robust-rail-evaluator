@@ -25,6 +25,8 @@ POSAction &POSAction::operator=(const POSAction &pa)
     return *this;
 }
 
+
+// Fixed to enable multi move actions
 POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *scenario, const PBAction &pb_action)
 {
     int suggestedStartingTime = pb_action.suggestedstartingtime();
