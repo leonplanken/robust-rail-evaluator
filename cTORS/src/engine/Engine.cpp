@@ -95,6 +95,21 @@ void LocationEngine::ApplyAction(State *state, const SimpleAction &action)
 	debug_out("\tApplying action 2nd" + action.toString());
 	const Action *_action = GenerateAction(state, action);
 
+	// if (const SplitAction *split_action = dynamic_cast<const SplitAction *>(_action))
+	// {
+	// 	cout << " Test - Split Acttion" << endl;
+	// 	auto suA = split_action->GetASideShuntingUnit();
+	// 	for (auto &tu : suA->GetTrains())
+	// 	{
+	// 		// Tasks per train ?
+	// 		cout << "TrainUnit" << tu << endl;
+	// 		for (const Task &task : state->GetTasksForTrain(&tu))
+	// 		{
+	// 			cout << task << endl;
+	// 		}
+	// 	}
+	// }
+
 	// Added by R.G.Kromes - 03/02/2025
 	// If the action is a service, it is checked if the sunting train contains multiple
 	// train units. In case of mutiple train units this part of the function esures that
@@ -104,37 +119,67 @@ void LocationEngine::ApplyAction(State *state, const SimpleAction &action)
 	// have been applied for multiple train units
 	if (const Service *s_action = dynamic_cast<const Service *>(&action)) // Check polymorphism is Service
 	{
-		list<const Action *> actions;
-		// <train_ID, actions[]>
+		cout << "START Revisit Modification" << endl;
+
+		auto _su = _action->GetShuntingUnit();
+
+		auto _suState = state->GetShuntingUnitState(_su);
+		auto tr = _suState.position;
+		auto &fas = tr->GetFacilities();
+
+		cout << _su << endl;
 		map<int, vector<const Action *>> action_per_tu;
-		for (const auto &[su, suState] : state->GetShuntingUnitStates())
+		for (auto &tu : _su->GetTrains())
 		{
-			if (suState.moving || suState.waiting || suState.HasActiveAction())
-				continue;
-			auto tr = suState.position;
-			auto &fas = tr->GetFacilities();
-			for (auto &tu : su->GetTrains())
+			cout << "TrainUnit" << tu << ": ";
+			for (const Task &task : state->GetTasksForTrain(&tu))
 			{
-				cout << "TrainUnit" << tu << ": ";
-				for (const Task &task : state->GetTasksForTrain(&tu))
+				cout << task << ": ";
+				for (auto fa : fas)
 				{
-						cout << task << ": ";
-
-						// cout << "alternative task: " <<  << endl;
-						for (auto fa : fas)
+						cout << " -> facility : " << fa;
+						if (static_cast<const Service *>(&action)->GetTask().toString() == task.toString())\
 						{
-							cout << " -> facility : " << fa;
-							const Action *sub_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, Service(su, task, tu, fa));
-							actions.push_back(sub_action);
-
-							if(static_cast<const Service *>(&action)->GetTask().toString() == task.toString())
-								action_per_tu[tu.GetID()].push_back(sub_action);
+							const Action *sub_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, Service(_su, task, tu, fa));
+							action_per_tu[tu.GetID()].push_back(sub_action);
 
 						}
-					cout << "" << endl;
 				}
+				cout << endl;
 			}
 		}
+		cout << "END Revisit Modification" << endl;
+
+		// list<const Action *> actions;
+		// // <train_ID, actions[]>
+		// map<int, vector<const Action *>> action_per_tu;
+		// for (const auto &[su, suState] : state->GetShuntingUnitStates())
+		// {
+		// 	if (suState.moving || suState.waiting || suState.HasActiveAction())
+		// 		continue;
+		// 	auto tr = suState.position;
+		// 	auto &fas = tr->GetFacilities();
+		// 	for (auto &tu : su->GetTrains())
+		// 	{
+		// 		cout << "TrainUnit" << tu << ": ";
+		// 		for (const Task &task : state->GetTasksForTrain(&tu))
+		// 		{
+		// 			cout << task << ": ";
+
+		// 			// cout << "alternative task: " <<  << endl;
+		// 			for (auto fa : fas)
+		// 			{
+		// 				cout << " -> facility : " << fa;
+		// 				const Action *sub_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, Service(su, task, tu, fa));
+		// 				actions.push_back(sub_action);
+
+		// 				if (static_cast<const Service *>(&action)->GetTask().toString() == task.toString())
+		// 					action_per_tu[tu.GetID()].push_back(sub_action);
+		// 			}
+		// 			cout << "" << endl;
+		// 		}
+		// 	}
+		// }
 		// cout << "Actions :" << endl;
 		// for (const Action *a : actions)
 		// {
@@ -161,12 +206,13 @@ void LocationEngine::ApplyAction(State *state, const SimpleAction &action)
 			}
 			catch (exception &e)
 			{
-				throw InvalidActionException("Error in applying action (" + _action->toString() + "): " + e.what());
+				throw InvalidActionException("Error in applying action (" + action.toString() + "): " + e.what());
 			}
 		}
 	}
 	else
 	{
+
 		auto is_valid = actionManager.IsValid(state, _action);
 		if (!is_valid.first)
 		{
