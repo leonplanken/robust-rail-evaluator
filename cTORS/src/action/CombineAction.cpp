@@ -35,6 +35,10 @@ const Action* CombineActionGenerator::Generate(const State* state, const SimpleA
     if(frontState.moving || rearState.moving 
         || (frontState.waiting && rearState.waiting))
         throw InvalidActionException("One of the shunting units is active");
+    // cout << ">>>> From Combine: " << endl;
+    // cout << "Front: " << frontSU << "Position: " << frontState.position << endl;
+    // cout << "Rear: " << rearSU << "Position: " << rearState.position <<  endl;   
+
     if(frontState.position != rearState.position)
         throw InvalidActionException("The two shunting units are not on the same track");
     if(!frontState.inNeutral && !rearState.inNeutral && frontState.previous != rearState.previous)
@@ -49,16 +53,38 @@ const Action* CombineActionGenerator::Generate(const State* state, const SimpleA
         throw InvalidActionException("The two shunting units are not next to each other");
     auto neutral = frontState.inNeutral && rearState.inNeutral;
     bool front = *frontState.frontTrain == frontTrains.at(0);
+
+    // cout << "Front trains: " << endl;
+    // for(auto &ft: frontTrains)
+    //     cout << ft << endl;
+
+    // cout << "rearTrains trains: " << endl;
+    // for(auto &rt: rearTrains)
+    //     cout << rt << endl;    
+
+    // cout << " A side front train ? " << front << endl;
+
+
     bool direction = track->IsASide(frontState.previous);
-    if(front == direction) {
+    // Add reversed condition by R.G.Kromes
+    // the order of trains metter in case of combination of trains
+    // the order has to follow the specifications decalred in the plan  
+    if(front != direction) {
         vector<Train> combinedTrains(rearTrains);
         combinedTrains.insert(combinedTrains.end(), frontTrains.begin(), frontTrains.end());
         ShuntingUnit combinedSU(frontSU->GetID(), combinedTrains);
+        // cout << "Combined Units: "<< combinedSU << endl; 
+        // for(auto id: combinedSU.GetTrainIDs())
+        //     cout << id << endl;
         return new CombineAction(frontSU, rearSU, combinedSU, track, duration, neutral, position);
     } else {
         vector<Train> combinedTrains(rearTrains.rbegin(), rearTrains.rend());
         combinedTrains.insert(combinedTrains.end(), frontTrains.rbegin(), frontTrains.rend());
         ShuntingUnit combinedSU(frontSU->GetID(), combinedTrains);
+
+        // cout << "Combined Units*: "<< combinedSU << endl;
+        // for(auto id: combinedSU.GetTrainIDs())
+        //     cout << id << endl;
         return new CombineAction(frontSU, rearSU, combinedSU, track, duration, neutral, position);
     }
 }
