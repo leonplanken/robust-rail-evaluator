@@ -4,7 +4,27 @@ const vector<Train> ConvertPBTrains(const PBList<PBTrainUnit>& trains) {
 	vector<Train> out;
 	for(auto& train: trains) {
 		out.push_back(Train(train));
+		
 	}
+	// Added by R.G.Kromes - 05/02/2025 : reverse the train unit orders, basically the order of front train 
+	// follows the logic - lastly added one is the front train e.g. in scenarion.json 
+	// [9404, 9404] -> front train is 9404
+	if(out.size() > 1)
+	{
+		vector<Train> copy_out(out);
+		int index=0;
+		for(auto t = copy_out.end()-1; t >= copy_out.begin(); --t){
+			out[index] = *t;
+			index++;
+		}
+	}
+
+	// cout << "Train->Check :" << endl;
+	// for(auto t: out)
+	// {	
+	// 	cout << t << endl;
+	// }
+
 	return out;
 }
 
@@ -21,7 +41,7 @@ void ShuntingUnit::UpdateValues() {
 		length += t.GetType()->length;
 		needsElectricity |= t.GetType()->needsElectricity;
 		trainString += (t.toString() + (first ? "" : "-"));
-		trainIDs.push_back(t.GetID());
+		trainIDs.push_back(t.GetID()); // Probably here
 	}
 }
 
