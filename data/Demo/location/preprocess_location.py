@@ -37,7 +37,7 @@ class DynamicJSONGenerator:
             "relatedTrackParts": [],
             "taskTypes": [],
             "simultaneousUsageCount": 0,
-            "timeWindow": {"start": 0, "end": 0}
+            "timeWindow": {"start": 0, "end": 100000}
         }
 
         self.default_distance_entry = {
