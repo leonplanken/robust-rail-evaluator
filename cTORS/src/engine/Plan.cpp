@@ -25,14 +25,14 @@ POSAction &POSAction::operator=(const POSAction &pa)
     return *this;
 }
 
-
 // Fixed to enable multi move actions
 POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *scenario, const PBAction &pb_action)
 {
     int suggestedStartingTime = pb_action.suggestedstartingtime();
     int suggestedEndingTime = pb_action.suggestedfinishingtime();
     int minDuration = pb_action.minimumduration();
-    vector<int> trainIDs = GetTrainIDs(pb_action.trainunitids());
+
+ 
     SimpleAction *action;
     // SimpleAction *mult_action;
 
@@ -41,13 +41,12 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
         auto track_id = *(pb_action.movement().path().end() - 1);
         const Track *destination = location->GetTrackByID(to_string(track_id));
         // action = new Move(trainIDs, destination); // TODO change to multi-move
-        
-        
+
         vector<int> trackIDs_mult(pb_action.movement().path().begin(), pb_action.movement().path().end());
 
         vector<string> tracks(trackIDs_mult.size());
         transform(trackIDs_mult.begin(), trackIDs_mult.end(), tracks.begin(), [](const int &s) -> string
-              { return to_string(s); });
+                  { return to_string(s); });
 
         action = new MultiMove(trainIDs, tracks);
     }
@@ -86,6 +85,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
             {
                 // TODO how is the split action defined in protobuf? Current implementation: store the IDs of the first train.
                 vector<int> firstTrainIDs = GetTrainIDs(pb_action.task().trainunitids());
+
                 int splitIndex = 1;
                 for (auto &id : firstTrainIDs)
                 {
@@ -155,7 +155,7 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
     {
         *(pb_action->add_trainunitids()) = to_string(t);
     }
-    if (instanceof <Move>(action))
+    if (instanceof<Move>(action))
     {
         debug_out("Serialize move action");
         auto move = dynamic_cast<const Move *>(action);
@@ -174,7 +174,7 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
         pb_move->set_toside(destination->IsASide(prev_destination) ? PBSide::A : PBSide::B);
         pb_move->set_order(0);
     }
-    else if (instanceof <Wait>(action))
+    else if (instanceof<Wait>(action))
     {
         auto pb_wait = pb_action->mutable_break_();
     }
@@ -182,7 +182,7 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
     {
         auto pb_task = pb_action->mutable_task();
         auto pb_task_type = pb_task->mutable_type();
-        if (instanceof <Service>(action))
+        if (instanceof<Service>(action))
         {
             auto service = dynamic_cast<const Service *>(action);
             auto facility = engine.GetLocation().GetFacilityByID(service->GetFacilityID());
@@ -192,7 +192,7 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
             pb_facility->set_id(facility->GetID());
             pb_task->add_trainunitids(to_string(service->GetTrain().GetID()));
         }
-        else if (instanceof <Split>(action))
+        else if (instanceof<Split>(action))
         {
             pb_task_type->set_predefined(PBPredefinedTaskType::Split);
             auto split = dynamic_cast<const Split *>(action);
@@ -204,7 +204,7 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
                 pb_task->add_trainunitids(to_string(split->GetTrainIDs().at(i)));
             }
         }
-        else if (instanceof <Combine>(action))
+        else if (instanceof<Combine>(action))
         {
             pb_task_type->set_predefined(PBPredefinedTaskType::Combine);
             auto combine = dynamic_cast<const Combine *>(action);
@@ -212,23 +212,23 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
             for (auto &t : combine->GetSecondTrainIDs())
                 pb_task->add_trainunitids(to_string(t));
         }
-        else if (instanceof <Setback>(action))
+        else if (instanceof<Setback>(action))
         {
             pb_task_type->set_predefined(PBPredefinedTaskType::Walking);
         }
-        else if (instanceof <Arrive>(action))
+        else if (instanceof<Arrive>(action))
         {
             pb_task_type->set_predefined(PBPredefinedTaskType::Arrive);
         }
-        else if (instanceof <Exit>(action))
+        else if (instanceof<Exit>(action))
         {
             pb_task_type->set_predefined(PBPredefinedTaskType::Exit);
         }
-        else if (instanceof <BeginMove>(action))
+        else if (instanceof<BeginMove>(action))
         {                                                                  // TEMP
             pb_task_type->set_predefined(PBPredefinedTaskType::BeginMove); // TEMP
         }
-        else if (instanceof <EndMove>(action))
+        else if (instanceof<EndMove>(action))
         {                                                                // TEMP
             pb_task_type->set_predefined(PBPredefinedTaskType::EndMove); // TEMP
         }
@@ -241,8 +241,10 @@ void POSAction::Serialize(const LocationEngine &engine, const State *state, PBAc
 
 POSPlan POSPlan::CreatePOSPlan(const Location *location, const Scenario *scenario, const PBPOSPlan &pb_plan)
 {
+
     vector<PBAction> pb_actions(pb_plan.actions().begin(), pb_plan.actions().end());
     vector<POSAction> actions;
+
     transform(pb_actions.begin(), pb_actions.end(), back_inserter(actions),
               [location, scenario](const PBAction &pba) -> const POSAction
               { return POSAction::CreatePOSAction(location, scenario, pba); });
@@ -263,26 +265,8 @@ void POSPlan::Serialize(LocationEngine &engine, const Scenario &scenario, PBPOSP
             debug_out("Finished Step Update [T=" + to_string(state->GetTime()) + "].");
             if (state->GetTime() >= it->GetSuggestedStart())
             {
-                // Check Exit method - testing purpose
-                // if (instanceof <Exit>(it->GetAction()))
-                // {
 
-                //     const SimpleAction *_simpleAction = it->GetAction(); // Assuming it->GetAction() returns a const SimpleAction*
-
-                //     // Use dynamic_cast to check if action is of type Exit
-                //     const Exit *exit_obj = dynamic_cast<const Exit *>(_simpleAction);
-
-                //     cout << "Exit at: " << exit_obj->GetOutgoingID() << "\n";
-
-                //     const Action *_action = engine.GenerateAction(state, *_simpleAction);
-
-                //     const ExitAction *_exitAction = dynamic_cast<const ExitAction *>(_action);
-
-                //     cout << "Exit at: (action) " << _exitAction->GetDestinationTrack()<< "\n";
-
-                // }
-
-                if (instanceof <Wait>(it->GetAction()))
+                if (instanceof<Wait>(it->GetAction()))
                 {
                     // Added by R.G. Kromes:
                     // needed to be able to apply wait action from HIP plans
@@ -292,7 +276,7 @@ void POSPlan::Serialize(LocationEngine &engine, const Scenario &scenario, PBPOSP
                     debug_out("Finish Serialize action");
                     // SKIP
                 }
-                else if (true || (! instanceof <BeginMove>(it->GetAction()) && ! instanceof <EndMove>(it->GetAction())))
+                else if (true || (!instanceof<BeginMove>(it->GetAction()) && !instanceof<EndMove>(it->GetAction())))
                 {
                     auto pb_action = pb_plan->add_actions();
                     debug_out("Serialize action");
@@ -359,16 +343,14 @@ void GetRunResultProto(string planFileString, PBRun &pb_runResult)
 {
     // PBRun pb_runResult2;
 
-
     parse_json_to_pb(fs::path(planFileString), &pb_runResult);
 
     if (!pb_runResult.IsInitialized() || pb_runResult.ByteSizeLong() == 0)
-	{
-		std::cerr << "RunResult Protobuf is empty or not initialized." << std::endl;
-	}
-	else
-	{
-		std::cout << "RunResult Protobuf has been initialized and may contain data." << std::endl;
-	}
-
+    {
+        std::cerr << "RunResult Protobuf is empty or not initialized." << std::endl;
+    }
+    else
+    {
+        std::cout << "RunResult Protobuf has been initialized and may contain data." << std::endl;
+    }
 }
