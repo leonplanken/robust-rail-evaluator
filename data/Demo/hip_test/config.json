@@ -201,7 +201,7 @@
                 "status": "OK"
             },
             "mandatory_service_task_rule": {
-                "on": true,
+                "on": false,
                 "soft": false,
                 "category": "Service",
                 "parameters": {},
