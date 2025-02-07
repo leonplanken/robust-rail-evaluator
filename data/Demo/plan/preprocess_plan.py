@@ -141,7 +141,7 @@ class JSONGenerator:
                     })
                     
                 elif specific_action == "Combine":
-                    _actions.update({"task":{"type":{"predefined":"Combine"}, "trainUnitIds":[_actions["trainUnitIds"]]}
+                    _actions.update({"task":{"type":{"predefined":"Combine"}, "trainUnitIds":_actions["trainUnitIds"]}
                     })    
                     
                 elif specific_action == "Wait":
@@ -160,7 +160,7 @@ class JSONGenerator:
                 _actions.update({"task":{"type":{"other": specific_action},
                                          "location":  action["location"],
                                          "facilities": facilityIds, 
-                                         "trainUnitIds":[_actions["trainUnitIds"]]}
+                                         "trainUnitIds":_actions["trainUnitIds"]}
                     })
             else:
                 specific_action = ""
@@ -346,35 +346,90 @@ class JSONGenerator:
             self.data["plan"]["actions"].append(_alpha_action)
         
         alpha_actions_endtime = copy.deepcopy(alpha_actions_ext)
-        globalCounter_endTime = 0
+        
+        numOfMove = 0
         for index, _alpha_action in enumerate(alpha_actions_ext):
-            if "taks" not in _alpha_action and "movement" in _alpha_action:
-                feseable = False
-                next_index = index
-                while feseable is not True:                        
-                    next_action = alpha_actions_ext[next_index]        
-                    if int(next_action["suggestedStartingTime"]) == int(_alpha_action["suggestedFinishingTime"]):
-                        feseable = True
-                        print(f'{_alpha_action} --- EndMove --- \n {next_action}')
-                        _actions = {
-                                "suggestedStartingTime": next_action["suggestedStartingTime"],
-                                "suggestedFinishingTime": next_action["suggestedStartingTime"],
-                                "trainUnitIds": next_action["trainUnitIds"],
-                                "task": { "type": { "predefined": "EndMove"}}
-                            }
-                        alpha_actions_endtime.insert(next_index+globalCounter_endTime, _actions)      
-                        globalCounter_endTime = globalCounter_endTime + 1  
-                    next_index = next_index + 1
-                    if next_index >= len(alpha_actions_ext):
-                        feseable = True
+            if "movement" in _alpha_action:
+                numOfMove = numOfMove + 1   
+        
+        moveCounter = 0
+        moveCounter_loop=0
+        globalCounter_endTime = 0
+        while(moveCounter<numOfMove):
+            for index, _alpha_action in enumerate(alpha_actions_ext):
+                if "movement" in _alpha_action:
+                    
+                    next_index = index + 1
+                    found = False
+                    
+                    while found is not True:
+                        next_action = alpha_actions_ext[next_index]
+                        if int(next_action["suggestedStartingTime"]) == int(_alpha_action["suggestedFinishingTime"]):
+                            if sorted(next_action["trainUnitIds"]) == sorted(_alpha_action["trainUnitIds"]):
+                                moveCounter_loop = moveCounter_loop + 1
+                                found = True
+                                _actions = {
+                                    "suggestedStartingTime": next_action["suggestedStartingTime"],
+                                    "suggestedFinishingTime": next_action["suggestedStartingTime"],
+                                    "trainUnitIds": next_action["trainUnitIds"],
+                                    "task": { "type": { "predefined": "EndMove"}}
+                                }
+                                alpha_actions_endtime.insert(next_index+globalCounter_endTime, _actions) 
+                                globalCounter_endTime = globalCounter_endTime + 1 
+                                break
+                        next_index = next_index + 1
+                        if next_index >= len(alpha_actions_ext):
+                            break
+                    
                 
-                #Check when next action can be inserted 
-                # when another action's suggestedStartingTime is equal to suggestedFinishingTime of the movement action 
+                
+                    moveCounter = moveCounter + 1
+        
+    
+        with open("tmp.json", 'w') as file:
+            json.dump(alpha_actions_ext, file, indent="\t")
+        
+            
+        # Merge Combines
+        alpha_actions_final = []
+        
+        num_actions = len(alpha_actions_endtime)
+        index = 0
+        while(index < num_actions):
+            _action_end = alpha_actions_endtime[index]
+            if "task" in _action_end:
+                specific_action = _action_end["task"]["type"]
+                if "predefined" in specific_action:
+                    if "Combine" in specific_action["predefined"]:
+                        next_combine_action = alpha_actions_endtime[index+1]
+                        new_combine_action = {"suggestedStartingTime": next_combine_action["suggestedStartingTime"],
+                                              "suggestedFinishingTime": next_combine_action["suggestedFinishingTime"],
+                                              "trainUnitIds": next_combine_action["trainUnitIds"],
+                                              "task":{
+                                                    "type":{"predefined":"Combine"}, 
+                                                    "trainUnitIds": _action_end["trainUnitIds"] + next_combine_action["trainUnitIds"]
+                                                    } 
+                                              }
+                        alpha_actions_final.append(new_combine_action)
+                        index = index + 2
+                    else:
+                        alpha_actions_final.append(_action_end)
+                        index = index + 1
+                else:
+                    alpha_actions_final.append(_action_end)
+                    index = index + 1       
+            else:
+                alpha_actions_final.append(_action_end)
+                index = index + 1
         
         self.data["plan"]["actions"].clear()
         
-        for _alpha_action in alpha_actions_endtime:
-            self.data["plan"]["actions"].append(_alpha_action)
+        
+        for _a_lpha_action in alpha_actions_final:
+            self.data["plan"]["actions"].append(_a_lpha_action)
+        
+        # for _a_lpha_action in alpha_actions_endtime:
+        #     self.data["plan"]["actions"].append(_a_lpha_action)
         # for _alpha_action in alpha_actions:
         #     self.data["plan"]["actions"].append(_alpha_action)
                                 
