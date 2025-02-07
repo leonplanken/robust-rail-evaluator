@@ -979,6 +979,18 @@
 			},
 			{
 				"suggestedStartingTime": "70842",
+				"suggestedFinishingTime": "70842",
+				"trainUnitIds": [
+					"2402"
+				],
+				"task": {
+					"type": {
+						"predefined": "EndMove"
+					}
+				}
+			},
+			{
+				"suggestedStartingTime": "70842",
 				"suggestedFinishingTime": "105330",
 				"minimumDuration": "34488",
 				"trainUnitIds": [
@@ -1069,6 +1081,18 @@
 						"53",
 						"38"
 					]
+				}
+			},
+			{
+				"suggestedStartingTime": "75432",
+				"suggestedFinishingTime": "75432",
+				"trainUnitIds": [
+					"9403"
+				],
+				"task": {
+					"type": {
+						"predefined": "EndMove"
+					}
 				}
 			},
 			{
@@ -1698,6 +1722,18 @@
 				}
 			},
 			{
+				"suggestedStartingTime": "89742",
+				"suggestedFinishingTime": "89742",
+				"trainUnitIds": [
+					"2401"
+				],
+				"task": {
+					"type": {
+						"predefined": "EndMove"
+					}
+				}
+			},
+			{
 				"suggestedStartingTime": "89610",
 				"suggestedFinishingTime": "89742",
 				"minimumDuration": "132",
@@ -1802,24 +1838,6 @@
 				"suggestedFinishingTime": "92820",
 				"minimumDuration": "180",
 				"trainUnitIds": [
-					"2401"
-				],
-				"task": {
-					"type": {
-						"predefined": "Combine"
-					},
-					"trainUnitIds": [
-						[
-							"2401"
-						]
-					]
-				}
-			},
-			{
-				"suggestedStartingTime": "92640",
-				"suggestedFinishingTime": "92820",
-				"minimumDuration": "180",
-				"trainUnitIds": [
 					"2403",
 					"2602"
 				],
@@ -1828,10 +1846,9 @@
 						"predefined": "Combine"
 					},
 					"trainUnitIds": [
-						[
-							"2403",
-							"2602"
-						]
+						"2401",
+						"2403",
+						"2602"	
 					]
 				}
 			},
@@ -1895,24 +1912,6 @@
 				"suggestedFinishingTime": "93690",
 				"minimumDuration": "180",
 				"trainUnitIds": [
-					"9403"
-				],
-				"task": {
-					"type": {
-						"predefined": "Combine"
-					},
-					"trainUnitIds": [
-						[
-							"9403"
-						]
-					]
-				}
-			},
-			{
-				"suggestedStartingTime": "93510",
-				"suggestedFinishingTime": "93690",
-				"minimumDuration": "180",
-				"trainUnitIds": [
 					"9402"
 				],
 				"task": {
@@ -1920,10 +1919,9 @@
 						"predefined": "Combine"
 					},
 					"trainUnitIds": [
-						[
+							"9403",
 							"9402"
 						]
-					]
 				}
 			},
 			{
@@ -2205,24 +2203,6 @@
 				"suggestedFinishingTime": "105510",
 				"minimumDuration": "180",
 				"trainUnitIds": [
-					"2402"
-				],
-				"task": {
-					"type": {
-						"predefined": "Combine"
-					},
-					"trainUnitIds": [
-						[
-							"2402"
-						]
-					]
-				}
-			},
-			{
-				"suggestedStartingTime": "105330",
-				"suggestedFinishingTime": "105510",
-				"minimumDuration": "180",
-				"trainUnitIds": [
 					"2601"
 				],
 				"task": {
@@ -2230,9 +2210,8 @@
 						"predefined": "Combine"
 					},
 					"trainUnitIds": [
-						[
-							"2601"
-						]
+						"2402",
+						"2601"
 					]
 				}
 			},
