@@ -32,7 +32,35 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
     int suggestedEndingTime = pb_action.suggestedfinishingtime();
     int minDuration = pb_action.minimumduration();
 
- 
+    // cout << "Test - trainUnitIDs" << endl;
+    auto &_pb_trainUnitIDs = pb_action.trainunitids();
+    // for (auto id = pb_action.trainunitids().begin(); id != pb_action.trainunitids().end(); ++id)
+    //     cout << *id << endl;
+
+    vector<int> trainIDs = GetTrainIDs(pb_action.trainunitids());
+
+    // cout << "Test - trainUnitIDs as vectors" << endl;
+    // for (auto id = trainIDs.begin(); id != trainIDs.end(); ++id)
+    //     cout << *id << endl;
+
+    // // Reverse trainIDs
+    // cout << "Test reverse - trainUnitIDs as vectors" << endl;
+
+    // vector<int> copy_trainIDs(trainIDs);
+    // int index = 0;
+
+    // for (auto it = copy_trainIDs.end() - 1; it >= copy_trainIDs.begin(); --it, ++index)
+    // {
+    //     trainIDs[index] = *it;
+    //     cout << trainIDs[index] << endl;
+    //     // pb_action.mutable_trainunitids(index) = *it;
+    // }
+
+    // cout << "New Train IDs in proto" << endl;
+    // vector<int> test_ids = GetTrainIDs(pb_action.trainunitids());
+    // for(auto i = test_ids.begin(); i != test_ids.end(); i++)
+    //     cout << *i << endl;
+
     SimpleAction *action;
     // SimpleAction *mult_action;
 
@@ -85,6 +113,16 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
             {
                 // TODO how is the split action defined in protobuf? Current implementation: store the IDs of the first train.
                 vector<int> firstTrainIDs = GetTrainIDs(pb_action.task().trainunitids());
+                
+                // vector<int> copy_firstTrainIDs(firstTrainIDs.end()-1, firstTrainIDs.begin());
+                
+                // int index = 0;
+                // for(auto id : copy_firstTrainIDs)
+                // {
+                //     firstTrainIDs[index] = id;
+                //     index++;
+                // }
+
 
                 int splitIndex = 1;
                 for (auto &id : firstTrainIDs)
