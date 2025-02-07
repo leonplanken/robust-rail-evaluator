@@ -37,16 +37,18 @@ def sort_actions(actions):
 
 
 class JSONGenerator:
-    def __init__(self, input_json_file: str):
+    def __init__(self, input_json_file: str, scenario_json_file: str):
         """
         Initialize the generator with an input JSON file.
         """
         self.input_file = input_json_file
         self.input_data = self.load_json(input_json_file)
 
+        self.scenario_data = self.load_json(scenario_json_file)
+        
         self.data = {
-            "location": "",
-            "scenario": {},
+            "location": ".",
+            "scenario": self.scenario_data,
             "plan": {},
         }
         
@@ -438,8 +440,10 @@ class JSONGenerator:
 if __name__ == "__main__":
     input_file = "plan_input.json"  # Path to the input JSON file
     output_file = "pland_output.json"  # Path to save the output JSON file
+    
+    scenario_file = "../scenario/scenario.json"
 
-    generator = JSONGenerator(input_json_file=input_file)
+    generator = JSONGenerator(input_json_file=input_file, scenario_json_file=scenario_file)
     generator.createActions_inputJSON()
 
     generator.save_json("generated_hip_plan.json")
