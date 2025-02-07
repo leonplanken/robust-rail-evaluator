@@ -386,8 +386,8 @@
 			],
 			"length": 600,
 			"name": "Spoor906a",
-			"sawMovementAllowed": false,
-			"parkingAllowed": false,
+			"sawMovementAllowed": true,
+			"parkingAllowed": true,
 			"isElectrified": true
 		},
 		{
@@ -1095,7 +1095,7 @@
 			"simultaneousUsageCount": 1,
 			"timeWindow": {
 				"start": 0,
-				"end": 0
+				"end": 100000
 			}
 		},
 		{
@@ -1108,7 +1108,7 @@
 			"simultaneousUsageCount": 1,
 			"timeWindow": {
 				"start": 0,
-				"end": 0
+				"end": 100000
 			}
 		},
 		{
@@ -1126,7 +1126,7 @@
 			"simultaneousUsageCount": 2,
 			"timeWindow": {
 				"start": 0,
-				"end": 0
+				"end": 100000
 			}
 		},
 		{
@@ -1146,7 +1146,7 @@
 			"simultaneousUsageCount": 1,
 			"timeWindow": {
 				"start": 0,
-				"end": 0
+				"end": 100000
 			}
 		},
 		{
@@ -1174,7 +1174,7 @@
 			"simultaneousUsageCount": 20,
 			"timeWindow": {
 				"start": 0,
-				"end": 0
+				"end": 100000
 			}
 		}
 	],
