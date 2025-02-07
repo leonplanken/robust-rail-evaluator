@@ -399,6 +399,7 @@ void State::PrintStateInfo() const {
 					cout << " ) -";
 				}
 				cout << "-> B";
+
 			}
 			cout << endl;
 		}
