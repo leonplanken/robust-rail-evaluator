@@ -92,6 +92,36 @@ docker build -t tors-base .
 docker run --network="host" --rm -it tors-base /bin/bash
 ```
 
+
+# Usage of sceneario, location and plan converters
+The sceneario, location and plan converters are used to convert HIP input files (scenarion, location) and results (plan - scheduling) to cTORS. This conversion allows cTORS to evaluate HIP plans. Converters:
+
+* [preprocess_location.py](/data/Demo/location/preprocess_location.py)
+* [process_scenario.py](/data/Demo/location/process_scenario.py)
+* [preprocess_plan.py](/data/Demo/plan/preprocess_plan.py)
+
+**Location conversion**
+In the code `input_location.json` specifies the HIP location file , which wll be converted into a cTORS enabled location file. 
+```bash
+cd data/Demo/location
+python3 process_scenario.py
+```
+
+**Scenario conversion**
+In the code `scenario_input.json` specifies the HIP scenario file , which wll be converted into a cTORS enabled scenario file. 
+```bash
+cd data/Demo/location
+python3 preprocess_location.py
+```
+
+**Plan conversion**
+In the code `plan_input.json` specifies the HIP plan file and `scenario.json` specifies the converted scenario file, which is also needed to create the plan. The HIP plan is converted into a cTORS enabled plan file. 
+```bash
+cd data/Demo/plan
+python3 preprocess_plan.py
+```
+
+
 # Basic usage
 
 ## Run the challenge environment
