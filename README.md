@@ -140,6 +140,12 @@ cd build/cTORSTest
 ./EngineTest
 ```
 
+In case of modification of the code, compile wiht: 
+
+```bash
+cd build
+cmake --build .
+```
 
 # Basic usage
 
