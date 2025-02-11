@@ -122,6 +122,25 @@ python3 preprocess_plan.py
 ```
 
 
+# Usage of the Plan evaluator
+This mode of the program is designed to evaluate the feasibility of different plans (shunting yard schedules). ***Current version is able to evaluate HIP issued plans***. 
+
+In [EngineTest.cpp](cTORSTest/EngineTest.cpp):
+
+* `LocationEngine engine(path)` - `path` specifies the path to the folder where the `location` and `scenario` files are stored. 
+
+* `engine.GetScenario(path+name)`- `path+name` specifies the path and file name to the `scenario` file.
+
+* `GetRunResultProto(path+name)` - `path+name` specifies the path and file name to the `plan` (JSON) file, that must be evaluated.
+
+Usage:
+
+```bash
+cd build/cTORSTest
+./EngineTest
+```
+
+
 # Basic usage
 
 ## Run the challenge environment
