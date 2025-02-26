@@ -15,7 +15,7 @@ void Track::AssignNeighbors(vector<const Track*> aside, vector<const Track*> bsi
 {
 	if (type == TrackPartType::Railroad && (aside.size() != 1 || bside.size() != 1))
 		throw InvalidLocationException("Track " + toString() + "(" + id + "): Railroad must have one track at each side");
-	if (type == TrackPartType::Bumper && (aside.size() != 1 ||  bside.size() != 0))
+	if (type == TrackPartType::Bumper && ((aside.size() != 1 &&  bside.size() != 1) || (aside.size() != 0 &&  bside.size() != 0)))
 		throw InvalidLocationException("Track " + toString() + "(" + id + "): Bumper must have one track at at most one side");
 	//write error functions for Switch, EnglishSwitch, HalfEnglishSwitch, InterSection, Building
 	aSides = aside;

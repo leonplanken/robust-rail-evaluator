@@ -139,7 +139,8 @@ void Scenario::ImportEmployees(const PBScenario &pb_scenario, const Location &lo
 
 template <class PBTrainGoal>
 TrainGoal *ImportTrainGoal(const Location &location, const PBTrainGoal &m, bool in, bool standing)
-{
+{	
+
 	TrainGoal *g = in ? static_cast<TrainGoal *>(new Incoming(m, standing)) : new Outgoing(m, standing);
 	string park = to_string(m.parkingtrackpart());
 	string side = to_string(m.sidetrackpart());
@@ -157,14 +158,26 @@ void Scenario::ImportShuntingUnits(const PBScenario &pb_scenario, const Location
 			TrainUnitType::types[tt->displayName] = tt;
 		}
 	}
+
 	for (auto &pb_in : pb_scenario.in())
+	{
 		incomingTrains.push_back(dynamic_cast<Incoming *>(ImportTrainGoal(location, pb_in, true, false)));
+	}
+	
 	for (auto &pb_in : pb_scenario.instanding())
 		incomingTrains.push_back(dynamic_cast<Incoming *>(ImportTrainGoal(location, pb_in, true, true)));
+	
+	
 	for (auto &pb_out : pb_scenario.out())
 		outgoingTrains.push_back(dynamic_cast<Outgoing *>(ImportTrainGoal(location, pb_out, false, false)));
+	
+
 	for (auto &pb_out : pb_scenario.outstanding())
 		outgoingTrains.push_back(dynamic_cast<Outgoing *>(ImportTrainGoal(location, pb_out, false, true)));
+
+
+	debug_out("finished loading ShuntingUnits from JSON");
+
 }
 
 void Scenario::Serialize(PBScenario *pb_scenario) const

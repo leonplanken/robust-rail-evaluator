@@ -1,6 +1,7 @@
 #include "ShuntingUnit.h"
 
 const vector<Train> ConvertPBTrains(const PBList<PBTrainUnit>& trains) {
+
 	vector<Train> out;
 	for(auto& train: trains) {
 		out.push_back(Train(train));
