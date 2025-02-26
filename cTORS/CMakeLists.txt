@@ -197,6 +197,7 @@ message(STATUS "Using protobuf library: ${Protobuf_LIBRARIES}")
 message(STATUS "Protobuf include directories: ${Protobuf_INCLUDE_DIRS}")
 include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
 set(PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS/protos")
+set(HIP_PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/protos/HIP_protos")
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Utilities.proto
@@ -208,7 +209,14 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/PartialOrderSchedule.proto
 	${PROTOS_DIR}/Run.proto
 	${PROTOS_DIR}/Plan.proto
+
+	${HIP_PROTOS_DIR}/HIP_Location.proto
+	${HIP_PROTOS_DIR}/HIP_Scenario.proto
+	${HIP_PROTOS_DIR}/HIP_Plan.proto
 )
+
+message(STATUS "------- Compiled HIP-based protobufs -------")
+
 
 message(STATUS "------- Fifth step -------")
 
