@@ -15,6 +15,10 @@
 #include "PartialOrderSchedule.pb.h"
 #include "Plan.pb.h"
 #include "Run.pb.h"
+
+#include "HIP_Location.pb.h"
+#include "HIP_Plan.pb.h"
+#include "HIP_Scenario.pb.h"
 //!\endcond
 using namespace std;
 
@@ -45,6 +49,28 @@ typedef proto_tors::TaskAction PBTaskAction;                    /**< The protobu
 typedef proto_tors::BreakAction PBBreakAction;                  /**< The protobuf wait action class */
 typedef proto_tors::POSPrecedenceConstraint PBPOSPrecedenceConstraint; /**< The protobuf POSPrecedenceConstraint class */
 typedef proto_tors::Run PBRun;                                  /**< The protobuf RunResult class */
+
+
+// HIP based protobuf types
+typedef HIP_protos::Scenario PB_HIP_Scenario;
+typedef HIP_protos::IncomingTrain PB_HIP_TrainGoal;
+typedef HIP_protos::ShuntingUnit PB_HIP_ShuntingUnit;
+
+typedef HIP_protos::TrainUnit PB_HIP_TrainUnit;
+typedef HIP_protos::TrainUnitType PB_HIP_TrainUnitType;
+typedef HIP_protos::TaskType PB_HIP_TaskType;
+typedef HIP_protos::PredefinedTaskType PB_HIP_PredefinedTaskType;
+typedef HIP_protos::TaskSpec PB_HIP_Task;
+
+typedef HIP_protos::Location PB_HIP_Location;
+typedef HIP_protos::Facility PB_HIP_Facility;
+typedef HIP_protos::TrackPart PB_HIP_Track;
+
+typedef HIP_protos::Plan PB_HIP_Plan;
+typedef HIP_protos::Action PB_HIP_Action;
+typedef HIP_protos::Resource PB_HIP_Recource;
+
+
 
 //!\cond NO_DOC
 typedef google::protobuf::uint64 UInt; 
