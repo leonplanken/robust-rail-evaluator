@@ -42,5 +42,9 @@ add_test(NAME RulesTest COMMAND RulesTest)
 add_executable(EngineTest EngineTest.cpp $<TARGET_OBJECTS:MainTest>)
 add_test(NAME EngineTest COMMAND EngineTest)
 
+add_executable(CompatibilityTest CompatibilityTest.cpp $<TARGET_OBJECTS:MainTest>)
+add_test(NAME CompatibilityTest COMMAND CompatibilityTest)
+
+
 file(COPY "../data" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

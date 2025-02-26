@@ -1,0 +1,55 @@
+#include "doctest/doctest.h"
+#include "Engine.h"
+
+
+#include <google/protobuf/util/json_util.h>
+
+namespace cTORSTest
+{
+
+    TEST_CASE("Scenario and Location Compatibility test") {
+
+        cout << "-------------------------------------------------------------------------------------------------" << endl;
+		cout << "											SCENARIO AND LOCATION TEST 										 ";
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test");
+
+		LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator");
+		
+        cout << "------------------------------------------------------" << endl;
+        cout << "               Location file loading is done" << endl; 
+        cout << "------------------------------------------------------" << endl;
+
+		// auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json");
+        auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/scenario.json");
+	// 	{
+	// 		Scenario sc2(sc1);
+	// 	}
+	// 	CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
+	// 	auto st1 = engine.StartSession(sc1);
+	// 	engine.EndSession(st1);
+	// 	CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
+	// 	for(int i=0; i<5; i++) {
+	// 		CAPTURE("Test " + to_string(i));
+	// 		Scenario sc3(sc1);
+	// 		auto st2 = engine.StartSession(sc3);
+	// 		engine.Step(st2);
+	// 		int counter = 0;
+	// 		while(true) {
+	// 			try{
+	// 				list<const Action*> &actions = engine.GetValidActions(st2);
+	// 				if(actions.size() == 0) break;
+	// 				auto it = actions.begin();
+	// 				advance(it, counter++ % actions.size());
+	// 				auto a = *it;
+	// 				engine.ApplyActionAndStep(st2, a);
+	// 			} catch(ScenarioFailedException& e) { break; }
+	// 		}
+	// 		engine.EndSession(st2);
+	// 		CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType()!=nullptr);
+	// 	}
+	
+    }
+
+
+}
