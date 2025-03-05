@@ -70,6 +70,8 @@ namespace cTORSTest
 		PB_HIP_Plan pb_hip_plan;
 		ParseHIP_PlanFromJson("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/hip_based_plan.json", pb_hip_plan);
 
-		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan);
+		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json", &location);
+		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
+
 	}
 }
