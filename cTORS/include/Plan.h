@@ -138,10 +138,22 @@ public:
     static RunResult* CreateRunResult(const Engine& engine, const PBRun& pb_run);
     /** Construct a RunResult from a protobuf object by using the provided Location */
     static RunResult* CreateRunResult(const Location* location, const PBRun& pb_run);
+    /** Construct a RunResult from a HIP protobuf object by using the provided Location
+     * Added on 27 of February 2025, by R.G. Kromes - extentions for HIP - cTORS compatibility*/
+    static RunResult* CreateRunResult(const PB_HIP_Plan& pb_hip_plan);
+    
+    static PBAction CreateBeginMoveAction(PB_HIP_Action &pb_hip_action);
+
+    static PBAction CreateEndMoveAction(PB_HIP_Action &pb_hip_action);
 
 };
-    /** Read Plean from JSON and create protobuf fromat plan (run result)*/
+    /** Read Plan from JSON and create protobuf fromat plan (run result)*/
     /** Added on 27 January 2025, by R.G. Kromes - extentions for HIP - cTORS compatibility*/
     void GetRunResultProto(string planFileString, PBRun &pb_runResult);
+
+    /** Read pure HIP Plan from JSON and create a HIP protobuf fromat plan*/
+    /** It is basically a JSON protobuf parser */
+    /** Added on 26 February 2025, by R.G. Kromes - extentions for HIP - cTORS compatibility*/
+    void ParseHIP_PlanFromJson(string planFileString, PB_HIP_Plan &pb_hip_plan);
 
 #endif
