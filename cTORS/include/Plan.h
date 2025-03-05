@@ -140,7 +140,7 @@ public:
     static RunResult* CreateRunResult(const Location* location, const PBRun& pb_run);
     /** Construct a RunResult from a HIP protobuf object by using the provided Location
      * Added on 27 of February 2025, by R.G. Kromes - extentions for HIP - cTORS compatibility*/
-    static RunResult* CreateRunResult(const PB_HIP_Plan& pb_hip_plan);
+    static RunResult* CreateRunResult(const PB_HIP_Plan& pb_hip_plan, string scenarioFileString, const Location *location);
     
     static PBAction CreateBeginMoveAction(PB_HIP_Action &pb_hip_action);
 

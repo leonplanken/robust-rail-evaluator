@@ -469,11 +469,11 @@ void sort_actions_helperfunction(vector<PBAction> &actions)
     }
 }
 
-RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan)
+RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string scenarioFileString, const Location *location)
 {
     PBRun pb_run;
 
-    PBPOSPlan pb_plan = pb_run.plan();
+    PBPOSPlan pb_plan;
 
     vector<PBAction> pb_actions;
 
@@ -697,17 +697,35 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan)
         // *pb_plan.add_actions() = action;
     }
 
-    string jsonResult;
-    google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(pb_plan, &jsonResult);
-    if (status.ok())
-    {
-        std::cout << "****JSON string: " << jsonResult << std::endl;
-    }
-    else
-    {
-        std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
-    }
-    return nullptr;
+    pb_run.mutable_plan()->CopyFrom(pb_plan);
+
+    // Create Scenario protobuf 
+
+    PBScenario pb_scenario;
+	parse_json_to_pb(fs::path(scenarioFileString), &pb_scenario);
+
+	// if (!pb_scenario.IsInitialized() || pb_scenario.ByteSizeLong() == 0)
+	// {
+	// 	std::cerr << "Protobuf is empty or not initialized." << std::endl;
+	// }
+	// else
+	// {
+	// 	std::cout << "Scenario protobuf has been initialized and may contain data." << std::endl;
+	// }
+
+    // Add scenario to the plan 
+    pb_run.mutable_scenario()->CopyFrom(pb_scenario);
+
+    // Add default location path to the plan
+    pb_run.set_location(".");
+
+    Scenario scenario = Scenario(scenarioFileString, *location);
+    POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_plan);
+    bool feasible = pb_run.feasible();
+
+
+    return new RunResult(location->GetLocationFilePath(), scenario, plan, feasible);
+    
 }
 
 void GetRunResultProto(string planFileString, PBRun &pb_runResult)
