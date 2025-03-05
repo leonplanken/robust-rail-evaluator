@@ -46,6 +46,7 @@ typedef proto_tors::Match PBMatch;                              /**< The protobu
 typedef proto_tors::Action PBAction;                            /**< The protobuf POSAction class */
 typedef proto_tors::MovementAction PBMovementAction;            /**< The protobuf movement action class */
 typedef proto_tors::TaskAction PBTaskAction;                    /**< The protobuf service action class */
+typedef proto_tors::FacilityInstance PBFacilityInstance;
 typedef proto_tors::BreakAction PBBreakAction;                  /**< The protobuf wait action class */
 typedef proto_tors::POSPrecedenceConstraint PBPOSPrecedenceConstraint; /**< The protobuf POSPrecedenceConstraint class */
 typedef proto_tors::Run PBRun;                                  /**< The protobuf RunResult class */
