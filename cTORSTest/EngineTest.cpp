@@ -31,7 +31,10 @@ namespace cTORSTest
 		}
 
 		PBRun pb_run_external;
-		GetRunResultProto("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/plan_bis.json", pb_run_external);
+		// GetRunResultProto("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/plan_bis.json", pb_run_external);
+
+		// Test embedded hip plan conversion
+		GetRunResultProto("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/plan_conv_from_hip.json", pb_run_external);
 
 		auto runResult_external = RunResult::CreateRunResult(&location, pb_run_external);
 		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
