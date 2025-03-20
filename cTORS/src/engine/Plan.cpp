@@ -28,6 +28,18 @@ POSAction &POSAction::operator=(const POSAction &pa)
 // Fixed to enable multi move actions
 POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *scenario, const PBAction &pb_action)
 {
+
+    string jsonResult;
+    google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(pb_action, &jsonResult);
+    if (status.ok())
+    {
+        std::cout << "CreatePOSAction - Action: " << jsonResult << std::endl;
+    }
+    else
+    {
+        std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+    }
+
     int suggestedStartingTime = pb_action.suggestedstartingtime();
     int suggestedEndingTime = pb_action.suggestedfinishingtime();
     int minDuration = pb_action.minimumduration();
@@ -107,6 +119,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 if (it == outgoingTrains.end())
                     throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
                 action = new Exit(trainIDs, (*it)->GetID());
+
                 break;
             }
             case PBPredefinedTaskType::Split:
@@ -132,7 +145,9 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                     int ix = it - trainIDs.begin();
                     splitIndex = ix + 1 > splitIndex ? ix + 1 : splitIndex;
                 }
+
                 action = new Split(trainIDs, splitIndex);
+
                 break;
             }
             case PBPredefinedTaskType::Combine:
@@ -140,6 +155,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 // TODO how is the combine action defined in protobuf? Current implementation: store the IDs of the second train.
                 auto secondTrainIDs = GetTrainIDs(pb_action.task().trainunitids());
                 action = new Combine(trainIDs, secondTrainIDs);
+
                 break;
             }
             case PBPredefinedTaskType::Walking:
@@ -282,9 +298,26 @@ POSPlan POSPlan::CreatePOSPlan(const Location *location, const Scenario *scenari
     vector<PBAction> pb_actions(pb_plan.actions().begin(), pb_plan.actions().end());
     vector<POSAction> actions;
 
+    for (PBAction _action : pb_actions)
+    {
+        string jsonResult;
+        google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(_action, &jsonResult);
+        if (status.ok())
+        {
+            std::cout << "Acction: " << jsonResult << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+        }
+    }
+
     transform(pb_actions.begin(), pb_actions.end(), back_inserter(actions),
               [location, scenario](const PBAction &pba) -> const POSAction
               { return POSAction::CreatePOSAction(location, scenario, pba); });
+
+    cout << " Until here " << endl;
+
     return POSPlan(actions);
 }
 
@@ -422,9 +455,8 @@ PBAction RunResult::CreateEndMoveAction(PB_HIP_Action &pb_hip_action)
     return PBaction;
 }
 
-
 // Compares two neighbooring action by their start time and duration
-// if result is positive than pb_action1 should be placed after pb_action2 in the 
+// if result is positive than pb_action1 should be placed after pb_action2 in the
 // actions vector
 int compare_helperfunction(PBAction pb_action1, PBAction pb_action2)
 {
@@ -666,7 +698,7 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
         PBAction PBaction = combine_actions[0];
         // Remove the first train unit id - the one which is the first unit
-        //to be combined with the rest
+        // to be combined with the rest
         PBaction.mutable_trainunitids()->Clear();
 
         PBTaskAction *task_action = PBaction.mutable_task();
@@ -678,7 +710,8 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             PBAction PBaction_other = combine_actions[i];
             auto &trainunits = PBaction_other.trainunitids();
 
-            for (auto &unit : trainunits){
+            for (auto &unit : trainunits)
+            {
                 task_action->add_trainunitids(unit);
                 PBaction.add_trainunitids(unit);
             }
@@ -689,7 +722,7 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     // Sort actions by start time and duration
     sort_actions_helperfunction(pb_actions);
 
-    // Add actions to plan 
+    // Add actions to plan
     for (auto &action : pb_actions)
     {
         PBAction *action_ = pb_plan.add_actions();
@@ -699,33 +732,35 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
     pb_run.mutable_plan()->CopyFrom(pb_plan);
 
-    // Create Scenario protobuf 
+    // Create Scenario protobuf
 
     PBScenario pb_scenario;
-	parse_json_to_pb(fs::path(scenarioFileString), &pb_scenario);
+    parse_json_to_pb(fs::path(scenarioFileString), &pb_scenario);
 
-	// if (!pb_scenario.IsInitialized() || pb_scenario.ByteSizeLong() == 0)
-	// {
-	// 	std::cerr << "Protobuf is empty or not initialized." << std::endl;
-	// }
-	// else
-	// {
-	// 	std::cout << "Scenario protobuf has been initialized and may contain data." << std::endl;
-	// }
+    // if (!pb_scenario.IsInitialized() || pb_scenario.ByteSizeLong() == 0)
+    // {
+    // 	std::cerr << "Protobuf is empty or not initialized." << std::endl;
+    // }
+    // else
+    // {
+    // 	std::cout << "Scenario protobuf has been initialized and may contain data." << std::endl;
+    // }
 
-    // Add scenario to the plan 
+    // Add scenario to the plan
     pb_run.mutable_scenario()->CopyFrom(pb_scenario);
 
     // Add default location path to the plan
     pb_run.set_location(".");
 
     Scenario scenario = Scenario(scenarioFileString, *location);
+
     POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_plan);
+
+    cout << " Until here " << endl;
+
     bool feasible = pb_run.feasible();
 
-
     return new RunResult(location->GetLocationFilePath(), scenario, plan, feasible);
-    
 }
 
 void GetRunResultProto(string planFileString, PBRun &pb_runResult)
