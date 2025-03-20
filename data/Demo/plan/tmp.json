@@ -1,0 +1,1576 @@
+[
+	{
+		"suggestedStartingTime": "36240",
+		"suggestedFinishingTime": "36240",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "36240",
+		"suggestedFinishingTime": "36240",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "36240",
+		"suggestedFinishingTime": "36750",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"2",
+				"56",
+				"1",
+				"55",
+				"19",
+				"54",
+				"0",
+				"65",
+				"32",
+				"66",
+				"6",
+				"68",
+				"5",
+				"67",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "36750",
+		"suggestedFinishingTime": "38850",
+		"minimumDuration": "2100",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "30",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"2403",
+				"2602"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "38850",
+		"suggestedFinishingTime": "38850",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "38850",
+		"suggestedFinishingTime": "39030",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"movement": {
+			"path": [
+				"30",
+				"60",
+				"4",
+				"59",
+				"28"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "39030",
+		"suggestedFinishingTime": "92640",
+		"minimumDuration": "53610",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "39540",
+		"suggestedFinishingTime": "39540",
+		"trainUnitIds": [
+			"2601"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "39540",
+		"suggestedFinishingTime": "39540",
+		"trainUnitIds": [
+			"2601"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "39540",
+		"suggestedFinishingTime": "40050",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"2601"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"2",
+				"56",
+				"1",
+				"55",
+				"19",
+				"54",
+				"0",
+				"65",
+				"32",
+				"66",
+				"6",
+				"68",
+				"5",
+				"67",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "40050",
+		"suggestedFinishingTime": "41250",
+		"minimumDuration": "1200",
+		"trainUnitIds": [
+			"2601"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "30",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"2601"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "41250",
+		"suggestedFinishingTime": "70170",
+		"minimumDuration": "28920",
+		"trainUnitIds": [
+			"2601"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "57600",
+		"suggestedFinishingTime": "57600",
+		"trainUnitIds": [
+			"2402"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "57600",
+		"suggestedFinishingTime": "57600",
+		"trainUnitIds": [
+			"2402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "57600",
+		"suggestedFinishingTime": "58110",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"2402"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"2",
+				"56",
+				"1",
+				"55",
+				"19",
+				"54",
+				"0",
+				"65",
+				"32",
+				"66",
+				"6",
+				"68",
+				"5",
+				"67",
+				"29"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "58110",
+		"suggestedFinishingTime": "59010",
+		"minimumDuration": "900",
+		"trainUnitIds": [
+			"2402"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "29",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"2402"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "59010",
+		"suggestedFinishingTime": "70170",
+		"minimumDuration": "11160",
+		"trainUnitIds": [
+			"2402"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "69720",
+		"suggestedFinishingTime": "69720",
+		"trainUnitIds": [
+			"9403",
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "69720",
+		"suggestedFinishingTime": "69720",
+		"trainUnitIds": [
+			"9403",
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "69720",
+		"suggestedFinishingTime": "70050",
+		"minimumDuration": "330",
+		"trainUnitIds": [
+			"9403",
+			"9404"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"39",
+				"70",
+				"18",
+				"48",
+				"16",
+				"51",
+				"31"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "70050",
+		"suggestedFinishingTime": "70170",
+		"minimumDuration": "120",
+		"trainUnitIds": [
+			"9403",
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "Split"
+			},
+			"trainUnitIds": [
+				"9403"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "70170",
+		"suggestedFinishingTime": "70170",
+		"trainUnitIds": [
+			"2402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "70170",
+		"suggestedFinishingTime": "70842",
+		"minimumDuration": "672",
+		"trainUnitIds": [
+			"2402"
+		],
+		"movement": {
+			"path": [
+				"29",
+				"67",
+				"5",
+				"68",
+				"33",
+				"68",
+				"5",
+				"67",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "70170",
+		"suggestedFinishingTime": "70842",
+		"minimumDuration": "672",
+		"trainUnitIds": [
+			"9403"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "70170",
+		"suggestedFinishingTime": "75432",
+		"minimumDuration": "5262",
+		"trainUnitIds": [
+			"9404"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "70170",
+		"suggestedFinishingTime": "105330",
+		"minimumDuration": "35160",
+		"trainUnitIds": [
+			"2601"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "70842",
+		"suggestedFinishingTime": "70842",
+		"trainUnitIds": [
+			"9403"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "70842",
+		"suggestedFinishingTime": "71712",
+		"minimumDuration": "870",
+		"trainUnitIds": [
+			"9403"
+		],
+		"movement": {
+			"path": [
+				"31",
+				"51",
+				"22",
+				"62",
+				"8",
+				"61",
+				"7",
+				"69",
+				"34",
+				"69",
+				"13",
+				"47",
+				"11",
+				"67",
+				"29"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "70842",
+		"suggestedFinishingTime": "105330",
+		"minimumDuration": "34488",
+		"trainUnitIds": [
+			"2402"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "71712",
+		"suggestedFinishingTime": "73932",
+		"minimumDuration": "2220",
+		"trainUnitIds": [
+			"9403"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "29",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"9403"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "73932",
+		"suggestedFinishingTime": "73932",
+		"trainUnitIds": [
+			"9403"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "73932",
+		"suggestedFinishingTime": "75432",
+		"minimumDuration": "1500",
+		"trainUnitIds": [
+			"9403"
+		],
+		"movement": {
+			"path": [
+				"29",
+				"67",
+				"5",
+				"68",
+				"33",
+				"68",
+				"12",
+				"47",
+				"14",
+				"61",
+				"8",
+				"62",
+				"22",
+				"51",
+				"31",
+				"51",
+				"16",
+				"48",
+				"18",
+				"70",
+				"20",
+				"52",
+				"21",
+				"53",
+				"38"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "75432",
+		"suggestedFinishingTime": "75432",
+		"trainUnitIds": [
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "75432",
+		"suggestedFinishingTime": "76122",
+		"minimumDuration": "690",
+		"trainUnitIds": [
+			"9404"
+		],
+		"movement": {
+			"path": [
+				"31",
+				"59",
+				"28",
+				"59",
+				"4",
+				"60",
+				"29"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "75432",
+		"suggestedFinishingTime": "93510",
+		"minimumDuration": "18078",
+		"trainUnitIds": [
+			"9403"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "76122",
+		"suggestedFinishingTime": "78342",
+		"minimumDuration": "2220",
+		"trainUnitIds": [
+			"9404"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "29",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"9404"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "78342",
+		"suggestedFinishingTime": "78342",
+		"trainUnitIds": [
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "78342",
+		"suggestedFinishingTime": "79182",
+		"minimumDuration": "840",
+		"trainUnitIds": [
+			"9404"
+		],
+		"movement": {
+			"path": [
+				"29",
+				"67",
+				"5",
+				"68",
+				"33",
+				"68",
+				"5",
+				"67",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "79182",
+		"suggestedFinishingTime": "86190",
+		"minimumDuration": "7008",
+		"trainUnitIds": [
+			"9404"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "80760",
+		"suggestedFinishingTime": "80760",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "80760",
+		"suggestedFinishingTime": "80760",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "80760",
+		"suggestedFinishingTime": "81270",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"8601"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"2",
+				"56",
+				"1",
+				"55",
+				"19",
+				"54",
+				"0",
+				"65",
+				"32",
+				"66",
+				"6",
+				"68",
+				"5",
+				"67",
+				"29"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "81270",
+		"suggestedFinishingTime": "84630",
+		"minimumDuration": "3360",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "29",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"8601"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "84630",
+		"suggestedFinishingTime": "85350",
+		"minimumDuration": "720",
+		"trainUnitIds": [
+			"8601"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "85020",
+		"suggestedFinishingTime": "85020",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "85020",
+		"suggestedFinishingTime": "85020",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "85020",
+		"suggestedFinishingTime": "85350",
+		"minimumDuration": "330",
+		"trainUnitIds": [
+			"9402"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"39",
+				"70",
+				"18",
+				"48",
+				"16",
+				"51",
+				"31"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "85350",
+		"suggestedFinishingTime": "85350",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "85350",
+		"suggestedFinishingTime": "85590",
+		"minimumDuration": "240",
+		"trainUnitIds": [
+			"8601"
+		],
+		"movement": {
+			"path": [
+				"29",
+				"67",
+				"5",
+				"68",
+				"33"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "85350",
+		"suggestedFinishingTime": "86700",
+		"minimumDuration": "1350",
+		"trainUnitIds": [
+			"9402"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "85590",
+		"suggestedFinishingTime": "104040",
+		"minimumDuration": "18450",
+		"trainUnitIds": [
+			"8601"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "86190",
+		"suggestedFinishingTime": "86190",
+		"trainUnitIds": [
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "86190",
+		"suggestedFinishingTime": "86700",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"9404"
+		],
+		"movement": {
+			"path": [
+				"30",
+				"67",
+				"5",
+				"68",
+				"6",
+				"66",
+				"32",
+				"65",
+				"0",
+				"54",
+				"19",
+				"55",
+				"1",
+				"56",
+				"2",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "86700",
+		"suggestedFinishingTime": "86700",
+		"trainUnitIds": [
+			"9404"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "86700",
+		"suggestedFinishingTime": "86700",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "86700",
+		"suggestedFinishingTime": "87390",
+		"minimumDuration": "690",
+		"trainUnitIds": [
+			"9402"
+		],
+		"movement": {
+			"path": [
+				"31",
+				"59",
+				"28",
+				"59",
+				"4",
+				"60",
+				"29"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "87390",
+		"suggestedFinishingTime": "89610",
+		"minimumDuration": "2220",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "29",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"9402"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "87540",
+		"suggestedFinishingTime": "87540",
+		"trainUnitIds": [
+			"2401"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "87540",
+		"suggestedFinishingTime": "87540",
+		"trainUnitIds": [
+			"2401"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "87540",
+		"suggestedFinishingTime": "88050",
+		"minimumDuration": "510",
+		"trainUnitIds": [
+			"2401"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"2",
+				"56",
+				"1",
+				"55",
+				"19",
+				"54",
+				"0",
+				"65",
+				"32",
+				"66",
+				"6",
+				"68",
+				"5",
+				"67",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "88050",
+		"suggestedFinishingTime": "88950",
+		"minimumDuration": "900",
+		"trainUnitIds": [
+			"2401"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "30",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"2401"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "88950",
+		"suggestedFinishingTime": "88950",
+		"trainUnitIds": [
+			"2401"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "88950",
+		"suggestedFinishingTime": "89742",
+		"minimumDuration": "792",
+		"trainUnitIds": [
+			"2401"
+		],
+		"movement": {
+			"path": [
+				"30",
+				"67",
+				"11",
+				"47",
+				"13",
+				"69",
+				"34",
+				"69",
+				"7",
+				"61",
+				"8",
+				"62",
+				"22",
+				"51",
+				"31",
+				"59",
+				"28"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "89610",
+		"suggestedFinishingTime": "89742",
+		"minimumDuration": "132",
+		"trainUnitIds": [
+			"9402"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "89742",
+		"suggestedFinishingTime": "89742",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "89742",
+		"suggestedFinishingTime": "91242",
+		"minimumDuration": "1500",
+		"trainUnitIds": [
+			"9402"
+		],
+		"movement": {
+			"path": [
+				"29",
+				"67",
+				"11",
+				"47",
+				"13",
+				"69",
+				"34",
+				"69",
+				"7",
+				"61",
+				"8",
+				"62",
+				"22",
+				"51",
+				"31",
+				"51",
+				"16",
+				"48",
+				"18",
+				"70",
+				"20",
+				"52",
+				"21",
+				"53",
+				"38"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "89742",
+		"suggestedFinishingTime": "92640",
+		"minimumDuration": "2898",
+		"trainUnitIds": [
+			"2401"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "91242",
+		"suggestedFinishingTime": "93510",
+		"minimumDuration": "2268",
+		"trainUnitIds": [
+			"9402"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "92640",
+		"suggestedFinishingTime": "92820",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"2401"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"2401"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "92640",
+		"suggestedFinishingTime": "92820",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"2403",
+				"2602"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "92820",
+		"suggestedFinishingTime": "92820",
+		"trainUnitIds": [
+			"2401",
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "92820",
+		"suggestedFinishingTime": "93060",
+		"minimumDuration": "240",
+		"trainUnitIds": [
+			"2401",
+			"2403",
+			"2602"
+		],
+		"movement": {
+			"path": [
+				"28",
+				"59",
+				"31",
+				"51",
+				"16",
+				"48",
+				"18",
+				"70",
+				"39",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "93240",
+		"suggestedFinishingTime": "93240",
+		"trainUnitIds": [
+			"2401",
+			"2403",
+			"2602"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "93510",
+		"suggestedFinishingTime": "93690",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"9403"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"9403"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "93510",
+		"suggestedFinishingTime": "93690",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"9402"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "93690",
+		"suggestedFinishingTime": "93690",
+		"trainUnitIds": [
+			"9403",
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "93690",
+		"suggestedFinishingTime": "93720",
+		"minimumDuration": "30",
+		"trainUnitIds": [
+			"9403",
+			"9402"
+		],
+		"movement": {
+			"path": [
+				"38",
+				"56",
+				"2",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "93900",
+		"suggestedFinishingTime": "93900",
+		"trainUnitIds": [
+			"9403",
+			"9402"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "94800",
+		"suggestedFinishingTime": "94800",
+		"trainUnitIds": [
+			"9401"
+		],
+		"task": {
+			"type": {
+				"predefined": "Arrive"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "94800",
+		"suggestedFinishingTime": "94800",
+		"trainUnitIds": [
+			"9401"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "94800",
+		"suggestedFinishingTime": "95760",
+		"minimumDuration": "960",
+		"trainUnitIds": [
+			"9401"
+		],
+		"movement": {
+			"path": [
+				"25",
+				"58",
+				"3",
+				"57",
+				"39",
+				"70",
+				"18",
+				"48",
+				"16",
+				"51",
+				"31",
+				"59",
+				"28",
+				"59",
+				"4",
+				"60",
+				"30"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "95760",
+		"suggestedFinishingTime": "97980",
+		"minimumDuration": "2220",
+		"trainUnitIds": [
+			"9401"
+		],
+		"task": {
+			"type": {
+				"other": "inwendige_reiniging"
+			},
+			"location": "30",
+			"facilities": [
+				{
+					"id": "73"
+				}
+			],
+			"trainUnitIds": [
+				"9401"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "97980",
+		"suggestedFinishingTime": "101100",
+		"minimumDuration": "3120",
+		"trainUnitIds": [
+			"9401"
+		],
+		"break": {}
+	},
+	{
+		"suggestedStartingTime": "101100",
+		"suggestedFinishingTime": "101100",
+		"trainUnitIds": [
+			"9401"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "101100",
+		"suggestedFinishingTime": "102060",
+		"minimumDuration": "960",
+		"trainUnitIds": [
+			"9401"
+		],
+		"movement": {
+			"path": [
+				"30",
+				"60",
+				"4",
+				"59",
+				"28",
+				"59",
+				"31",
+				"51",
+				"16",
+				"48",
+				"18",
+				"70",
+				"39",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "102060",
+		"suggestedFinishingTime": "102060",
+		"trainUnitIds": [
+			"9401"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "104040",
+		"suggestedFinishingTime": "104040",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "104040",
+		"suggestedFinishingTime": "104400",
+		"minimumDuration": "360",
+		"trainUnitIds": [
+			"8601"
+		],
+		"movement": {
+			"path": [
+				"33",
+				"63",
+				"9",
+				"64",
+				"10",
+				"65",
+				"0",
+				"54",
+				"19",
+				"55",
+				"1",
+				"56",
+				"2",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "104400",
+		"suggestedFinishingTime": "104400",
+		"trainUnitIds": [
+			"8601"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "105330",
+		"suggestedFinishingTime": "105510",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"2402"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"2402"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "105330",
+		"suggestedFinishingTime": "105510",
+		"minimumDuration": "180",
+		"trainUnitIds": [
+			"2601"
+		],
+		"task": {
+			"type": {
+				"predefined": "Combine"
+			},
+			"trainUnitIds": [
+				"2601"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "105510",
+		"suggestedFinishingTime": "105510",
+		"trainUnitIds": [
+			"2402",
+			"2601"
+		],
+		"task": {
+			"type": {
+				"predefined": "BeginMove"
+			}
+		}
+	},
+	{
+		"suggestedStartingTime": "105510",
+		"suggestedFinishingTime": "105840",
+		"minimumDuration": "330",
+		"trainUnitIds": [
+			"2402",
+			"2601"
+		],
+		"movement": {
+			"path": [
+				"30",
+				"67",
+				"5",
+				"68",
+				"6",
+				"66",
+				"32",
+				"65",
+				"0",
+				"54",
+				"19",
+				"55",
+				"1",
+				"56",
+				"2",
+				"57",
+				"3",
+				"58",
+				"25"
+			]
+		}
+	},
+	{
+		"suggestedStartingTime": "106020",
+		"suggestedFinishingTime": "106020",
+		"trainUnitIds": [
+			"2402",
+			"2601"
+		],
+		"task": {
+			"type": {
+				"predefined": "Exit"
+			}
+		}
+	}
+]
