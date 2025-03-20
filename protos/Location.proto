@@ -1,11 +1,6 @@
-// This program has been developed by students from the bachelor Computer Science at Utrecht University within the Software and Game project course 2016 semester 2 & 2017 semester 2
-// ©Copyright Utrecht University (Department of Information and Computing Sciences)
-
-
 syntax = "proto3";
 
 package proto_tors;
-
 import "Utilities.proto";
 
 // A Location contains the part of the problem specification which is "fixed",
@@ -66,6 +61,7 @@ message Facility {
     uint32 simultaneousUsageCount = 5;
 
     // The time interval during which the facility can be used
+    
     TimeInterval timeWindow = 6;
 }
 
