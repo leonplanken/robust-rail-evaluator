@@ -3,6 +3,25 @@
 
 # Before build
 
+Other dependencies to install:
+
+```bash
+sudo apt update
+
+sudo apt install gcc-9
+
+sudo apt install g++-9
+
+```
+If **error**: `No CMAKE_CXX_COMPILER could be found`
+
+```bash
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
+sudo update-alternatives --config g++
+```
+Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
+
+
 Create and activate a `conda` environment. 
 
 Create enc:
