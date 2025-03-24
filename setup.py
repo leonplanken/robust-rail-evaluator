@@ -3,6 +3,9 @@ import re
 import sys
 import platform
 import subprocess
+# import argparse
+
+
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -13,6 +16,7 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+
 
 
 class CMakeBuild(build_ext):
@@ -28,6 +32,14 @@ class CMakeBuild(build_ext):
             if cmake_version < '3.1.0':
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
+        
+        conda_env = os.environ.get("CONDA_PREFIX")  # Get active Conda environment path
+
+        if not conda_env:
+            print("Warning: No Conda environment detected! Using system Python.")
+        else:
+            print(f"Detected Conda environment: {conda_env}")
+        
         for ext in self.extensions:
             self.build_extension(ext)
 
@@ -36,10 +48,16 @@ class CMakeBuild(build_ext):
         # required for auto-detection of auxiliary "native" libs
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
-
+        
+        
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable]
 
+        conda_env = os.environ.get("CONDA_PREFIX")  # Get active Conda environment path
+        
+        # Adds the root path to the conda environment 
+        cmake_args+= ['-DCONDA_ENV=' + conda_env]
+        
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
 

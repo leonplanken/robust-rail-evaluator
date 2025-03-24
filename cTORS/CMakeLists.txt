@@ -158,13 +158,14 @@ set(TORS_SOURCE_FILES
 	${TORS_HEADER_FILES}
 )
 
-#Protobuf
-# include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
-# link_directories(/home/roland/anaconda3/envs/my_proto_env/lib)
-
 message(STATUS "------- Third step -------")
 
-set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
+set(CONDA_ENV "" CACHE PATH "Path to Conda environment")
+
+
+set(CMAKE_PREFIX_PATH "${CONDA_ENV}")
+message(STATUS "Using conda environment: ${CONDA_ENV}")
+
 find_package(Protobuf REQUIRED)
 
 # set(PROTOS_DIR "../protos")
@@ -179,25 +180,16 @@ message(STATUS "********************************************************")
 message(STATUS "Using protoc executable: ${Protobuf_PROTOC_EXECUTABLE}")
 message(STATUS "Using protobuf library: ${Protobuf_LIBRARIES}")
 
-
-
-
-
-# set(Protobuf_PROTOC_EXECUTABLE "/home/roland/anaconda3/envs/my_proto_env/bin/protoc")
-# set(Protobuf_LIBRARIES "/home/roland/anaconda3/envs/my_proto_env/lib/libprotobuf.so")
-# set(Protobuf_INCLUDE_DIRS "/home/roland/anaconda3/envs/my_proto_env/include/google/protobuf")
-
-
-
-
 message(STATUS "********************************************************")
 
 message(STATUS "Using protoc executable: ${Protobuf_PROTOC_EXECUTABLE}")
 message(STATUS "Using protobuf library: ${Protobuf_LIBRARIES}")
 message(STATUS "Protobuf include directories: ${Protobuf_INCLUDE_DIRS}")
-include_directories("/home/roland/anaconda3/envs/my_proto_env/include")
-set(PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS/protos")
-# set(HIP_PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/protos/HIP_protos")
+include_directories("${CONDA_ENV}/include")
+set(PROTOS_DIR "${CMAKE_SOURCE_DIR}/protos")
+
+message(STATUS "Protobufs directory: ${PROTOS_DIR}")
+
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 	${PROTOS_DIR}/Utilities.proto

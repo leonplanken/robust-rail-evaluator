@@ -1,7 +1,7 @@
 # THIS REPOSITORY HAS BEEN MOVED TO https://github.com/AlgTUDelft/cTORS
 
 
-# Before build
+# Before build on Linux
 
 Other dependencies to install:
 
@@ -22,9 +22,52 @@ sudo update-alternatives --config g++
 Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
 
 
-Create and activate a `conda` environment. 
 
-Create enc:
+# Before build on macOS
+If `wget` is not installed yet:
+```bash
+brew install wget
+```
+
+Install `gcc-9`
+```bash
+brew install gcc@9
+```
+
+Try if linking to gcc and g++ are done:
+
+```bash
+gcc-9 --version
+g++-9 --version
+```
+If terminal shows similar to:
+```bash
+gcc version 9.5.0 (Homebrew GCC 9.50)
+```
+Than nothing else to do. Otherwise open `.zshrc`:
+
+(Example open with VS Code)
+```bash
+open ~\.shrc
+```
+Add aliases:
+
+```bash
+alias gcc="gcc-9"
+alias g++="g++-9"
+```
+
+Restart Terminal. 
+
+#### Important !
+If you want to use other g++, gcc compilers for other project, do not forget to remove the aliases for `.zshrc`.
+
+
+
+
+**Create and activate a `conda` environment.**
+
+Create env:
 ```bash
 conda env create -f env.yml
 ```
@@ -32,29 +75,6 @@ conda env create -f env.yml
 Activate environment:
 ```bash
 conda activate my_proto_env
-```
-
-In [CMakeLists.txt](./cTORS/CMakeLists.txt) modifiy
-```bash
-set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
-include_directories(/home/roland/anaconda3/envs/my_proto_env/include)
-```
-to your path to the `my_proto_env` environment. And also the path to the protobufs to be compiled:
-
-```bash
-set(PROTOS_DIR "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS/protos")
-```
-
-
-In [CMakeLists.txt](./pyTORS/CMakeLists.txt) modify the path:
-
-```bash
-set(CMAKE_PREFIX_PATH "/home/roland/anaconda3/envs/my_proto_env")
-```
-to your path to the `my_proto_env`. And the path to the `include` directory of your python library in the  `my_proto_env`:
-
-```bash
-include_directories("/home/roland/anaconda3/envs/my_proto_env/include/python3.8")
 ```
 
 # Treinonderhoud- en -rangeersimulator (TORS)
@@ -96,10 +116,11 @@ python setup.py install
 
 ### Compile cTORS from C++ source
 In the source directory execute the following commands:
-```sh
+**Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
+```bash
 mkdir build
 cd build
-cmake ..
+cmake .. -DCONDA_ENV="path/to/conda_env
 cmake --build .
 ```
 This has been tested with gcc 9.3. Older versions may not support the c++17 standard. 
