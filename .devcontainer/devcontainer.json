@@ -1,0 +1,16 @@
+{
+    "name": "cTORS_container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceFolder": "/workspace",
+    "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cpptools-themes"
+    ],
+    "mounts": [
+        "source=.,target=/workspace,type=bind"
+    ]
+}
