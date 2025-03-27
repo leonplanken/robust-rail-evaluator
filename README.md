@@ -1,7 +1,38 @@
 # THIS REPOSITORY HAS BEEN MOVED TO https://github.com/AlgTUDelft/cTORS
 
 
-# Before build on Linux
+# Treinonderhoud- en -rangeersimulator (TORS)
+This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
+
+## Project setup
+The basic project setup uses the structure provided by cmake. The subfolders are subprojects:
+* cTORS: The c++ implementation of TORS
+* cTORSTest: The tests for cTORS
+* pyTORS: The python interface for cTORS
+* TORS: The challenge environment, in python
+
+
+# Native support
+* Linux [YES]
+* macOS [NO] - via Dev-Container/Docker [YES]
+* Winfows [NO] - via Dev-Container Docker [YES]
+
+# Note:
+The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also avalable in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
+
+(*) With gcc@9 Homebrew protobufer native libraries must be modified wichi is not a good practice
+(*) With llvm Homebrew installation basic C Test filse cannot be compiled on Intel-based mac systems
+(*) Compile process is sucessfull under native clang (14), however, SIGILL - illegal instruction signal errors can happen during the tool's execution.  
+ 
+
+
+# Build process - Native Linux
+
+## Install dependencies 
+### Install gcc
+The following section explains how to compile this source code
+
+Before build on Linux - Native support
 
 Other dependencies to install:
 
@@ -21,51 +52,26 @@ sudo update-alternatives --config g++
 ```
 Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
 
-
-
-# Before build on macOS
-If `wget` is not installed yet:
-```bash
-brew install wget
+### Install Cmake and Python development libraries
+To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
+```
+apt-get install cmake
+apt-get install python3-dev
 ```
 
-Install `gcc-9`
-```bash
-brew install gcc@9
-```
-
-Try if linking to gcc and g++ are done:
+### Install anaconda3
 
 ```bash
-gcc-9 --version
-g++-9 --version
-```
-If terminal shows similar to:
-```bash
-gcc version 9.5.0 (Homebrew GCC 9.50)
-```
-Than nothing else to do. Otherwise open `.zshrc`:
+wget https://repo.anaconda.com/archive/Anaconda3-2024.06-1-Linux-x86_64.sh
+bash Anaconda3-2024.06-1-Linux-x86_64.sh
 
-(Example open with VS Code)
-```bash
-open ~\.shrc
-```
-Add aliases:
-
-```bash
-alias gcc="gcc-9"
-alias g++="g++-9"
+sudo rm Anaconda3-2024.06-1-Linux-x86_64.sh
+conda init
 ```
 
-Restart Terminal. 
-
-#### Important !
-If you want to use other g++, gcc compilers for other project, do not forget to remove the aliases for `.zshrc`.
 
 
-
-
-**Create and activate a `conda` environment.**
+### Create and activate a `conda` environment
 
 Create env:
 ```bash
@@ -76,35 +82,6 @@ Activate environment:
 ```bash
 conda activate my_proto_env
 ```
-
-# Treinonderhoud- en -rangeersimulator (TORS)
-This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
-
-## Project setup
-The basic project setup uses the structure provided by cmake. The subfolders are subprojects:
-* cTORS: The c++ implementation of TORS
-* cTORSTest: The tests for cTORS
-* pyTORS: The python interface for cTORS
-* TORS: The challenge environment, in python
-
-## Installation
-The following section explains how to compile this source code. Alternatively one can run the code in a docker container.
-The Dockerfile also shows how this project can be compiled and run step-by-step.
-### Install Cmake and Python development libraries
-To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
-```
-apt-get install cmake
-apt-get install python3-dev
-```
-
-For windows:
- * download and install cmake: https://cmake.org/download/
- * python header files already installed with python, see the include folder in your python folder.
-
-### Install Google Protocol Buffers
-This project uses Google Protocol Buffers to read the data files. Installation is required to compile the C++ source:
- * Download the source from the [github page](https://github.com/protocolbuffers/protobuf) (version 3.15.6 is used)
- * Follow the [instructions](https://github.com/protocolbuffers/protobuf/blob/master/src/README.md) to install
 
 ### Build with setuptools
 You can build cTORS and the pyTORS library with the following command.
@@ -123,13 +100,53 @@ cd build
 cmake .. -DCONDA_ENV="path/to/conda_env
 cmake --build .
 ```
-This has been tested with gcc 9.3. Older versions may not support the c++17 standard. 
+This has been tested with gcc 9.4.0 Older versions may not support the c++17 standard. 
 
-### Alternative: build with docker
-You can also run TORS in a docker container. To build and run the container, run:
+
+# Building process - Dev-Container
+
+## Dev-Container setup
+The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommanded in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows to compile and use cTORS without plaform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
+
+* 1st - Install **Docker**
+
+* 2nd - Install **VS Code** with the **Dev-Container** extension. 
+
+* 3rd - Open the project in **VS Code**
+
+* 4th - `Ctrl+Shif+P` → Dev Containers: Rebuild Container (it can take a few minutes) - this command will use the [Dockerfile](.devcontainer/Dockerfile) and [devcontainer.json](.devcontainer/devcontainer.json) definitions unde [.devcontainer](.devcontainer).
+
+* 5th - Build process of the tool is below: 
+Note: all the dependencies are alredy contained by the Docker instance.
+
+### Create and activate a `conda` environment
+
+Create env:
+```bash
+conda env create -f env.yml
+```
+
+Activate environment:
+```bash
+conda activate my_proto_env
+```
+
+### Build with setuptools
+You can build cTORS and the pyTORS library with the following command.
 ```sh
-docker build -t tors-base .
-docker run --network="host" --rm -it tors-base /bin/bash
+mkdir build
+python setup.py build
+python setup.py install
+```
+
+### Compile cTORS from C++ source
+In the source directory execute the following commands:
+**Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
+```bash
+mkdir build
+cd build
+cmake .. -DCONDA_ENV="path/to/conda_env
+cmake --build .
 ```
 
 
