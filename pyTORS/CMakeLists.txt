@@ -21,7 +21,7 @@ pybind11_add_module(pyTORS MODULE module.cpp docstrings.h)
 target_link_libraries(pyTORS PRIVATE cTORS)
 
 #Find Python
-set(CMAKE_PREFIX_PATH "${CONDA_ENV}/my_proto_env")
+set(CMAKE_PREFIX_PATH "${CONDA_ENV}")
 
 set(Python_FIND_STRATEGY LOCATION)
 set(Python_FIND_VIRTUALENV ONLY)
