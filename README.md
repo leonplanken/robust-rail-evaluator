@@ -180,9 +180,11 @@ python3 preprocess_plan.py
 
 
 # Usage of the Plan evaluator in Testing Environment
-This mode of the program is designed to evaluate the feasibility of different plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given paln -- `TEST_CASE("Scenario and Location Compatibility test") --.
+This mode of the program is designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given paln -- `TEST_CASE("Scenario and Location Compatibility test") --.
 
-## Plan/Scenario/Location testing
+Note: This evaluator taks as input a HIP plan (HIP plan format is used)
+
+## Plan/Scenario/Location testing - HIP
 
 In [CompatibilityTest.cpp](cTORSTest/CompatibilityTest.cpp), the program uses environment variables to get the path to the `location` and `scenario` and `plan` files. 
 
