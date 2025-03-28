@@ -17,7 +17,7 @@ namespace cTORSTest
 	string location_path;
 	string scenario_path;
 	string plan_path;
-	
+
 	TEST_CASE("Scenario and Location Compatibility test")
 	{
 
@@ -52,9 +52,6 @@ namespace cTORSTest
 		
 
 
-		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test");
-
-		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator");
 		LocationEngine engine(location_path);
 
 
@@ -62,8 +59,6 @@ namespace cTORSTest
 		cout << "               Location file loading is done" << endl;
 		cout << "------------------------------------------------------" << endl;
 
-		// auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json");
-		// auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/scenario.json");
 		auto &sc1 = engine.GetScenario(scenario_path);
 		{
 			Scenario sc2(sc1);
@@ -106,21 +101,14 @@ namespace cTORSTest
 		/* HIP plan protobuf is different thatn the one used by cTORS. HIP plans converted into json format that has to be somehow parsed to cTORS protobuf
 		this code is intended to do this conversion*/
 
-		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test");
-		// auto &scenario = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json");
-		// const Location &location = engine.GetLocation();
-
 		LocationEngine engine(location_path);
 		auto &scenario = engine.GetScenario(scenario_path);
 		const Location &location = engine.GetLocation();
 
 		PB_HIP_Plan pb_hip_plan;
 
-		// ParseHIP_PlanFromJson("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/hip_based_plan.json", pb_hip_plan);
 
 		ParseHIP_PlanFromJson(plan_path, pb_hip_plan);
-
-	
 
 		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, scenario_path, &location);
 		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
