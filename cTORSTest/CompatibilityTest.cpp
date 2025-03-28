@@ -10,7 +10,7 @@ namespace cTORSTest
 	// To specify the scenario / location / plan - PATH
 	// In the terminal the followinf should be exported by respecting the argument names
 	// 
-	// export LOCATION_PATH="/path/to/location_folder" - where the location.json file can be found
+	// export LOCATION_PATH="/path/to/location_folder" - where the location.json file can be found e.g. "~/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2"
 	// export SCENARIO_PATH="/path/to/scenario_folder/scenario.json"
 	// export PLAN_PATH="/path/to/plan_folder/plan.json"
 
