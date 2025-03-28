@@ -1,21 +1,61 @@
 #include "doctest/doctest.h"
 #include "Engine.h"
 
+
+#include <cstdlib>
 #include <google/protobuf/util/json_util.h>
 
 namespace cTORSTest
 {
+	// To specify the scenario / location / plan - PATH
+	// In the terminal the followinf should be exported by respecting the argument names
+	// 
+	// export LOCATION_PATH="/path/to/location_folder" - where the location.json file can be found
+	// export SCENARIO_PATH="/path/to/scenario_folder/scenario.json"
+	// export PLAN_PATH="/path/to/plan_folder/plan.json"
 
+	string location_path;
+	string scenario_path;
+	string plan_path;
+	
 	TEST_CASE("Scenario and Location Compatibility test")
 	{
 
+
+		
 		cout << "-------------------------------------------------------------------------------------------------" << endl;
 		cout << "											SCENARIO AND LOCATION TEST 										 ";
 		cout << "-------------------------------------------------------------------------------------------------" << endl;
+				
+
+		// Get location path and ensure it is specified 
+		const char* LOCATION_PATH = getenv("LOCATION_PATH");
+		REQUIRE(LOCATION_PATH != nullptr);
+
+		location_path = string(LOCATION_PATH);
+		cout << "Location path: " << location_path << endl;
+
+		// Get scenario path and ensure it is specified 
+		const char* SCENARIO_PATH = getenv("SCENARIO_PATH");
+		REQUIRE(SCENARIO_PATH != nullptr);
+
+		scenario_path = string(SCENARIO_PATH);
+		cout << "Scenario path: " << scenario_path << endl;
+
+
+		// Get scenario path and ensure it is specified 
+		const char* PLAN_PATH = getenv("PLAN_PATH");
+		REQUIRE(PLAN_PATH != nullptr);
+
+		plan_path = string(PLAN_PATH);
+		cout << "Plan path: " << plan_path << endl;
+		
+
+
 		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test");
 
 		// LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator");
-		LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2");
+		LocationEngine engine(location_path);
 
 
 		cout << "------------------------------------------------------" << endl;
@@ -24,7 +64,7 @@ namespace cTORSTest
 
 		// auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json");
 		// auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/scenario.json");
-		auto &sc1 = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/scenario.json");
+		auto &sc1 = engine.GetScenario(scenario_path);
 		{
 			Scenario sc2(sc1);
 		}
@@ -70,19 +110,19 @@ namespace cTORSTest
 		// auto &scenario = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/scenario.json");
 		// const Location &location = engine.GetLocation();
 
-		LocationEngine engine("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/");
-		auto &scenario = engine.GetScenario("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/scenario.json");
+		LocationEngine engine(location_path);
+		auto &scenario = engine.GetScenario(scenario_path);
 		const Location &location = engine.GetLocation();
 
 		PB_HIP_Plan pb_hip_plan;
 
 		// ParseHIP_PlanFromJson("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/hip_test/hip_based_plan.json", pb_hip_plan);
 
-		ParseHIP_PlanFromJson("/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/plan.json", pb_hip_plan);
+		ParseHIP_PlanFromJson(plan_path, pb_hip_plan);
 
 	
 
-		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, "/home/roland/Documents/REIT/LPT_Robust_Rail_project/cTORS_new/ctors/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/scenario.json", &location);
+		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, scenario_path, &location);
 		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
 
 	}
