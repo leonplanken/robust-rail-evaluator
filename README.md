@@ -179,133 +179,33 @@ python3 preprocess_plan.py
 ```
 
 
-# Usage of the Plan evaluator
-This mode of the program is designed to evaluate the feasibility of different plans (shunting yard schedules). ***Current version is able to evaluate HIP issued plans***. 
+# Usage of the Plan evaluator in Testing Environment
+This mode of the program is designed to evaluate the feasibility of different plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given paln -- `TEST_CASE("Scenario and Location Compatibility test") --.
 
-In [EngineTest.cpp](cTORSTest/EngineTest.cpp):
+## Plan/Scenario/Location testing
 
-* `LocationEngine engine(path)` - `path` specifies the path to the folder where the `location` and `scenario` files are stored. 
+In [CompatibilityTest.cpp](cTORSTest/CompatibilityTest.cpp), the program uses environment variables to get the path to the `location` and `scenario` and `plan` files. 
 
-* `engine.GetScenario(path+name)`- `path+name` specifies the path and file name to the `scenario` file.
+To specify the `location`, `scenario` and `plan` files, use:
 
-* `GetRunResultProto(path+name)` - `path+name` specifies the path and file name to the `plan` (JSON) file, that must be evaluated.
+```bash
+export LOCATION_PATH="/path/to/location_folder" # where the location.json file can be found
+export SCENARIO_PATH="/path/to/scenario_folder/scenario.json"
+export PLAN_PATH="/path/to/plan_folder/plan.json"
+```
 
-Usage:
+To run the test, use:
 
 ```bash
 cd build/cTORSTest
-./EngineTest
+./CompatibilityTest
 ```
 
-In case of modification of the code, compile wiht: 
+In case of modification of the code, compile with: 
 
 ```bash
 cd build
 cmake --build .
-```
-
-# Basic usage
-
-## Run the challenge environment
-To run challenge environment, run the following code
-
-```sh
-cd TORS
-python run.py
-```
-
-Optionally you can change the episode or agent data by changing the parameters
-```sh
-python run.py --agent agent.json --episode episode.json
-```
-The `--agent` option sets the file that configures the agent.
-The `--episode` option sets the file that configures the episode.
-
-You can also run the file with the `--train` flag to train the agent instead of eveluating its performance.
-
-## Usage in Python
-To use cTORS in python, you need to import they `pyTORS` library. E.g.
-
-```python
-from pyTORS import Engine
-
-engine = Engine("data/Demo")
-scenario = engine.get_scenario("data/Demo/scenario.json")
-state = engine.start_session(scenario)
-
-actions = engine.step(state)
-engine.apply_action(actions[0])
-
-engine.end_session(state)
-```
-
-## Running the visualizer
-
-The visualizer runs as a flask server. Install the dependencies in `TORS/requirements-visualizer` first.
-```sh
-pip install -r TORS/requirements-visualizer
-```
-Now flask can be run by running the commands:
-```sh
-cd TORS/visualizer
-export FLASK_APP=main.py
-export FLASK_ENV=development
-export FLASK_RUN_PORT=5000
-python -m flask run
-```
-
-## Running the example RL-agent with gym
-The repository also includes example code that wraps cTORS in a gym-environment and uses an RL implementation from stable-baselines3 to learn a policy. To run this example, first install the requirements:
-```sh
-pip install -r TORS/requirements-gym
-```
-Then run:
-```sh
-cd TORS
-python run_gym.py
-```
-You can check the learning progress using tensorboard:
-```sh
-tensorboard --logdir ./log_tensorboard/
-```
-
-## Configuration
-TORS can be configured through configuration files. Seperate configuration exists for
-1. The location
-2. The scenario
-3. The simulator
-3. The episode
-4. The agent
-
-### Configuring the location
-A location is described by the `location.json` file in the data folder.
-It describes the shunting yard: how all tracks are connected, what kind of tracks they are, and distances among tracks.
-
-In order to use the visualizer for that location, you need to provided another file `vis_config.json`. See the folder `data/Demo` and `data/KleineBinckhorstVisualizer` for examples.
-
-### Configuring the scenario
-A scenario is described by the `scenario.json` file in the data folder.
-It describes the scenario: which employees are available, shunting units' arrivals and departures, and possible disturbances.
-
-### Configuring the simulator
-The simulator can be configured by the `config.json` file in the data folder.
-It describes which business rules need to be checked and the parameters for the actions
-
-### Configuring the episode
-You can provide an episode configuration and pass it to `TORS/run.py` with the `--episode` parameter.
-This file describes the evaluation/training episode.
-It contains the path to the data folder, the number of runs, RL parameters and parameters for scenario generation.
-
-### Configuring the agent
-You can provide an agent configuration and pass it to `TORS/run.py` with the `--agent` parameter.
-This file prescribes which agent to use, and passes parameters to the agent.
-
-## Tests
-### Run the cTORS tests
-To run the cTORS tests, execute the commands
-```sh
-cd build
-ctest
 ```
 
 ## Documentation
