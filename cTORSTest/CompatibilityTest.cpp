@@ -98,6 +98,9 @@ namespace cTORSTest
 
 	TEST_CASE("Plan Compatibility test")
 	{
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+		cout << "											PLAN TEST 										 ";
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
 		/* HIP plan protobuf is different thatn the one used by cTORS. HIP plans converted into json format that has to be somehow parsed to cTORS protobuf
 		this code is intended to do this conversion*/
 
