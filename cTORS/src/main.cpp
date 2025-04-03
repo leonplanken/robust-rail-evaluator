@@ -4,7 +4,7 @@
 // Usage:
 // ./main --mode EVAL/INTER --path_location ~/my_location_folder --path_scenario ~/my_scenarion.json --path_plan ~/my_plan.json --plan_type TORS/HIP
 // Args:
-//		--mode EVAL - Evaluates a plan according to a scenario and location; InteraINTERctive
+//		--mode EVAL - Evaluates a plan according to a scenario and location; INTER: Interactive, the user has to chose a valid action per for each situation (state)
 //      --path_location: specifies the path to the location file which most be called as `location.json`
 //      --path_scenario: specifies the path to the scenario file e.g., my_scenario.json
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
