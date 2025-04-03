@@ -14,14 +14,16 @@ The basic project setup uses the structure provided by cmake. The subfolders are
 
 # Native support
 * Linux [YES]
-* macOS [NO] - via Dev-Container/Docker [YES]
-* Winfows [NO] - via Dev-Container Docker [YES]
+* macOS [NO] - via Dev-Container / Docker [YES]
+* Windows [NO] - via Dev-Container / Docker [YES]
 
 # Note:
 The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also avalable in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
 
 (*) With gcc@9 Homebrew protobufer native libraries must be modified wichi is not a good practice
+
 (*) With llvm Homebrew installation basic C Test filse cannot be compiled on Intel-based mac systems
+
 (*) Compile process is sucessfull under native clang (14), however, SIGILL - illegal instruction signal errors can happen during the tool's execution.  
  
 
@@ -153,8 +155,8 @@ cmake --build .
 
 ### Input files
 cTORS requires at least two input files:
-- **`location`** - where the scenario of incoming/outgoing trains operates (e.g., shunting yard)  
-- **`scenario`** - scenario of train opearations (e.g., train arrivals/departures at a specific time)
+- **`location`** - location of where the scenario happens (e.g., shunting yard)  
+- **`scenario`** - scenario of train opearations (e.g., train arrivals/departures at a specific time, required services)
 
 To evaluate the validity of a schedule plan, a plan file is also needed:
 - **`plan`** - schedule plan created to resolve a scheduling problem of the `scenario` in a `location`. 
@@ -164,19 +166,23 @@ cTORS can be used in a `Main` environment or in a `Testing` environment
 ## Usage of cTORS in the Main Environment
 
 In this environment cTORS has two main modes.
-- **Plan Evaluation mode**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
-- **Interactive mode**: the user is aksed to chose an action to be executed in each state of the scenario
+- **Plan Evaluation mode (EVAL)**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
+- **Interactive mode (INTER)**: the user is aksed to chose an action to be executed in each state of the scenario
 
 Usage is:
 
 ```bash
 cd build
-./TORS --mode "EVAL"/"INTER" --path_location "~/my_location_folder" --path_scenario "~/my_scenarion.json" --path_plan "~/my_plan.json" --plan_type "TORS"/"HIP"
+./TORS --mode "EVAL"/"INTER" \
+    --path_location "~/my_location_folder" \
+    --path_scenario "~/my_scenarion.json" \
+    --path_plan "~/my_plan.json" \
+    --plan_type "TORS"/"HIP"
 ```
 Arguments:
 
 **--mode** **"EVAL"** - Evaluates a plan according to a scenario and 
-**--mode** **"INTER"** - Interactive, the user has to chose a valid action per for each situation (state) 
+**--mode** **"INTER"** - Interactive, the user has to choose a valid action per for each situation (state) 
 
 **--path_location** **"~/my_location_folder"** - specifies the path to the location file which must be called as `location.json`
 
@@ -185,7 +191,7 @@ Arguments:
 **--path_plan** **"~/my_scenarion.json"** -specifies the path to the plan file e.g., `my_plan.json`
 
 **--plan_type** **"TORS"** - plan follows a TORS plan format
-**--plan_type** **"HIP"** - plan follows a HIP plan format (plan was issed by HIP)
+**--plan_type** **"HIP"** - plan follows a HIP plan format (plan was issued by HIP)
 
 ### Example
 In the project directory run:
@@ -203,7 +209,7 @@ Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
 ```
 
 ##  Usage of the Plan evaluator in Testing Environment
-This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test") --. Nevertheless, this environemnt can be used to evaluate the HIP or cTORS formated plans in a test environment providing an overview about the test cases success rate.
+This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environemnt can be used to evaluate HIP or cTORS formated plans in a test environment providing an overview about the test cases success rate.
 
 Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate cTORS foramted plans as well.  
 
