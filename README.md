@@ -149,42 +149,65 @@ cmake .. -DCONDA_ENV="path/to/conda_env
 cmake --build .
 ```
 
+# How To Use ?
 
-# Usage of sceneario, location and plan converters
-The sceneario, location and plan converters are used to convert HIP input files (scenarion, location) and results (plan - scheduling) to cTORS. This conversion allows cTORS to evaluate HIP plans. Converters:
+### Input files
+cTORS requires at least two input files:
+- **`location`** - where the scenario of incoming/outgoing trains operates (e.g., shunting yard)  
+- **`scenario`** - scenario of train opearations (e.g., train arrivals/departures at a specific time)
 
-* [preprocess_location.py](/data/Demo/location/preprocess_location.py)
-* [process_scenario.py](/data/Demo/location/process_scenario.py)
-* [preprocess_plan.py](/data/Demo/plan/preprocess_plan.py)
+To evaluate the validity of a schedule plan, a plan file is also needed:
+- **`plan`** - schedule plan created to resolve a scheduling problem of the `scenario` in a `location`. 
 
-**Location conversion**
-In the code `input_location.json` specifies the HIP location file , which wll be converted into a cTORS enabled location file. 
+cTORS can be used in a `Main` environment or in a `Testing` environment
+
+## Usage of cTORS in the Main Environment
+
+In this environment cTORS has two main modes.
+- **Plan Evaluation mode**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
+- **Interactive mode**: the user is aksed to chose an action to be executed in each state of the scenario
+
+Usage is:
+
 ```bash
-cd data/Demo/location
-python3 process_scenario.py
+cd build
+./TORS --mode "EVAL"/"INTER" --path_location "~/my_location_folder" --path_scenario "~/my_scenarion.json" --path_plan "~/my_plan.json" --plan_type "TORS"/"HIP"
+```
+Arguments:
+
+**--mode** **"EVAL"** - Evaluates a plan according to a scenario and 
+**--mode** **"INTER"** - Interactive, the user has to chose a valid action per for each situation (state) 
+
+**--path_location** **"~/my_location_folder"** - specifies the path to the location file which must be called as `location.json`
+
+**--path_scenario** **"~/my_scenarion"** - specifies the path to the scenario file e.g., `my_scenario.json`
+
+**--path_plan** **"~/my_scenarion.json"** -specifies the path to the plan file e.g., `my_plan.json`
+
+**--plan_type** **"TORS"** - plan follows a TORS plan format
+**--plan_type** **"HIP"** - plan follows a HIP plan format (plan was issed by HIP)
+
+### Example
+In the project directory run:
+```bash
+./build/TORS --mode "EVAL" \
+    --path_location "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2" \
+    --path_scenario "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/scenario.json" \
+    --path_plan "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/plan.json" \
+    --plan_type "HIP"
+```
+Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
+
+```bash
+./run_eval_example.sh
 ```
 
-**Scenario conversion**
-In the code `scenario_input.json` specifies the HIP scenario file , which wll be converted into a cTORS enabled scenario file. 
-```bash
-cd data/Demo/location
-python3 preprocess_location.py
-```
+##  Usage of the Plan evaluator in Testing Environment
+This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test") --. Nevertheless, this environemnt can be used to evaluate the HIP or cTORS formated plans in a test environment providing an overview about the test cases success rate.
 
-**Plan conversion**
-In the code `plan_input.json` specifies the HIP plan file and `scenario.json` specifies the converted scenario file, which is also needed to create the plan. The HIP plan is converted into a cTORS enabled plan file. 
-```bash
-cd data/Demo/plan
-python3 preprocess_plan.py
-```
+Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate cTORS foramted plans as well.  
 
-
-# Usage of the Plan evaluator in Testing Environment
-This mode of the program is designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given paln -- `TEST_CASE("Scenario and Location Compatibility test") --.
-
-Note: This evaluator taks as input a HIP plan (HIP plan format is used)
-
-## Plan/Scenario/Location testing - HIP
+### Plan/Scenario/Location testing - HIP
 
 In [CompatibilityTest.cpp](cTORSTest/CompatibilityTest.cpp), the program uses environment variables to get the path to the `location` and `scenario` and `plan` files. 
 
@@ -233,12 +256,13 @@ python -m pybind11_mkdoc -o pyTORS/docstrings.h cTORS/include/*.h -I build/cTORS
 This produces as output the `cTORS/doc` folder and the `pyTORS/docstrings.h` source file. This last file is used in `pyTORS/module.cpp` to generate the python docs.
 
 ## Contributors
-* Mathijs M. de Weerdt: Conceptualization, Supervision, Project administration, Funding acquisition, Writing - review & editing
-* Bob Huisman: Conceptualization
 * Koos van der Linden: Software, Writing - Original draft
+* Roland Kromes: Software - Extensions
 * Jesse Mulderij: Writing - Original draft
 * Marjan van den Akker: Supervision of the bachelor team
 * Han Hoogeveen: Supervision of the bachelor team
+* Mathijs M. de Weerdt: Conceptualization, Supervision, Project administration, Funding acquisition, Writing - review & editing
+* Bob Huisman: Conceptualization
 * Joris den Ouden: Conceptualization, Supervision of the bachelor team
 * Demian de Ruijter: Conceptualization, Supervision of the bachelor team
 * Bachelor-team, consisting of Dennis Arets, Sjoerd Crooijmans, Richard Dirven, Luuk Glorie, Jonathan den Herder, Jens Heuseveldt, Thijs van der Horst, Hanno Ottens, Loriana Pascual, Marco van de Weerthof, Kasper Zwijsen: Software, Visualization
