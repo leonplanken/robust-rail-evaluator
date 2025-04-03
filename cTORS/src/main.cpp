@@ -6,7 +6,7 @@
 //
 // Args:
 //		--mode EVAL - Evaluates a plan according to a scenario and location; INTER: Interactive, the user has to chose a valid action per for each situation (state)
-//      --path_location: specifies the path to the location file which most be called as `location.json`
+//      --path_location: specifies the path to the location file which must be called as `location.json`
 //      --path_scenario: specifies the path to the scenario file e.g., my_scenario.json
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
 //      --plan_type: specifies the type of the plan, that when follows TORS format use --plan_type, when plan is issued by HIP use --plan_type HIP
