@@ -23,7 +23,7 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100 \
 # Verify GCC and G++ installation
 RUN gcc --version && g++ --version
 
-# Install Conda (Miniconda 24.1.2)
+# Install Conda (Anaconda 24.1.2)
 RUN curl -o Anaconda.sh https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh \
     && bash Anaconda.sh -b -p /opt/conda \
    && rm Anaconda.sh
@@ -34,6 +34,19 @@ ENV PATH="/opt/conda/bin:$PATH"
 
 # Download and install CMake 3.16.3
 RUN apt update && apt install -y cmake
+
+
+# Install Microsoft package repository for .NET
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+RUN chmod 755 packages-microsoft-prod.deb
+RUN dpkg -i packages-microsoft-prod.deb
+RUN rm packages-microsoft-prod.deb
+
+
+# Install .NET SDK 8.0
+RUN apt-get update && apt-get install -y dotnet-sdk-8.0
+
+
 
 # Create workspace directory
 WORKDIR /workspace
