@@ -1,5 +1,5 @@
 # Use Ubuntu 20.04 as the base image
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:20.04
 
 # Set environment variables to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
