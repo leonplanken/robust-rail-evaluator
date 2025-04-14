@@ -1,6 +1,3 @@
-# THIS REPOSITORY HAS BEEN MOVED TO https://github.com/AlgTUDelft/cTORS
-
-
 # Treinonderhoud- en -rangeersimulator (TORS)
 This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
 
@@ -18,11 +15,11 @@ The basic project setup uses the structure provided by cmake. The subfolders are
 * Windows [NO] - via Dev-Container / Docker [YES]
 
 # Note:
-The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also avalable in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
+The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also available in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
 
-(*) With gcc@9 Homebrew protobufer native libraries must be modified wichi is not a good practice
+(*) With gcc@9 Homebrew protobufer native libraries must be modified which is not a good practice
 
-(*) With llvm Homebrew installation basic C Test filse cannot be compiled on Intel-based mac systems
+(*) With llvm Homebrew installation basic C Test files cannot be compiled on Intel-based mac systems
 
 (*) Compile process is sucessfull under native clang (14), however, SIGILL - illegal instruction signal errors can happen during the tool's execution.  
  
@@ -108,7 +105,7 @@ This has been tested with gcc 9.4.0 Older versions may not support the c++17 sta
 # Building process - Dev-Container
 
 ## Dev-Container setup
-The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommanded in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows to compile and use cTORS without plaform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
+The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommended in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows compiling and use cTORS without platform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
 
 * 1st - Install **Docker**
 
@@ -119,7 +116,7 @@ The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/
 * 4th - `Ctrl+Shif+P` → Dev Containers: Rebuild Container (it can take a few minutes) - this command will use the [Dockerfile](.devcontainer/Dockerfile) and [devcontainer.json](.devcontainer/devcontainer.json) definitions unde [.devcontainer](.devcontainer).
 
 * 5th - Build process of the tool is below: 
-Note: all the dependencies are alredy contained by the Docker instance.
+Note: all the dependencies are already contained by the Docker instance.
 
 ### Create and activate a `conda` environment
 
@@ -156,7 +153,7 @@ cmake --build .
 ### Input files
 cTORS requires at least two input files:
 - **`location`** - location of where the scenario happens (e.g., shunting yard)  
-- **`scenario`** - scenario of train opearations (e.g., train arrivals/departures at a specific time, required services)
+- **`scenario`** - scenario of train operations (e.g., train arrivals/departures at a specific time, required services)
 
 To evaluate the validity of a schedule plan, a plan file is also needed:
 - **`plan`** - schedule plan created to resolve a scheduling problem of the `scenario` in a `location`. 
@@ -167,7 +164,7 @@ cTORS can be used in a `Main` environment or in a `Testing` environment
 
 In this environment cTORS has two main modes.
 - **Plan Evaluation mode (EVAL)**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
-- **Interactive mode (INTER)**: the user is aksed to chose an action to be executed in each state of the scenario
+- **Interactive mode (INTER)**: the user is asked to choose an action to be executed in each state of the scenario
 
 Usage is:
 
@@ -209,9 +206,9 @@ Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
 ```
 
 ##  Usage of the Plan evaluator in Testing Environment
-This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environemnt can be used to evaluate HIP or cTORS formated plans in a test environment providing an overview about the test cases success rate.
+This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environment can be used to evaluate HIP or cTORS formate plans in a test environment providing an overview about the test cases' success rate.
 
-Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate cTORS foramted plans as well.  
+Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate cTORS formate plans as well.  
 
 ### Plan/Scenario/Location testing - HIP
 
