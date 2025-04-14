@@ -9,7 +9,7 @@
 //      --path_location: specifies the path to the location file which must be called as `location.json`
 //      --path_scenario: specifies the path to the scenario file e.g., my_scenario.json
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
-//      --plan_type: specifies the type of the plan, that when follows TORS format use --plan_type, when plan is issued by HIP use --plan_type HIP
+//      --plan_type: specifies the type of the plan, when follows cTORS format use --plan_type, when plan is issued by HIP use --plan_type HIP
 
 int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type);
 
