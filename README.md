@@ -1,4 +1,4 @@
-# Treinonderhoud- en -rangeersimulator (TORS)
+# Evaluator - Treinonderhoud- en -rangeersimulator (TORS)
 This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS).
 
 ## Project setup
