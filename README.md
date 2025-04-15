@@ -14,68 +14,15 @@ The basic project setup uses the structure provided by cmake. The subfolders are
 * macOS [NO] - via Dev-Container / Docker [YES]
 * Windows [NO] - via Dev-Container / Docker [YES]
 
-# Note:
-The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also available in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
 
-(*) With gcc@9 Homebrew protobufer native libraries must be modified which is not a good practice
-
-(*) With llvm Homebrew installation basic C Test files cannot be compiled on Intel-based mac systems
-
-(*) Compile process is sucessfull under native clang (14), however, SIGILL - illegal instruction signal errors can happen during the tool's execution.  
- 
-
-
-# Build process - Native Linux
-
-## Install dependencies 
-### Install gcc
-The following section explains how to compile this source code
-
-Before build on Linux - Native support
-
-Other dependencies to install:
-
-```bash
-sudo apt update
-
-sudo apt install gcc-9
-
-sudo apt install g++-9
-
-```
-If **error**: `No CMAKE_CXX_COMPILER could be found`
-
-```bash
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
-sudo update-alternatives --config g++
-```
-Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
-
-### Install Cmake and Python development libraries
-To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
-```
-apt-get install cmake
-apt-get install python3-dev
-```
-
-### Install anaconda3
-
-```bash
-wget https://repo.anaconda.com/archive/Anaconda3-2024.06-1-Linux-x86_64.sh
-bash Anaconda3-2024.06-1-Linux-x86_64.sh
-
-sudo rm Anaconda3-2024.06-1-Linux-x86_64.sh
-conda init
-```
-
-
-
+# First steps
 ### Create and activate a `conda` environment
 
 Create env:
 ```bash
 conda env create -f env.yml
 ```
+
 
 Activate environment:
 ```bash
@@ -101,52 +48,6 @@ cmake --build .
 ```
 This has been tested with gcc 9.4.0 Older versions may not support the c++17 standard. 
 
-
-# Building process - Dev-Container
-
-## Dev-Container setup
-The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommended in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows compiling and use cTORS without platform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
-
-* 1st - Install **Docker**
-
-* 2nd - Install **VS Code** with the **Dev-Container** extension. 
-
-* 3rd - Open the project in **VS Code**
-
-* 4th - `Ctrl+Shif+P` → Dev Containers: Rebuild Container (it can take a few minutes) - this command will use the [Dockerfile](.devcontainer/Dockerfile) and [devcontainer.json](.devcontainer/devcontainer.json) definitions unde [.devcontainer](.devcontainer).
-
-* 5th - Build process of the tool is below: 
-Note: all the dependencies are already contained by the Docker instance.
-
-### Create and activate a `conda` environment
-
-Create env:
-```bash
-conda env create -f env.yml
-```
-
-Activate environment:
-```bash
-conda activate my_proto_env
-```
-
-### Build with setuptools
-You can build cTORS and the pyTORS library with the following command.
-```sh
-mkdir build
-python setup.py build
-python setup.py install
-```
-
-### Compile cTORS from C++ source
-In the source directory execute the following commands:
-**Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
-```bash
-mkdir build
-cd build
-cmake .. -DCONDA_ENV="path/to/conda_env
-cmake --build .
-```
 
 # How To Use ?
 
@@ -233,6 +134,113 @@ In case of modification of the code, compile with:
 
 ```bash
 cd build
+cmake --build .
+```
+
+
+
+# Note:
+The tool was developed on Linux and building the tool on macOS might cause compilation and execution errors*. Therefore, a Dockerized version is also available in this repository. Moreover, to facilitate the development the tool is available in **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** 
+
+(*) With gcc@9 Homebrew protobufer native libraries must be modified which is not a good practice
+
+(*) With llvm Homebrew installation basic C Test files cannot be compiled on Intel-based mac systems
+
+(*) Compile process is sucessfull under native clang (14), however, SIGILL - illegal instruction signal errors can happen during the tool's execution.  
+ 
+
+
+# Build process - Native Linux - as standalone tool
+In principle the robust-rail tools are built in a single Docker do ease the development and usage. Nevertheless, it is possible to use/build `robust-rail-evaluator` as a standalone tool
+
+## Install dependencies 
+### Install gcc
+The following section explains how to compile this source code
+
+Before build on Linux - Native support
+
+Other dependencies to install:
+
+```bash
+sudo apt update
+
+sudo apt install gcc-9
+
+sudo apt install g++-9
+
+```
+If **error**: `No CMAKE_CXX_COMPILER could be found`
+
+```bash
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
+sudo update-alternatives --config g++
+```
+Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
+
+### Install Cmake and Python development libraries
+To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
+```
+apt-get install cmake
+apt-get install python3-dev
+```
+
+### Install anaconda3
+
+```bash
+wget https://repo.anaconda.com/archive/Anaconda3-2024.06-1-Linux-x86_64.sh
+bash Anaconda3-2024.06-1-Linux-x86_64.sh
+
+sudo rm Anaconda3-2024.06-1-Linux-x86_64.sh
+conda init
+```
+
+
+# Building process - Dev-Container
+
+In principle the robust-rail tools are built in a single Docker do ease the development and usage. Nevertheless, it is possible to use/build `robust-rail-evaluator` as a standalone tool
+
+## Dev-Container setup
+The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommended in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows compiling and use cTORS without platform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
+
+* 1st - Install **Docker**
+
+* 2nd - Install **VS Code** with the **Dev-Container** extension. 
+
+* 3rd - Open the project in **VS Code**
+
+* 4th - `Ctrl+Shif+P` → Dev Containers: Rebuild Container (it can take a few minutes) - this command will use the [Dockerfile](.devcontainer/Dockerfile) and [devcontainer.json](.devcontainer/devcontainer.json) definitions unde [.devcontainer](.devcontainer).
+
+* 5th - Build process of the tool is below: 
+Note: all the dependencies are already contained by the Docker instance.
+
+### Create and activate a `conda` environment
+
+Create env:
+```bash
+conda env create -f env.yml
+source ~/.bashrc
+```
+
+Activate environment:
+```bash
+conda activate my_proto_env
+```
+
+### Build with setuptools
+You can build cTORS and the pyTORS library with the following command.
+```sh
+mkdir build
+python setup.py build
+python setup.py install
+```
+
+### Compile cTORS from C++ source
+In the source directory execute the following commands:
+**Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
+```bash
+mkdir build
+cd build
+cmake .. -DCONDA_ENV="path/to/conda_env
 cmake --build .
 ```
 
