@@ -53,9 +53,132 @@ TORS is a state-event-action based simulator and operates as follows:
 
     1) Execute all events that are triggered on this timestamp. 
 
-    2) If no action is required (i.e. all shunting units have an active action), go back to 2.1 
+    2) **If** no action is required (i.e. all shunting units have an active action), go back to 2.1 
+    
+    3) **End if**
 
-    3) Read the next action from the plan.
+    4) Read the next action from the plan.
 
-        1) Execute the action. (if invalid, stop the scenario) 
+        1) Execute the action. (if invalid, stop the scenario)
+        
+3) **End While** 
 
+
+### Actions
+
+Every time an action is required, one is assigned from the plan. The TORS simulator has two different classes for actions: `Action` and `SimpleAction`. In general, `Action` is used for the internal representation of actions. `SimpleAction` is used to communicate with external parties, such as the plan.
+
+Note that even though an action is valid it does not always end up in a valid state (an invalid state is a state in which an action is required, but no action is available). For example a shunting is moved to another track, but while it moves it blocks all tracks that another shunting unit needs (and this other unit is not allowed to park). 
+
+The following actions are available: 
+
+* `Arrive(inc)`: Let the shunting unit described by the Incoming instance inc arrive. 
+
+* `Exit(su, out)`: Exit the shunting unit su, according to the outgoing goal described by out. Note that you need to specify which shunting unit you want to exit. This is because of the matching problem, where out does not describe a uniquely identifiable shunting unit. 
+
+* `BeginMove(su)`: Begin a move operation for shunting unit su. 
+
+* `EndMove(su)`: End a move operation for the shunting unit su. This means park the shunting unit. 
+
+* `Move(su, to_track)`: Move shunting unit su to track to_track. 
+
+* `Setback(su)`: Setback the shunting unit (that is, change the unit's direction). 
+
+* `Service(su, task, train, facility)`: Execute the specified service task on the train in the shunting unit su at the given facility. 
+
+* `Split(su, split_index)`: Split the shunting unit su at the specified index. TU3 - TU2 - TU1> with split index 2 is split into TU3> and TU2 - TU1>. 
+
+* `Combine(su1, su2)`: Combine the two adjacent shunting units su1 and su2 into one unit. 
+
+* `Wait(su)`: Let the shunting unit su wait until the next event.
+
+### Move actions and duration 
+
+When the simulator is asked to generate actions, it will generate move actions by checking for full origin-destination paths (without setbacks). When such paths are available, they are changed into step by step move actions. Such moves are always from one railroad track to a (indirect) neighboring rail track. Here one could consider the railroad tracks to be the nodes of a graph, and all the switches to be the edges. The is done to make the action space smaller. 
+
+The duration of move actions is determined as follows: the duration of a move action is `movement_constant` + `railroad_coefficient` * `number_of_railroad_tracks` + `switch_coefficient` * `number_of_switches`.
+
+
+### Business rules
+To check an action's validity, a number of business rules are checked. This table shows which business rules are checked.
+
+| Name           | Category         | Description  |
+|:-------------:|:--------------:|:---------------:|
+| end_correct_order_on_track_rule            | arrival_departure              | Rule that verifies that shunting units which stay in the shunting yard after the scheduling period will be located in the right order on their track.             |
+| in_correct_time_rule |	arrival_departure |	Rule that verifies that shunting units that are arriving, arrive at the correct time. Note: shunting units will never arrive too early, so this rule only checks if a shunting unit arrives too late.  |
+| out_correct_order_rule |	arrival_departure | Rule that verifies that leaving shunting units have their train units in the correct order when they leave the shunting yard.  |
+|out_correct_time_rule |	arrival_departure |	Rule that verifies that leaving shunting units leave at the correct time. |
+|out_correct_track_rule	| arrival_departure |	Rule that verifies that leaving shunting units leave over the correct tracks. |
+|blocked_first_track_rule | track_occupation | Rule that verifies that shunting units, upon starting a movement, are not blocked on exit by other shunting units on their current track.| 
+|blocked_track_rule | track_occupation | Rule that verifies that moving shunting units are not blocked by other shunting units. Rule that verifies that shunting units on a single |
+| length_track_rule | track_occupation | Rule that verifies that shunting units on a single track do not take up more space than available on that track.|
+|single_move_track_rule | track_occupation | Rule that verifies that at most one shunting unit can use a piece of track at a given time. |
+| electric_track_rule | parking | Rule that verifies that shunting units which need electricity park only on electrified tracks. |
+| legal_on_parking_track_rule | parking | Rule that verifies that parked shunting units are on a track where parking is allowed. |
+| legal_on_setback_track_rule | parking | Rule that verifies if a shunting unit is parked on a track where setback is allowed. |
+| electric_move_rule | shunting | Rule that verifies that shunting units which need electricity park only on electrified tracks. |
+|setback_once_rule | shunting |Rule that verifies that a setback action is not performed on a shunting unit which is already in a neutral state. A shunting unit is in a neutral state if a setback or service action is performed. |
+|setback_track_rule| shunting | Rule that verifies that performing a setback action on a shunting unit is allowed on the track where the shunting unit is at. |
+|available_facility_rule| facility | Rule that verifies that tasks assigned to a facility are only executed when that facility is available. |
+| capacity_facility_rule | facility | Rule that verifies that no more tasks are executed at a facility than the facility can handle. |
+| disabled_facility_rule | facility | Rule that verifies that no tasks are assigned to facilities which are disabled by a disturbance. |
+| correct_facility_rule | service_tasks | Rule that verifies that service tasks are executed at the correct facility. |
+|mandatory_service_task_rule | service_tasks | Rule that verifies that all required service tasks are performed before a shunting unit leaves the shunting yard.|
+|optional_service_task_rule | service_tasks | Rule that verifies that all optional service tasks are performed before a shunting unit leaves the shunting yard. |
+| understaffed_rule | service_tasks | Rule that verifies that all tasks have enough employees assigned, with the right skills, such that the task will have all of its required skills available. |
+| order_preserve_rule | combine_and_split | Rule that verifies that combining or splitting shunting units does not change the order of train
+units on a track. |
+| park_combine_split_rule | combine_and_split | Rule that verifies that combine and split actions on shunting units are only performed on tracks where parking is allowed. |
+| setback_combine_split_rule | combine_and_split | Rule that verifies that combine and split actions on shunting units are only performed on tracks where setback is allowed.| 
+
+
+### config.json 
+
+In the data folder there should be a config.json, a location.json.
+
+The `config.json` contains the following settings: 
+
+* `business_rules`: configuration for the business rules 
+
+* `business_rules`/`categories`: shortcuts to disable whole categories of rules (currently ignored) 
+
+* `business_rules`/`rules`: per rule a dictionary with parameters: 
+
+    * `on`: boolean to turn the rule on or off 
+
+    * `soft`: (currently ignored) boolean to turn the constraint into a soft constraint 
+
+    * `category`: (currently ignored) 
+
+    * `parameters`: (currently ignored) extra parameters for the business rule 
+
+    * `priority`: (currently ignored) 
+
+    * `status`: (currently ignored) 
+
+* `actions`: settings for every action type: 
+
+    * `parameters`: a set of extra parameters (e.g. for setback how to calculate the move duration) 
+
+    * `on`: boolean to turn this action on or off (for phase 1 split and combine are off) 
+
+    * `status`: (currently ignored) 
+
+* `employees`: (currently ignored) whether to include employees in the problem 
+
+* `verbose`: (currently ignored) 
+
+* `br_break_on_fail`: (currently ignored) 
+
+* `routing`: (currently ignored) 
+
+* `distance_matrix`: (currently ignored) 
+
+### location.json
+The same folder also contains the location.json config file which describes the location. All the tracks and facilities are described in a clear way. It also contains the following settings:
+
+* `MovementConstant`
+* `MovementTrackCoefficient`
+* `MovementSwitchCoefficient`
+
+These three are used to calculate the duration of move actions.
