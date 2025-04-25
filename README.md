@@ -108,6 +108,10 @@ Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
 ./run_eval_example.sh
 ```
 
+### More Information about the evaluator (TORS)
+Click on [**Description**](doc/Description_TORS.md).
+
+
 ##  Usage of the Plan evaluator in Testing Environment
 This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environment can be used to evaluate HIP or cTORS formate plans in a test environment providing an overview about the test cases' success rate.
 
