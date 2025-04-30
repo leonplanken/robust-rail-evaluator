@@ -548,6 +548,14 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             case PB_HIP_PredefinedTaskType::Move:
             {
                 cout << "Move action" << std::endl;
+                
+                // Zero movement in HIP might be generated for HIP specific reasons
+                // but a Zero movement is seen as an error by TORS
+                if(hip_action.endtime() - hip_action.starttime() == 0)
+                {
+                    break;
+                }
+                
                 PBMovementAction *move_action = action_.mutable_movement();
 
                 move_action->add_path(hip_action.location());
