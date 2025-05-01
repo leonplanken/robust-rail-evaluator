@@ -240,6 +240,17 @@ void Scenario::PrintScenarioInfo() const
 void Scenario::CheckScenarioCorrectness(const Location &location) const
 {
 	vector<Track *> locationTracks = location.GetTracks();
+
+	// Contains the number of (incoming) trains per train types e.g., SLT-4 : 7; SLT-6 : 9
+	map<string, int> incomingTrainTypes;
+	// Contains the number of (outgoing) trains per train types e.g., SLT-4 : 7; SLT-6 : 9
+	map<string, int> outgoingTrainTypes;
+
+	// Contains the number of (inStanding) trains per train types e.g., SLT-4 : 7; SLT-6 : 9
+	map<string, int> inStandingTrainTypes;
+	// Contains the number of (outStanding) trains per train types e.g., SLT-4 : 7; SLT-6 : 9
+	map<string, int> outStandingTrainTypes;
+
 	int totalTaskTime = 0;
 	for (const Incoming *train : incomingTrains)
 	{
@@ -265,24 +276,44 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			throw invalid_argument("The length of the arrival train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + arrivalTrack->GetID() + "] it arrives:" + to_string(arrivalTrackLength));
 		}
 
-		// Get the tasks per train, a train here reflects to an train unit within the shunting unit
+		if (!train->IsInstanding())
+		{
+			// Calculates the number of arrival train types, this will be compared with the number of departing train types
+			for (Train trainUnit : shuntingUnit->GetTrains())
+			{
+				string trainType = trainUnit.GetType()->displayName;
+
+				incomingTrainTypes[trainType] += 1;
+			}
+		}
+		else
+		{
+			// Calculates the train types which were alredy on the shunting yard, this will be compared with the number of departing train types
+			for (Train trainUnit : shuntingUnit->GetTrains())
+			{
+				string trainType = trainUnit.GetType()->displayName;
+
+				inStandingTrainTypes[trainType] += 1;
+			}
+		}
+
+		// Get the tasks per train, a train here reflects to a train unit within the shunting unit
 		const unordered_map<const Train *, vector<Task>, TrainHash, TrainEquals> trainTasks = train->GetTasks();
 
-		for(const auto& [trainPtr, tasks]: trainTasks)
+		for (const auto &[trainPtr, tasks] : trainTasks)
 		{
-			for(Task task: tasks)
+			for (Task task : tasks)
 			{
 				totalTaskTime = totalTaskTime + task.duration;
 			}
 		}
 	}
-	
-	if(totalTaskTime > GetEndTime())
+
+	if (totalTaskTime > GetEndTime())
 	{
 		throw invalid_argument("The total time to finish all the tasks is [" + to_string(totalTaskTime) + "] > than the end time of the scenario [" + to_string(GetEndTime()) + "]");
-		
-		// cout << "Total Task time : " << totalTaskTime << endl;
 
+		// cout << "Total Task time : " << totalTaskTime << endl;
 	}
 	cout << "Arrival trains fit to the arrival tracks" << endl;
 
@@ -308,6 +339,26 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 		{
 			throw invalid_argument("The length of the departure train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + departureTrack->GetID() + "] it arrives:" + to_string(departureTrackLength));
 		}
+
+		if (!train->IsInstanding())
+		{
+			// Calculates the number of departing train types, this will be compared with the number of arriving train 
+			// types and instanding train types
+			for (Train trainUnit : shuntingUnit->GetTrains())
+			{
+				string trainType = trainUnit.GetType()->displayName;
+				outgoingTrainTypes[trainType] += 1;
+			}
+		}
 	}
+
+	for (const auto &[trainType, count] : incomingTrainTypes)
+	{
+		if (outgoingTrainTypes[trainType] > count + inStandingTrainTypes[trainType])
+		{
+			throw invalid_argument("The number of departure trains of type: [" + trainType + "] : " + to_string(outgoingTrainTypes[trainType]) + "does not match the number of arrived trains of type[" + trainType + "] : " + to_string(count) + "plus the number of instanding trains of type [" + trainType + "] : " + to_string(inStandingTrainTypes[trainType]));
+		}
+	}
+
 	cout << "Departure trains fit to the departure tracks" << endl;
 }
