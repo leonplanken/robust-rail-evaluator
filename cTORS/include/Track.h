@@ -38,6 +38,19 @@ inline TrackPartType ConvertPBTrackPartType(PBTrackPartType pb_track_part_type) 
 	return static_cast<TrackPartType>(pb_track_part_type);
 }
 
+inline std::string to_string(TrackPartType trackType) {
+    switch (trackType) {
+        case TrackPartType::Railroad:   return "Railroad";
+        case TrackPartType::Switch: return "Switch";
+        case TrackPartType::EnglishSwitch:  return "EnglishSwitch";
+        case TrackPartType::HalfEnglishSwitch:  return "HalfEnglishSwitch";
+        case TrackPartType::InterSection:  return "InterSection";
+        case TrackPartType::Bumper:  return "Bumper";
+        case TrackPartType::Building:  return "Building";
+        default:           return "Unknown";
+    }
+}
+
 class Facility;
 
 /**
