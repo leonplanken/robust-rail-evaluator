@@ -241,3 +241,29 @@ void Scenario::PrintScenarioInfo() const
 		cout << endl;
 	}
 }
+
+
+void Scenario::CheckTrainLengthFit(const Location &location) const
+{
+	vector<Track *> locationTracks = location.GetTracks();
+
+	for (const Incoming *train : incomingTrains)
+	{
+		// Test if arrival train length does not exceed the length of the track (RailRoad) it arrives
+		double shuntingUnitLength = 0.0;
+		double arrivalTrackLength = 0.0;
+		Track *arrivalTrack;
+
+		const ShuntingUnit *shuntingUnit = train->GetShuntingUnit();
+		shuntingUnitLength = shuntingUnit->GetLength();
+		arrivalTrack = location.GetTrackByID(train->GetParkingTrack()->GetID());
+		arrivalTrackLength = arrivalTrack->GetLength();
+
+		if (shuntingUnitLength > arrivalTrackLength)
+		{
+			throw invalid_argument("The length of the arrival train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + arrivalTrack->GetID() + "] it arrives:" + to_string(arrivalTrackLength));
+		}
+	}
+	cout << "Arrival trains fit to the arrival tracks" << endl;
+
+}

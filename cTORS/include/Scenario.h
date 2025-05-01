@@ -102,6 +102,10 @@ public:
 
 	/** Serialize this object to a protobuf object */
 	void Serialize(PBScenario* pb_scenario) const;
+
+	/** Minimal check of Scenario: **/
+	/** Tests if arrival train length does not exceed the length of the track (RailRoad) it arrives **/
+	void CheckTrainLengthFit(const Location& location) const;
 };
 
 #endif
