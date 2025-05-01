@@ -16,7 +16,6 @@ Scenario::Scenario(string scenarioFileString, const Location &location)
 		std::cout << "Protobuf has been initialized and may contain data." << std::endl;
 	}
 	Init(pb_scenario, location);
-
 }
 
 Scenario::Scenario(const PBScenario &pb_scenario, const Location &location)
@@ -139,7 +138,7 @@ void Scenario::ImportEmployees(const PBScenario &pb_scenario, const Location &lo
 
 template <class PBTrainGoal>
 TrainGoal *ImportTrainGoal(const Location &location, const PBTrainGoal &m, bool in, bool standing)
-{	
+{
 
 	TrainGoal *g = in ? static_cast<TrainGoal *>(new Incoming(m, standing)) : new Outgoing(m, standing);
 	string park = to_string(m.parkingtrackpart());
@@ -163,21 +162,17 @@ void Scenario::ImportShuntingUnits(const PBScenario &pb_scenario, const Location
 	{
 		incomingTrains.push_back(dynamic_cast<Incoming *>(ImportTrainGoal(location, pb_in, true, false)));
 	}
-	
+
 	for (auto &pb_in : pb_scenario.instanding())
 		incomingTrains.push_back(dynamic_cast<Incoming *>(ImportTrainGoal(location, pb_in, true, true)));
-	
-	
+
 	for (auto &pb_out : pb_scenario.out())
 		outgoingTrains.push_back(dynamic_cast<Outgoing *>(ImportTrainGoal(location, pb_out, false, false)));
-	
 
 	for (auto &pb_out : pb_scenario.outstanding())
 		outgoingTrains.push_back(dynamic_cast<Outgoing *>(ImportTrainGoal(location, pb_out, false, true)));
 
-
 	debug_out("finished loading ShuntingUnits from JSON");
-
 }
 
 void Scenario::Serialize(PBScenario *pb_scenario) const
@@ -242,11 +237,10 @@ void Scenario::PrintScenarioInfo() const
 	}
 }
 
-
-void Scenario::CheckTrainLengthFit(const Location &location) const
+void Scenario::CheckScenarioCorrectness(const Location &location) const
 {
 	vector<Track *> locationTracks = location.GetTracks();
-
+	int totalTaskTime = 0;
 	for (const Incoming *train : incomingTrains)
 	{
 		// Test if arrival train length does not exceed the length of the track (RailRoad) it arrives
@@ -257,13 +251,63 @@ void Scenario::CheckTrainLengthFit(const Location &location) const
 		const ShuntingUnit *shuntingUnit = train->GetShuntingUnit();
 		shuntingUnitLength = shuntingUnit->GetLength();
 		arrivalTrack = location.GetTrackByID(train->GetParkingTrack()->GetID());
+
+		// Type is railroad ? - if not then the train cannot arrive to this infrastructure
+		if (arrivalTrack->GetType() != TrackPartType::Railroad)
+		{
+			throw invalid_argument("The arrival track [" + arrivalTrack->GetID() + "]: type is " + to_string(arrivalTrack->GetType()) + " and it should be RailRoad");
+		}
+
 		arrivalTrackLength = arrivalTrack->GetLength();
 
 		if (shuntingUnitLength > arrivalTrackLength)
 		{
 			throw invalid_argument("The length of the arrival train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + arrivalTrack->GetID() + "] it arrives:" + to_string(arrivalTrackLength));
 		}
+
+		// Get the tasks per train, a train here reflects to an train unit within the shunting unit
+		const unordered_map<const Train *, vector<Task>, TrainHash, TrainEquals> trainTasks = train->GetTasks();
+
+		for(const auto& [trainPtr, tasks]: trainTasks)
+		{
+			for(Task task: tasks)
+			{
+				totalTaskTime = totalTaskTime + task.duration;
+			}
+		}
+	}
+	
+	if(totalTaskTime > GetEndTime())
+	{
+		throw invalid_argument("The total time to finish all the tasks is [" + to_string(totalTaskTime) + "] > than the end time of the scenario [" + to_string(GetEndTime()) + "]");
+		
+		// cout << "Total Task time : " << totalTaskTime << endl;
+
 	}
 	cout << "Arrival trains fit to the arrival tracks" << endl;
 
+	for (const Outgoing *train : outgoingTrains)
+	{
+		// Test if departure train length does not exceed the length of the track (RailRoad) it arrives
+		double shuntingUnitLength = 0.0;
+		double departureTrackLength = 0.0;
+		Track *departureTrack;
+
+		const ShuntingUnit *shuntingUnit = train->GetShuntingUnit();
+		shuntingUnitLength = shuntingUnit->GetLength();
+		departureTrack = location.GetTrackByID(train->GetParkingTrack()->GetID());
+		departureTrackLength = departureTrack->GetLength();
+
+		// Type is railroad ? - if not the then the train cannot depart from this infrastructure
+		if (departureTrack->GetType() != TrackPartType::Railroad)
+		{
+			throw invalid_argument("The departure track [" + departureTrack->GetID() + "]: type is " + to_string(departureTrack->GetType()) + " and it should be RailRoad");
+		}
+
+		if (shuntingUnitLength > departureTrackLength)
+		{
+			throw invalid_argument("The length of the departure train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + departureTrack->GetID() + "] it arrives:" + to_string(departureTrackLength));
+		}
+	}
+	cout << "Departure trains fit to the departure tracks" << endl;
 }
