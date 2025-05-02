@@ -342,6 +342,7 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 
 		cout << "Departure trains fit to the departure tracks" << endl;
 
+		unordered_map<const Train *, string, TrainHash, TrainEquals> trainsTypes;
 		if (!train->IsInstanding())
 		{
 			// Calculates the number of departing train types, this will be compared with the number of arriving train 
@@ -350,6 +351,9 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			{
 				string trainType = trainUnit.GetType()->displayName;
 				outgoingTrainTypes[trainType] += 1;
+
+				trainsTypes[&trainUnit] = trainType;
+
 			}
 		}
 		else
@@ -362,7 +366,30 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 				outStandingTrainTypes[trainType] += 1;
 			}
 		}
+
+		// Cheks if the shunting unit contains trains of the same type (SLT, SNG, etc)
+		// It is not possible to combine trains of different types
+		auto firstTrainUint = trainsTypes.begin();
+		string typeFirstTrainUnitLong = firstTrainUint->second;
+		size_t position = typeFirstTrainUnitLong.find('-'); // find position to remove part with "-", e.g., from SLT-6 only SLT part is needed
+		string typeFirstTrainUnit = typeFirstTrainUnitLong.substr(0, position); // removes "-X" part
+
+		for(auto it = next(trainsTypes.begin()); it!=trainsTypes.end(); it++)
+		{
+			string typeCurrentTrainUnitLong = it->second;
+			size_t position = typeCurrentTrainUnitLong.find("-"); // removes "-X" part
+			string typeCurrentTrainUnit = typeCurrentTrainUnitLong.substr(0, position);
+			
+			// If one of the train unit type is different from another, then the rain combination cannot be done
+			if(typeCurrentTrainUnit.find(typeFirstTrainUnit) != std::string::npos)
+			{
+				throw invalid_argument("Train units with different types cannot be combined: Train unit [" + typeFirstTrainUnit + "] is not copatible with Train unit [" + typeCurrentTrainUnit +"]");
+			}
+		}
+	
 	}
+
+	cout << "Train combination per type is correct" << endl; 
 
 	for (const auto &[trainType, count] : incomingTrainTypes)
 	{
