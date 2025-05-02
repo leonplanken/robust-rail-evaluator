@@ -288,7 +288,7 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 		}
 		else
 		{
-			// Calculates the train types which were alredy on the shunting yard, this will be compared with the number of departing train types
+			// Calculates the train types which were already on the shunting yard, this will be compared with the number of departing train types
 			for (Train trainUnit : shuntingUnit->GetTrains())
 			{
 				string trainType = trainUnit.GetType()->displayName;
@@ -340,6 +340,8 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			throw invalid_argument("The length of the departure train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + departureTrack->GetID() + "] it arrives:" + to_string(departureTrackLength));
 		}
 
+		cout << "Departure trains fit to the departure tracks" << endl;
+
 		if (!train->IsInstanding())
 		{
 			// Calculates the number of departing train types, this will be compared with the number of arriving train 
@@ -350,15 +352,26 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 				outgoingTrainTypes[trainType] += 1;
 			}
 		}
+		else
+		{
+			// Calculates the train types which will stay on the shunting yard after the end of the scenarion, this will be compared with the number of departing train types
+			for (Train trainUnit : shuntingUnit->GetTrains())
+			{
+				string trainType = trainUnit.GetType()->displayName;
+
+				outStandingTrainTypes[trainType] += 1;
+			}
+		}
 	}
 
 	for (const auto &[trainType, count] : incomingTrainTypes)
 	{
-		if (outgoingTrainTypes[trainType] > count + inStandingTrainTypes[trainType])
+		if (outgoingTrainTypes[trainType] > count + inStandingTrainTypes[trainType] - outStandingTrainTypes[trainType])
 		{
-			throw invalid_argument("The number of departure trains of type: [" + trainType + "] : " + to_string(outgoingTrainTypes[trainType]) + "does not match the number of arrived trains of type[" + trainType + "] : " + to_string(count) + "plus the number of instanding trains of type [" + trainType + "] : " + to_string(inStandingTrainTypes[trainType]));
+			throw invalid_argument("The number of departure trains of type: [" + trainType + "] : " + to_string(outgoingTrainTypes[trainType]) + "does not match the number of arrived trains of type[" + trainType + "] : " + to_string(count) + "plus the number of instanding trains of type [" + trainType + "] : " + to_string(inStandingTrainTypes[trainType]) + "or the required number of outstanding trains of type [" +  trainType + "] : " + to_string(outStandingTrainTypes[trainType]) + "is too high compared to the instanding, incoming and outgoing trains");
 		}
 	}
 
-	cout << "Departure trains fit to the departure tracks" << endl;
+	cout << "Departure train types correspond to the Arrival and Instanding train types" << endl;
+
 }
