@@ -76,62 +76,27 @@ namespace cTORSTest
 
 		}
 		CHECK(no_error);
-		// auto &sc1 = engine.GetScenario(scenario_path);
-		// {o
-		// 	Scenario sc2(sc1);
-		// }
-		// CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType() != nullptr);
-		// auto st1 = engine.StartSession(sc1);
-		// engine.EndSession(st1);
-		// CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType() != nullptr);
-		// for (int i = 0; i < 1; i++)
-		// {
-		// 	CAPTURE("Test " + to_string(i));
-		// 	Scenario sc3(sc1);
-		// 	auto st2 = engine.StartSession(sc3);
-		// 	engine.Step(st2);
-		// 	int counter = 0;
-		// 	while (true)
-		// 	{
-		// 		try
-		// 		{
-		// 			list<const Action *> &actions = engine.GetValidActions(st2);
-		// 			if (actions.size() == 0)
-		// 				break;
-		// 			auto it = actions.begin();
-		// 			advance(it, counter++ % actions.size());
-		// 			auto a = *it;
-		// 			engine.ApplyActionAndStep(st2, a);
-		// 		}
-		// 		catch (ScenarioFailedException &e)
-		// 		{
-		// 			break;
-		// 		}
-		// 	}
-		// 	engine.EndSession(st2);
-		// 	CHECK(sc1.GetIncomingTrains().front()->GetShuntingUnit()->GetTrains().front().GetType() != nullptr);
-		// }
 	}
 
-	// TEST_CASE("Plan Compatibility test")
-	// {
-	// 	cout << "-------------------------------------------------------------------------------------------------" << endl;
-	// 	cout << "											PLAN TEST " << endl;
-	// 	cout << "-------------------------------------------------------------------------------------------------" << endl;
-	// 	/* HIP plan protobuf is different thatn the one used by cTORS. HIP plans converted into json format that has to be somehow parsed to cTORS protobuf
-	// 	this code is intended to do this conversion*/
+	TEST_CASE("Plan Compatibility test")
+	{
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+		cout << "											PLAN TEST " << endl;
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+		/* HIP plan protobuf is different thatn the one used by cTORS. HIP plans converted into json format that has to be somehow parsed to cTORS protobuf
+		this code is intended to do this conversion*/
 
-	// 	LocationEngine engine(location_path);
-	// 	auto &scenario = engine.GetScenario(scenario_path);
-	// 	const Location &location = engine.GetLocation();
+		LocationEngine engine(location_path);
+		auto &scenario = engine.GetScenario(scenario_path);
+		const Location &location = engine.GetLocation();
 
-	// 	PB_HIP_Plan pb_hip_plan;
+		PB_HIP_Plan pb_hip_plan;
 
 
-	// 	ParseHIP_PlanFromJson(plan_path, pb_hip_plan);
+		ParseHIP_PlanFromJson(plan_path, pb_hip_plan);
 
-	// 	auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, scenario_path, &location);
-	// 	CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
+		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, scenario_path, &location);
+		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
 
-	// }
+	}
 }
