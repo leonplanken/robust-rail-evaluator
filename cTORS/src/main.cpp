@@ -51,6 +51,17 @@ int main(int argc, char *argv[])
 	cout << "-------------------------------------------------------------------------------------------------" << endl;
 
 	auto &scenario = engine.GetScenario(path_scenario);
+
+	try
+	{
+		scenario.CheckScenarioCorrectness(location);
+	}
+	catch (const std::invalid_argument &e)
+	{
+		std::cerr << "Issue detected with the Scenario: " << e.what() << std::endl;
+		return 1;
+	}
+
 	scenario.PrintScenarioInfo();
 
 	if (mode == "EVAL")
