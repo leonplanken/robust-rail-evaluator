@@ -25,9 +25,16 @@ Create env:
 conda env create -f env.yml
 ```
 
-
 Activate environment:
 ```bash
+conda activate my_proto_env
+```
+
+
+If conda asks to init first (CondaError: Run 'conda init' before 'conda activate'):
+```bash
+conda init
+source ~/.bashrc
 conda activate my_proto_env
 ```
 
@@ -123,14 +130,15 @@ Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevert
 
 ### Plan/Scenario/Location testing - HIP
 
-In [CompatibilityTest.cpp](cTORSTest/CompatibilityTest.cpp), the program uses environment variables to get the path to the `location` and `scenario` and `plan` files. 
+In [CompatibilityTest.cpp](cTORSTest/CompatibilityTest.cpp), the program uses environment variables to get the path to the `location` and `scenario` and `plan` and `evaluation resutls` files. 
 
-To specify the `location`, `scenario` and `plan` files, use:
+To specify the `location`, `scenario`, `plan` and `evaluation resutls` files, use:
 
 ```bash
 export LOCATION_PATH="/path/to/location_folder" # where the location.json file can be found
 export SCENARIO_PATH="/path/to/scenario_folder/scenario.json"
 export PLAN_PATH="/path/to/plan_folder/plan.json"
+export RESULT_PLAN="/path/to/result_folder/evaluation_resutls.txt"
 ```
 
 To run the test, use:
