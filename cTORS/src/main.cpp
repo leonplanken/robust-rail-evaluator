@@ -5,13 +5,13 @@
 // ./TORS --mode EVAL/INTER --path_location ~/my_location_folder --path_scenario ~/my_scenarion.json --path_plan ~/my_plan.json --plan_type TORS/HIP
 //
 // Args:
-//		--mode EVAL - Evaluates a plan according to a scenario and location; INTER: Interactive, the user has to chose a valid action per for each situation (state)
-//      --path_location: specifies the path to the location file which must be called as `location.json`
+//		--mode EVAL - Evaluates a plan according to a scenario and location; INTER: Interactive, the user has to chose a valid action per for each situation (state); EVAL_AND_STORE: same as EVAL mode but also stores the results, use: --path_eval_result to precise the .txt file to store the results
+// 		--path_location: specifies the path to the location file which must be called as `location.json`
 //      --path_scenario: specifies the path to the scenario file e.g., my_scenario.json
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
 //      --plan_type: specifies the type of the plan, when follows cTORS format use --plan_type, when plan is issued by HIP use --plan_type HIP
 
-int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type);
+int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result);
 
 int main(int argc, char *argv[])
 {
@@ -20,8 +20,9 @@ int main(int argc, char *argv[])
 	std::string path_scenario;
 	std::string path_plan;
 	std::string plan_type;
+	std::string path_eval_result;
 
-	if (parse(argc, argv, mode, path_location, path_scenario, path_plan, plan_type) != 0)
+	if (parse(argc, argv, mode, path_location, path_scenario, path_plan, plan_type, path_eval_result) != 0)
 	{
 		return 1;
 	}
@@ -183,6 +184,70 @@ int main(int argc, char *argv[])
 		string out;
 		cin >> out;
 	}
+	else if (mode == "EVAL_AND_STORE")
+	{
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+		cout << "							PLAN EVALUATION TEST 		  			   				  " << endl;
+		cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+		if (plan_type == "HIP")
+		{
+			PB_HIP_Plan pb_hip_plan;
+
+			// Parses HIP issued (plan also following HIP format)
+			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
+			auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
+
+			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
+			{
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+				cout << "The plan is valid" << endl;
+			}
+			else
+			{
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+				cout << "The plan is not valid" << endl;
+			}
+
+			return 0;
+		}
+		else if (plan_type == "TORS")
+		{
+			PBRun pb_run_external;
+
+			// Parses the TORS fromated plan
+			GetRunResultProto(path_plan, pb_run_external);
+
+			auto runResult_external = RunResult::CreateRunResult(&location, pb_run_external);
+
+			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
+			{
+
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+				cout << "The plan is valid" << endl;
+			}
+			else
+			{
+
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+				cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+				cout << "The plan is not valid" << endl;
+			}
+
+			return 0;
+		}
+	}
 	else
 	{
 		cout << "Unknown --mode. It should be EVAL or INTER" << endl;
@@ -190,7 +255,7 @@ int main(int argc, char *argv[])
 }
 
 // Parse input arguments for configuration
-int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type)
+int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result)
 {
 	std::map<std::string, std::string> args;
 	for (int i = 1; i < argc; i += 2)
@@ -209,6 +274,21 @@ int parse(int argc, char *argv[], std::string &mode, std::string &path_location,
 	if (args.find("--mode") != args.end())
 	{
 		mode = args["--mode"];
+
+		// in case the evaluation results must be stored a path to the
+		// file used to store the evalutaion results is also required
+		if (mode == "EVAL_AND_STORE")
+		{
+			if (args.find("--path_eval_result") != args.end())
+			{
+				path_eval_result = args["--path_eval_result"];
+			}
+			else
+			{
+				std::cout << "Missing path_eval_result " << std::endl;
+				return 1;
+			}
+		}
 	}
 	else
 	{
