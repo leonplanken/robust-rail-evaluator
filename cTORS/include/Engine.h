@@ -61,6 +61,8 @@ public:
 	bool IsStateActive(const State* state) const;
 	/** Evaluate the given POSPlan for the given Scenario */
 	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan);
+	/** Evaluate the given POSPlan for the given Scenario and save the evaluation result */
+	bool EvaluatePlan(const Scenario& scenario, const POSPlan& plan, const string &path);
 	/** Start a session for the given Scenario and generate an initial State */
 	State* StartSession(const Scenario& scenario);
 	/** End the session that belongs to the given State */

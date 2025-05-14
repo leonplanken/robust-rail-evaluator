@@ -88,7 +88,8 @@ public:
 	State(const State& state) = default;
 	/** Destroy the State */
 	~State();
-
+	// To save state results to .txt format
+	ofstream file; 
 	//Events
 	/** Get the number of Event%s in the EventQueue */
 	inline size_t GetNumberOfEvents() const { return events.size(); }
@@ -272,6 +273,10 @@ public:
 
 	/** Print the state info */
 	void PrintStateInfo() const;
+	/** Save State information */
+	void SaveState();
+	/** Add extra information about the state, this information is stored in the state->file */
+	void AddExtraInfo(const string& info);
 };
 
 #endif

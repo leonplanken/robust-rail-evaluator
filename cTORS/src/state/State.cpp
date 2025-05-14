@@ -423,6 +423,7 @@ const Outgoing *State::GetOutgoingByID(int id) const
 	return *it;
 }
 
+
 void State::PrintStateInfo() const
 {
 	cout << "|---------------------------|" << endl;
@@ -706,4 +707,227 @@ void State::PrintStateInfo() const
 		}
 		cout << endl;
 	}
+}
+
+void State::SaveState()
+{
+	file << "|---------------------------|" << endl;
+	file << "|   State at T" << setw(6) << left << GetTime() << "        |" << endl;
+	file << "|---------------------------|" << endl;
+	if (GetShuntingUnits().size() == 0)
+		file << "No shunting units on the yard." << endl;
+	for (auto &[su, suState] : GetShuntingUnitStates())
+	{
+		file << su << ": " << endl
+			 << "\twaiting\t\t=\t" << suState.waiting << endl
+			 << "\tmoving\t\t=\t" << suState.moving << endl
+			 << "\tbegin moving\t=\t" << suState.beginMoving << endl
+			 << "\tin neutral\t=\t" << suState.inNeutral << endl
+			 << "\tfront train\t=\t" << suState.frontTrain << endl
+			 << "\tposition\t=\t" << suState.position << endl
+			 << "\tprevious\t=\t" << suState.previous << endl
+			 << "\tactive actions\t=\t" << (suState.activeActions.size() == 0 ? "None" : Join(suState.activeActions.begin(), suState.activeActions.end(), ", ")) << endl;
+		for (auto &train : su->GetTrains())
+		{
+			file << "\t> " << train;
+			auto &tasks = GetTasksForTrain(&train);
+			auto &activeTasks = GetActiveTasksForTrain(&train);
+			if (tasks.size() + activeTasks.size() > 0)
+				file << ": ";
+			else
+				file << ": no tasks.";
+			if (tasks.size() > 0)
+				file << "Tasks: " << Join(tasks, ", ");
+			if (tasks.size() > 0 && activeTasks.size() > 0)
+				file << " / ";
+			if (activeTasks.size() > 0)
+				file << "Active: " << Join(activeTasks, ", ") << endl;
+			file << endl;
+		}
+	}
+	if (shuntingUnits.size() > 0)
+		file << endl
+			 << "Track occupations:" << endl;
+	for (auto &[track, trackState] : trackStates)
+	{
+		if (trackState.reserved || trackState.occupations.size() > 0)
+		{
+			file << "\t" << track;
+			if (trackState.reserved && trackState.occupations.size() > 0)
+				file << " (reserved) \t|";
+
+			if (trackState.occupations.size() > 0)
+			{
+				string su_action = "";
+				int numOfOccupation = 1;
+				for (auto su : trackState.occupations)
+				{
+					if (numOfOccupation > 1)
+					{
+						file << "\t\t\t|";
+						file << "  A <--";
+					}
+					else
+					{
+						file << "\t|";
+						file << "  A <--";
+					}
+
+					auto trains = GetTrainUnitsInOrder(su);
+					trains = vector<Train>(trains.rbegin(), trains.rend());
+
+					auto su_state = GetShuntingUnitState(su);
+
+					bool direction = track->IsASide(GetPrevious(su));
+					const Track *previous_track = GetPrevious(su);
+					auto frontTrain = su_state.frontTrain;
+
+					file << " SU-" << su->GetID() << "( ";
+
+					if (!direction)
+						trains = vector<Train>(trains.rbegin(), trains.rend());
+
+					list<const Action *> _actions = GetActiveActions(su);
+					for (auto _action : _actions)
+					{
+
+						if (dynamic_cast<const CombineAction *>(_action))
+						{
+							su_action = "[-CombineAction-]";
+							trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const BeginMoveAction *>(_action))
+						{
+							su_action = "[-BeginMoveAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const MoveAction *>(_action))
+						{
+							su_action = "[-MoveAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const EndMoveAction *>(_action))
+						{
+							su_action = "[-EndMoveAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const ExitAction *>(_action))
+						{
+							su_action = "[-ExitAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const ArriveAction *>(_action))
+						{
+							su_action = "[-ArriveAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const SplitAction *>(_action))
+						{
+							su_action = "[-SplitAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const ServiceAction *>(_action))
+						{
+							su_action = "[-ServiceAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const SetbackAction *>(_action))
+						{
+							su_action = "[-SetbackAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else if (dynamic_cast<const WaitAction *>(_action))
+						{
+							su_action = "[-WaitAction-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+						else
+						{
+							su_action = "[-No action-]";
+							// trains = vector<Train>(trains.rbegin(), trains.rend());
+							break;
+						}
+					}
+				    if(_actions.size() == 0 && IsChanged())
+						su_action = "[-No action-]";
+
+
+
+					for (size_t i = 0; i < trains.size(); i++)
+					{
+						file << trains[i].GetID();
+						if (i < trains.size() - 1)
+							file << " - ";
+					}
+
+					file << " ) --- " << su_action << " ";
+					file << "-> B --- Front train" << frontTrain;
+					file << endl;
+					numOfOccupation++;
+				}
+			}
+			file << endl;
+
+		}
+	}
+	file << endl;
+	if (GetNumberOfEvents() == 0)
+		file << "No events in the Event Queue" << endl;
+	else
+	{
+		auto evt = PeekEvent();
+		file << "Next event at T" << evt->GetTime() << ": " << evt << endl;
+		file << GetNumberOfEvents() << " remaining events." << endl;
+	}
+	file << endl;
+
+	if (incomingTrains.size() == 0)
+		file << "No arrivals" << endl
+			 << endl;
+	else
+	{
+		file << "Arrivals:" << endl;
+		for (auto inc : incomingTrains)
+		{
+			file << "\tT" << inc->GetTime() << ": \t" << inc->GetShuntingUnit() << " (" << inc->GetShuntingUnit()->GetTrainString() << ") at "
+				 << inc->GetParkingTrack() << " from " << inc->GetSideTrack();
+			if (inc->IsInstanding())
+				file << " (instanding)";
+			file << endl;
+		}
+		file << endl;
+	}
+
+	if (outgoingTrains.size() == 0)
+		file << "No departures" << endl
+			 << endl;
+	else
+	{
+		file << "Departures:" << endl;
+		for (auto out : outgoingTrains)
+		{
+			file << "\tT" << out->GetTime() << ": \t" << out->GetShuntingUnit() << " (" << out->GetShuntingUnit()->GetTrainString() << ") at "
+				 << out->GetParkingTrack() << " to " << out->GetSideTrack();
+			if (out->IsInstanding())
+				file << " (outstanding)";
+			file << endl;
+		}
+		file << endl;
+	}
+}
+
+void State::AddExtraInfo(const string& info)
+{
+	if(file.is_open())
+		file << info << endl;
 }

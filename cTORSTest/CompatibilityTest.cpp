@@ -13,10 +13,12 @@ namespace cTORSTest
 	// export LOCATION_PATH="/path/to/location_folder" - where the location.json file can be found e.g. "~/data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2"
 	// export SCENARIO_PATH="/path/to/scenario_folder/scenario.json"
 	// export PLAN_PATH="/path/to/plan_folder/plan.json"
+	// export RESULT_PATH="/path/to/plan_folder/result.txt"
 
 	string location_path;
 	string scenario_path;
 	string plan_path;
+	string result_path;
 
 	TEST_CASE("Scenario and Location Compatibility test")
 	{
@@ -51,6 +53,13 @@ namespace cTORSTest
 		cout << "Plan path: " << plan_path << endl;
 		
 
+		// Get evaluation result path and ensure it is specified
+		const char* RESULT_PATH = getenv("RESULT_PATH");
+		REQUIRE(RESULT_PATH != nullptr);
+
+		result_path = string(RESULT_PATH);
+		cout << "Evaluation result path: " << result_path << endl;
+		
 
 		LocationEngine engine(location_path);
 
@@ -96,7 +105,7 @@ namespace cTORSTest
 		ParseHIP_PlanFromJson(plan_path, pb_hip_plan);
 
 		auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, scenario_path, &location);
-		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()));
+		CHECK(engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), result_path));
 
 	}
 }
