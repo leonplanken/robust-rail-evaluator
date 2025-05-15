@@ -1,4 +1,4 @@
-# Evaluato
+# Evaluator
 
 This evaluator is the extension of the outcome of the research outcome called: [TORS: A Train Unit Shunting and Servicing Simulator](https://research-portal.uu.nl/en/publications/tors-a-train-unit-shunting-and-servicing-simulator-2)
 
