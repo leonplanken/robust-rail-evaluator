@@ -31,50 +31,20 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
 
     string jsonResult;
     google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(pb_action, &jsonResult);
-    if (status.ok())
+    if (!status.ok())
     {
-        std::cout << "CreatePOSAction - Action: " << jsonResult << std::endl;
-    }
-    else
-    {
-        std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+         std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
     }
 
     int suggestedStartingTime = pb_action.suggestedstartingtime();
     int suggestedEndingTime = pb_action.suggestedfinishingtime();
     int minDuration = pb_action.minimumduration();
 
-    // cout << "Test - trainUnitIDs" << endl;
     auto &_pb_trainUnitIDs = pb_action.trainunitids();
-    // for (auto id = pb_action.trainunitids().begin(); id != pb_action.trainunitids().end(); ++id)
-    //     cout << *id << endl;
-
+ 
     vector<int> trainIDs = GetTrainIDs(pb_action.trainunitids());
 
-    // cout << "Test - trainUnitIDs as vectors" << endl;
-    // for (auto id = trainIDs.begin(); id != trainIDs.end(); ++id)
-    //     cout << *id << endl;
-
-    // // Reverse trainIDs
-    // cout << "Test reverse - trainUnitIDs as vectors" << endl;
-
-    // vector<int> copy_trainIDs(trainIDs);
-    // int index = 0;
-
-    // for (auto it = copy_trainIDs.end() - 1; it >= copy_trainIDs.begin(); --it, ++index)
-    // {
-    //     trainIDs[index] = *it;
-    //     cout << trainIDs[index] << endl;
-    //     // pb_action.mutable_trainunitids(index) = *it;
-    // }
-
-    // cout << "New Train IDs in proto" << endl;
-    // vector<int> test_ids = GetTrainIDs(pb_action.trainunitids());
-    // for(auto i = test_ids.begin(); i != test_ids.end(); i++)
-    //     cout << *i << endl;
-
     SimpleAction *action;
-    // SimpleAction *mult_action;
 
     if (pb_action.has_movement())
     {
@@ -302,21 +272,16 @@ POSPlan POSPlan::CreatePOSPlan(const Location *location, const Scenario *scenari
     {
         string jsonResult;
         google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(_action, &jsonResult);
-        if (status.ok())
-        {
-            std::cout << "Acction: " << jsonResult << std::endl;
-        }
-        else
+        if (!status.ok())
         {
             std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
         }
+     
     }
 
     transform(pb_actions.begin(), pb_actions.end(), back_inserter(actions),
               [location, scenario](const PBAction &pba) -> const POSAction
               { return POSAction::CreatePOSAction(location, scenario, pba); });
-
-    cout << " Until here " << endl;
 
     return POSPlan(actions);
 }
@@ -329,7 +294,6 @@ void POSPlan::Serialize(LocationEngine &engine, const Scenario &scenario, PBPOSP
     {
         try
         {
-            // debug_out("Serializing T=" + to_string(state->GetTime()) + ". A=" + it->GetAction()->toString() + " at T=" + to_string(it->GetSuggestedStart()) + ".");
             std::cout << "Serializing T=" + to_string(state->GetTime()) + ". A=" + it->GetAction()->toString() + " at T=" + to_string(it->GetSuggestedStart()) + "." + "\n";
             engine.Step(state);
             debug_out("Finished Step Update [T=" + to_string(state->GetTime()) + "].");
@@ -547,7 +511,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             {
             case PB_HIP_PredefinedTaskType::Move:
             {
-                cout << "Move action" << std::endl;
                 
                 // Zero movement in HIP might be generated for HIP specific reasons
                 // but a Zero movement is seen as an error by TORS
@@ -594,8 +557,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
                 task_action->add_trainunitids(trainUnits[0].id());
 
-                cout << "Split action" << std::endl;
-
                 pb_actions.push_back(action_);
 
                 break;
@@ -614,13 +575,11 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
                 pb_combne_actions.push_back(action_);
 
-                cout << "Combine action" << std::endl;
                 break;
             }
 
             case PB_HIP_PredefinedTaskType::Wait:
             {
-                cout << "Wait action" << std::endl;
                 action_.mutable_break_();
                 pb_actions.push_back(action_);
 
@@ -636,7 +595,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
                 pb_actions.push_back(action_);
 
-                cout << "Arrive action" << std::endl;
                 break;
             }
             case PB_HIP_PredefinedTaskType::Exit:
@@ -648,7 +606,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
                 taskType->set_predefined(PBPredefinedTaskType::Exit);
 
                 pb_actions.push_back(action_);
-                cout << "Exit action" << std::endl;
                 break;
             }
 
@@ -682,14 +639,11 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
 
         string jsonResult;
         google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(action_, &jsonResult);
-        if (status.ok())
+        if (!status.ok())
         {
-            std::cout << "JSON string: " << jsonResult << std::endl;
+           std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
         }
-        else
-        {
-            std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
-        }
+      
         index++;
     }
 
@@ -745,15 +699,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     PBScenario pb_scenario;
     parse_json_to_pb(fs::path(scenarioFileString), &pb_scenario);
 
-    // if (!pb_scenario.IsInitialized() || pb_scenario.ByteSizeLong() == 0)
-    // {
-    // 	std::cerr << "Protobuf is empty or not initialized." << std::endl;
-    // }
-    // else
-    // {
-    // 	std::cout << "Scenario protobuf has been initialized and may contain data." << std::endl;
-    // }
-
     // Add scenario to the plan
     pb_run.mutable_scenario()->CopyFrom(pb_scenario);
 
@@ -763,8 +708,6 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     Scenario scenario = Scenario(scenarioFileString, *location);
 
     POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_plan);
-
-    cout << " Until here " << endl;
 
     bool feasible = pb_run.feasible();
 

@@ -8,7 +8,7 @@
 #include "Facility.h"
 using namespace std;
 #define MAX_PATH_LENGTH INT32_MAX /**< The initial maximum path length */
-#define DEBUG 1
+// #define DEBUG 1
 /**
  * A Path describes a route through the shunting yard.
  * 

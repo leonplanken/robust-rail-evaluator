@@ -8,7 +8,7 @@
 #include "Plan.h"
 
 using namespace std;
-#define DEBUG 1
+// #define DEBUG 1
 
 class RunResult;
 class POSPlan;
