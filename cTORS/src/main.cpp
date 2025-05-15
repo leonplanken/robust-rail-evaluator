@@ -2,14 +2,14 @@
 #include "Engine.h"
 
 // Usage:
-// ./TORS --mode EVAL/INTER --path_location ~/my_location_folder --path_scenario ~/my_scenarion.json --path_plan ~/my_plan.json --plan_type TORS/HIP
+// ./TORS --mode EVAL/INTER --path_location ~/my_location_folder --path_scenario ~/my_scenarion.json --path_plan ~/my_plan.json --plan_type Evaluator/Solver
 //
 // Args:
 //		--mode EVAL - Evaluates a plan according to a scenario and location; INTER: Interactive, the user has to chose a valid action per for each situation (state); EVAL_AND_STORE: same as EVAL mode but also stores the results, use: --path_eval_result to precise the .txt file to store the results
 // 		--path_location: specifies the path to the location file which must be called as `location.json`
 //      --path_scenario: specifies the path to the scenario file e.g., my_scenario.json
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
-//      --plan_type: specifies the type of the plan, when follows cTORS format use --plan_type, when plan is issued by HIP use --plan_type HIP
+//      --plan_type: specifies the type of the plan, when follows robust-rail-evaluator format use --plan_type Evaluator, when plan is issued by robust-rail-solver use --plan_type Solver
 
 int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result);
 
@@ -71,11 +71,11 @@ int main(int argc, char *argv[])
 		cout << "							PLAN EVALUATION TEST 		  			   				  " << endl;
 		cout << "-------------------------------------------------------------------------------------------------" << endl;
 
-		if (plan_type == "HIP")
+		if (plan_type == "Solver")
 		{
 			PB_HIP_Plan pb_hip_plan;
 
-			// Parses HIP issued (plan also following HIP format)
+			// Parses robus-rail-solver issued (plan also following Solver format)
 			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
 			auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
 
@@ -98,11 +98,11 @@ int main(int argc, char *argv[])
 
 			return 0;
 		}
-		else if (plan_type == "TORS")
+		else if (plan_type == "Evaluator")
 		{
 			PBRun pb_run_external;
 
-			// Parses the TORS fromated plan
+			// Parses the Evaluator fromated plan
 			GetRunResultProto(path_plan, pb_run_external);
 
 			auto runResult_external = RunResult::CreateRunResult(&location, pb_run_external);
@@ -190,11 +190,11 @@ int main(int argc, char *argv[])
 		cout << "							PLAN EVALUATION TEST 		  			   				  " << endl;
 		cout << "-------------------------------------------------------------------------------------------------" << endl;
 
-		if (plan_type == "HIP")
+		if (plan_type == "Solver")
 		{
 			PB_HIP_Plan pb_hip_plan;
 
-			// Parses HIP issued (plan also following HIP format)
+			// Parses robus-rail-solver issued (plan also following Solver format)
 			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
 			auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
 
@@ -217,11 +217,11 @@ int main(int argc, char *argv[])
 
 			return 0;
 		}
-		else if (plan_type == "TORS")
+		else if (plan_type == "Evaluator")
 		{
 			PBRun pb_run_external;
 
-			// Parses the TORS fromated plan
+			// Parses the Evaluator fromated plan
 			GetRunResultProto(path_plan, pb_run_external);
 
 			auto runResult_external = RunResult::CreateRunResult(&location, pb_run_external);

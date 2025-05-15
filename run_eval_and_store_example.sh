@@ -6,4 +6,4 @@
     --path_scenario "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/Fixed/scenario.json" \
     --path_plan "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/Fixed/plan.json" \
     --path_eval_result "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/Fixed/evaluation_results.txt" \
-    --plan_type "HIP"
+    --plan_type "Solver"
