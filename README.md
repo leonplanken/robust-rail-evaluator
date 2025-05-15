@@ -1,15 +1,15 @@
-# Evaluator - Treinonderhoud- en -rangeersimulator (TORS)
+# Evaluato
 
 This evaluator is the extension of the outcome of the research outcome called: [TORS: A Train Unit Shunting and Servicing Simulator](https://research-portal.uu.nl/en/publications/tors-a-train-unit-shunting-and-servicing-simulator-2)
 
 The resulting Train Unit Shunting and Servicing problem motivates advanced research in planning and scheduling in general since it integrates several known individually hard problems while incorporating many real-life details. The developed an event-based simulator called TORS (Dutch acronym for Train Shunting and Servicing Simulator), that provides the user with a state and all feasible actions. After an action is picked, TORS calculates the result and the process repeats. This simulator facilitates research into a realistic application of multi-agent path finding and path evaluation.
 
-This implementation of TORS consists of a backend written in C++ (cTORS), and a front-end written in python (TORS). It is highly advised to use only the backend (C++).
+This implementation consists of a backend written in C++, and a front-end written in python. **It is highly advised to use only the backend (C++)**.
 
 ## Project setup
 The basic project setup uses the structure provided by cmake. The subfolders are subprojects:
-* cTORS: The c++ implementation of TORS
-* cTORSTest: The tests for cTORS
+* cTORS: The c++ implementation of the evaluator.
+* cTORSTest: Unit test like version of the main functionalities
 
 # Native support
 * Linux [YES]
@@ -39,14 +39,14 @@ conda activate my_proto_env
 ```
 
 ### Build with setuptools
-You can build cTORS and the pyTORS library with the following command.
+You can build the evaluator and the python library with the following command.
 ```sh
 mkdir build
 python setup.py build
 python setup.py install
 ```
 
-### Compile cTORS from C++ source
+### Build the evaluator from C++ source
 In the source directory execute the following commands:
 **Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
 ```bash
@@ -57,34 +57,50 @@ cmake --build .
 ```
 This has been tested with gcc 9.4.0 Older versions may not support the c++17 standard. 
 
+### Build the evaluator with debug option
+```bash
+mkdir build
+cd build
+cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Debug
+cmake --build .
+```
+
+To go back from debug to release:
+```bash
+mkdir build
+cd build
+cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+```
 
 # How To Use ?
 
 ### Input files
-cTORS requires at least two input files:
+The evaluator requires at least two input files:
 - **`location`** - location of where the scenario happens (e.g., shunting yard)  
 - **`scenario`** - scenario of train operations (e.g., train arrivals/departures at a specific time, required services)
 
 To evaluate the validity of a schedule plan, a plan file is also needed:
 - **`plan`** - schedule plan created to resolve a scheduling problem of the `scenario` in a `location`. 
 
-cTORS can be used in a `Main` environment or in a `Testing` environment
+The evaluator can be used in a `Main` environment or in a `Testing` environment
 
-## Usage of cTORS in the Main Environment
+## Usage of evaluator in the Main Environment
 
-In this environment cTORS has two main modes.
+In this environment evaluator has three main modes.
 - **Plan Evaluation mode (EVAL)**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
 - **Interactive mode (INTER)**: the user is asked to choose an action to be executed in each state of the scenario
-
+- **Plan Evaluation mode and storage of results (EVAL_AND_SOTE)**: the user can store all the evaluation results in a .txt file
 Usage is:
 
 ```bash
 cd build
-./TORS --mode "EVAL"/"INTER" \
+./TORS --mode "EVAL"/"INTER"/"EVAL_AND_STORE" \
     --path_location "~/my_location_folder" \
     --path_scenario "~/my_scenarion.json" \
     --path_plan "~/my_plan.json" \
     --plan_type "TORS"/"HIP"
+    --path_eval_result "~/my_evaluation_results.txt" (in EVAL_AND_STORE mode only)
 ```
 Arguments:
 
@@ -118,7 +134,6 @@ Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
 ./run_eval_example.sh
 ```
 
-
 *Example for plan evaluation wiht storage -* In the project directory run:
 ```bash
 ./build/TORS --mode "EVAL_AND_STORE" \
@@ -147,9 +162,9 @@ Click on [**Description**](doc/Description_TORS.md).
 
 
 ##  Usage of the Plan evaluator in Testing Environment
-This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environment can be used to evaluate HIP or cTORS formate plans in a test environment providing an overview about the test cases' success rate.
+This mode of the program was mainly designed to evaluate the feasibility of different HIP plans (shunting yard schedules) -- `TEST_CASE("Plan Compatibility test")` --, and to test the validity of the location and scenario associated to the given plan -- `TEST_CASE("Scenario and Location Compatibility test")` --. Nevertheless, this environment can be used to evaluate `robust-rail-solver` or `robust-rail-evaluator` formated plans in a test environment providing an overview about the test cases' success rate.
 
-Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate cTORS formate plans as well.  
+Note: This evaluator takes as input a HIP plan (HIP plan format is used). Nevertheless, it can also evaluate `robust-rail-evaluator` formated plans as well.  
 
 ### Plan/Scenario/Location testing - HIP
 
@@ -219,7 +234,7 @@ sudo update-alternatives --config g++
 Choose the correct version: Select the number corresponding to the version of g++ that is aimed to be used.
 
 ### Install Cmake and Python development libraries
-To compile cTORS, cmake 3.11 (or higher) is required and the python development libraries:
+To compile the evaluator, cmake 3.11 (or higher) is required and the python development libraries:
 ```
 apt-get install cmake
 apt-get install python3-dev
@@ -241,7 +256,7 @@ conda init
 In principle the robust-rail tools are built in a single Docker do ease the development and usage. Nevertheless, it is possible to use/build `robust-rail-evaluator` as a standalone tool
 
 ## Dev-Container setup
-The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommended in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows compiling and use cTORS without platform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted `ctors` code base can be modified real-time in a docker environment via **VS Code**.
+The usage of **[Dev-Container](https://code.visualstudio.com/docs/devcontainers/tutorial)** is highly recommended in macOS environment. Running **VS Code** inside a Docker container is useful, since it allows compiling and use evaluator without platform dependencies. In addition, **Dev-Container** allows to an easy to use dockerized development since the mounted code base can be modified real-time in a docker environment via **VS Code**.
 
 * 1st - Install **Docker**
 
@@ -268,14 +283,14 @@ conda activate my_proto_env
 ```
 
 ### Build with setuptools
-You can build cTORS and the pyTORS library with the following command.
+You can build evaluator and the pyTORS library with the following command.
 ```sh
 mkdir build
 python setup.py build
 python setup.py install
 ```
 
-### Compile cTORS from C++ source
+### Compile the evaluator from C++ source
 In the source directory execute the following commands:
 **Don't forget to specify** the `-DCONDA_ENV="path/to/conda_env"`
 ```bash
@@ -284,9 +299,6 @@ cd build
 cmake .. -DCONDA_ENV="path/to/conda_env
 cmake --build .
 ```
-
-## Documentation
-The documentation in the C++ code is written in the Doxygen format. Install doxygen (optional) to generate the documentation, or check the full documentation online at [algtudelft.github.io/cTORS](https://algtudelft.github.io/cTORS/).
 
 ### Dependencies installation
 To generate the documentation, install the following programs:
