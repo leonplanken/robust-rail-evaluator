@@ -440,10 +440,9 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 	{
 		try
 		{
-			if (DEBUG){
-				// state->PrintStateInfo();
-				state->SaveState();
-			}
+			
+			state->SaveState();
+			
 
 			if (state->GetTime() >= it->GetSuggestedStart())
 			{	 
