@@ -282,7 +282,8 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			for (Train trainUnit : shuntingUnit->GetTrains())
 			{
 				string trainType = trainUnit.GetType()->displayName;
-
+				if (incomingTrainTypes.find(trainType) != incomingTrainTypes.end())
+					incomingTrainTypes[trainType] = 0;
 				incomingTrainTypes[trainType] += 1;
 			}
 		}
@@ -292,6 +293,8 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			for (Train trainUnit : shuntingUnit->GetTrains())
 			{
 				string trainType = trainUnit.GetType()->displayName;
+				if (inStandingTrainTypes.find(trainType) != inStandingTrainTypes.end())
+					inStandingTrainTypes[trainType] = 0;
 
 				inStandingTrainTypes[trainType] += 1;
 			}
@@ -340,65 +343,73 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 			throw invalid_argument("The length of the departure train [" + to_string(train->GetID()) + "]: " + to_string(shuntingUnitLength) + " is greater than the length of the track's [" + departureTrack->GetID() + "] it arrives:" + to_string(departureTrackLength));
 		}
 
-		cout << "Departure trains fit to the departure tracks" << endl;
-
 		unordered_map<const Train *, string, TrainHash, TrainEquals> trainsTypes;
 		if (!train->IsInstanding())
 		{
-			// Calculates the number of departing train types, this will be compared with the number of arriving train 
+			// Calculates the number of departing train types, this will be compared with the number of arriving train
 			// types and instanding train types
 			for (Train trainUnit : shuntingUnit->GetTrains())
 			{
 				string trainType = trainUnit.GetType()->displayName;
+				if (outgoingTrainTypes.find(trainType) != outgoingTrainTypes.end())
+					outgoingTrainTypes[trainType] = 0;
+
 				outgoingTrainTypes[trainType] += 1;
 
 				trainsTypes[&trainUnit] = trainType;
-
 			}
 		}
 		else
 		{
+
 			// Calculates the train types which will stay on the shunting yard after the end of the scenarion, this will be compared with the number of departing train types
 			for (Train trainUnit : shuntingUnit->GetTrains())
 			{
+
 				string trainType = trainUnit.GetType()->displayName;
+				if (outStandingTrainTypes.find(trainType) != outStandingTrainTypes.end())
+					outStandingTrainTypes[trainType] = 0;
 
 				outStandingTrainTypes[trainType] += 1;
+
+				trainsTypes[&trainUnit] = trainType;
+
 			}
+			cout << "Detected outStanding Trains" << endl;
+
 		}
 
 		// Cheks if the shunting unit contains trains of the same type (SLT, SNG, etc)
 		// It is not possible to combine trains of different types
 		auto firstTrainUint = trainsTypes.begin();
 		string typeFirstTrainUnitLong = firstTrainUint->second;
-		size_t position = typeFirstTrainUnitLong.find('-'); // find position to remove part with "-", e.g., from SLT-6 only SLT part is needed
+		size_t position = typeFirstTrainUnitLong.find('-');						// find position to remove part with "-", e.g., from SLT-6 only SLT part is needed
 		string typeFirstTrainUnit = typeFirstTrainUnitLong.substr(0, position); // removes "-X" part
 
-		for(auto it = next(trainsTypes.begin()); it!=trainsTypes.end(); it++)
+		for (auto it = next(trainsTypes.begin()); it != trainsTypes.end(); it++)
 		{
 			string typeCurrentTrainUnitLong = it->second;
 			size_t position = typeCurrentTrainUnitLong.find("-"); // removes "-X" part
 			string typeCurrentTrainUnit = typeCurrentTrainUnitLong.substr(0, position);
-			
+
 			// If one of the train unit type is different from another, then the rain combination cannot be done
-			if(typeCurrentTrainUnit.find(typeFirstTrainUnit) != std::string::npos)
+			if (typeCurrentTrainUnit.find(typeFirstTrainUnit) != std::string::npos)
 			{
-				throw invalid_argument("Train units with different types cannot be combined: Train unit [" + typeFirstTrainUnit + "] is not copatible with Train unit [" + typeCurrentTrainUnit +"]");
+				throw invalid_argument("Train units with different types cannot be combined: Train unit [" + typeFirstTrainUnit + "] is not copatible with Train unit [" + typeCurrentTrainUnit + "]");
 			}
 		}
-	
 	}
+	cout << "Departure trains fit to the departure tracks" << endl;
 
-	cout << "Train combination per type is correct" << endl; 
+	cout << "Train combination per type is correct" << endl;
 
 	for (const auto &[trainType, count] : incomingTrainTypes)
 	{
 		if (outgoingTrainTypes[trainType] > count + inStandingTrainTypes[trainType] - outStandingTrainTypes[trainType])
 		{
-			throw invalid_argument("The number of departure trains of type: [" + trainType + "] : " + to_string(outgoingTrainTypes[trainType]) + "does not match the number of arrived trains of type[" + trainType + "] : " + to_string(count) + "plus the number of instanding trains of type [" + trainType + "] : " + to_string(inStandingTrainTypes[trainType]) + "or the required number of outstanding trains of type [" +  trainType + "] : " + to_string(outStandingTrainTypes[trainType]) + "is too high compared to the instanding, incoming and outgoing trains");
+			throw invalid_argument("The number of departure trains of type: [" + trainType + "] : " + to_string(outgoingTrainTypes[trainType]) + "does not match the number of arrived trains of type[" + trainType + "] : " + to_string(count) + "plus the number of instanding trains of type [" + trainType + "] : " + to_string(inStandingTrainTypes[trainType]) + "or the required number of outstanding trains of type [" + trainType + "] : " + to_string(outStandingTrainTypes[trainType]) + "is too high compared to the instanding, incoming and outgoing trains");
 		}
 	}
 
 	cout << "Departure train types correspond to the Arrival and Instanding train types" << endl;
-
 }
