@@ -62,7 +62,7 @@ void LocationEngine::Step(State *state)
 		debug_out("All shunting units are still active, but still " << state->GetNumberOfEvents()
 																	<< " events available at T" << state->GetTime() << ".");
 		state->AddExtraInfo("All shunting units are still active, but still " + to_string(state->GetNumberOfEvents()) + " events available at T" + to_string(state->GetTime()) + ".");
-		
+
 		const Event *evnt;
 		if (disturbances.size() > 0 && disturbances.top()->GetTime() <= state->PeekEvent()->GetTime())
 			evnt = disturbances.top();
@@ -140,13 +140,12 @@ void LocationEngine::ApplyAction(State *state, const SimpleAction &action)
 				cout << task << ": ";
 				for (auto fa : fas)
 				{
-						cout << " -> facility : " << fa;
-						if (static_cast<const Service *>(&action)->GetTask().toString() == task.toString())\
-						{
-							const Action *sub_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, Service(_su, task, tu, fa));
-							action_per_tu[tu.GetID()].push_back(sub_action);
-
-						}
+					cout << " -> facility : " << fa;
+					if (static_cast<const Service *>(&action)->GetTask().toString() == task.toString())
+					{
+						const Action *sub_action = actionManager.GetGenerator(action.GetGeneratorName())->Generate(state, Service(_su, task, tu, fa));
+						action_per_tu[tu.GetID()].push_back(sub_action);
+					}
 				}
 				cout << endl;
 			}
@@ -239,11 +238,11 @@ void LocationEngine::ApplyWaitAllUntil(State *state, int time)
 	{
 		if (!suState.waiting && time - state->GetTime() > 0 && !suState.HasActiveAction())
 		{
-			const auto &action = new WaitAction(su, time - state->GetTime());	
-			
+			const auto &action = new WaitAction(su, time - state->GetTime());
+
 			debug_out("Applying action " << action->toString() << " at T" << state->GetTime());
 			state->AddExtraInfo("Applying action " + action->toString() + " at T" + to_string(state->GetTime()));
-			
+
 			ApplyAction(state, action);
 		}
 	}
@@ -286,7 +285,7 @@ const Action *LocationEngine::GenerateAction(const State *state, const SimpleAct
 }
 
 list<const Action *> &LocationEngine::GetValidActions(State *state)
-{ 
+{
 	debug_out("Starting GetValidActions");
 	state->AddExtraInfo("Starting GetValidActions");
 
@@ -295,7 +294,7 @@ list<const Action *> &LocationEngine::GetValidActions(State *state)
 		auto &actions = stateActionMap.at(state);
 		DELETE_LIST(actions)
 		actionManager.Generate(state, actions);
-		
+
 		debug_out("Generated " + to_string(actions.size()) + " actions");
 		state->AddExtraInfo("Generated " + to_string(actions.size()) + " actions");
 		state->SetUnchanged();
@@ -308,8 +307,7 @@ list<const Action *> &LocationEngine::GetValidActions(State *state)
 	for (auto a : actions)
 	{
 		debug_out("\t" << setw(3) << right << to_string(i++) << ": " + a->toString());
-		state->AddExtraInfo("\t    " +  to_string(i++) + ": " + a->toString() );
-		
+		state->AddExtraInfo("\t    " + to_string(i++) + ": " + a->toString());
 	}
 	return actions;
 }
@@ -322,13 +320,13 @@ void LocationEngine::ExecuteImmediateEvents(State *state)
 	}
 	debug_out("Execute immediate events (" << to_string(state->GetNumberOfEvents()) << " events queued)");
 	state->AddExtraInfo("Execute immediate events (" + to_string(state->GetNumberOfEvents()) + " events queued)");
-	
+
 	while (state->GetNumberOfEvents() > 0)
 	{
 		auto evnt = state->PeekEvent();
 		debug_out("Next event at T=" << to_string(evnt->GetTime()) << ": " << evnt->toString());
 		state->AddExtraInfo("Next event at T=" + to_string(evnt->GetTime()) + ": " + evnt->toString());
-		
+
 		if (evnt->GetTime() > state->GetTime())
 			break;
 		evnt = state->PopEvent();
@@ -343,7 +341,7 @@ void LocationEngine::ExecuteEvent(State *state, const Event *e)
 	{
 		debug_out("\tFinishing action " + a->toString());
 		state->AddExtraInfo("\tFinishing action " + a->toString());
-	
+
 		state->FinishAction(a);
 	}
 	state->SetTime(e->GetTime());
@@ -371,16 +369,19 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 	{
 		try
 		{
-			if (DEBUG){
+			if (DEBUG)
+			{
 				state->PrintStateInfo();
 			}
 
 			if (state->GetTime() >= it->GetSuggestedStart())
-			{	 
+			{
 				cout << "**********************************************************ACTION**********************************************************" << endl;
-				cout << "Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime() << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]" << endl;
-				cout << "**************************************************************************************************************************" << endl;
 				
+				cout << "Applying action  " << (it->GetAction())->toString() << " at T" << state->GetTime() << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]" << endl;
+			
+				cout << "**************************************************************************************************************************" << endl;
+
 				debug_out("Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime()
 											 << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]");
 				ApplyActionAndStep(state, *(it->GetAction()));
@@ -392,7 +393,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 			}
 		}
 		catch (ScenarioFailedException &e)
-		{	
+		{
 			cout << "------------------------------------RESULT------------------------------------" << endl;
 			cout << "Scenario failed." << endl;
 			cout << "------------------------------------------------------------------------------" << endl;
@@ -412,7 +413,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 	bool result = (state->GetShuntingUnits().size() == 0);
 	EndSession(state);
 
-	if(result)
+	if (result)
 	{
 		cout << "------------------------------------RESULT------------------------------------" << endl;
 		cout << "The plan is valid" << endl;
@@ -430,7 +431,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 
 bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan, const string &path)
 {
- 
+
 	auto state = StartSession(scenario);
 	state->file.open(path);
 
@@ -440,16 +441,15 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 	{
 		try
 		{
-			
+
 			state->SaveState();
-			
 
 			if (state->GetTime() >= it->GetSuggestedStart())
-			{	 
+			{
 				state->file << "**********************************************************ACTION**********************************************************" << endl;
 				state->file << "Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime() << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]" << endl;
 				state->file << "**************************************************************************************************************************" << endl;
-				
+
 				debug_out("Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime()
 											 << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]");
 				ApplyActionAndStep(state, *(it->GetAction()));
@@ -461,7 +461,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 			}
 		}
 		catch (ScenarioFailedException &e)
-		{	
+		{
 			state->file << "------------------------------------RESULT------------------------------------" << endl;
 			cout << "Scenario failed." << endl;
 			state->file << "------------------------------------------------------------------------------" << endl;
@@ -481,7 +481,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 	bool result = (state->GetShuntingUnits().size() == 0);
 	EndSession(state);
 
-	if(result)
+	if (result)
 	{
 		state->file << "------------------------------------RESULT------------------------------------" << endl;
 		state->file << "The plan is valid" << endl;
