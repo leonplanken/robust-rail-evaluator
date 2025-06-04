@@ -174,15 +174,22 @@ public:
 class Arrive : public SimpleAction {
 private:
 	int incomingID;
+	bool standingType;
+
 public:
 	Arrive() = delete;
 	/** Construct an Arrive action from the Incoming event */
-	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incomingID(inc->GetID()) {}
+	Arrive(const Incoming* inc) : SimpleAction(inc->GetShuntingUnit()), incomingID(inc->GetID()), standingType(inc->IsInstanding()) {}
 	/** Default copy constructor */
 	Arrive(const Arrive& arrive) = default;
+
 	/** Get the id of the Incoming event */
 	inline const int GetIncomingID() const { return incomingID; }
-	inline const string toString() const override { return "Arrive: " + GetTrainsToString(); }
+	inline const string toString() const override {
+		if(!standingType)
+			return "Arrive: " + GetTrainsToString();
+		return 	"Arrive: >> InStanding train << " + GetTrainsToString();
+	}
 	inline const string GetGeneratorName() const override { return "arrive"; }
 	inline const Arrive* Clone() const override { return new Arrive(*this); }
 };
@@ -193,6 +200,8 @@ public:
 class Exit : public SimpleAction {
 private:
 	int outgoingID;
+	bool standingType;
+
 public:
 	Exit() = delete;
 	
@@ -204,7 +213,7 @@ public:
 	 * some type, with no set id. Therefore the train ids of the ShuntingUnit in the shunting yard need to 
 	 * be specified seperately.
 	 */
-	Exit(const vector<int>& ids, int outgoingID) : SimpleAction(ids), outgoingID(outgoingID) {}
+	Exit(const vector<int>& ids, int outgoingID, bool isInstanding=false) : SimpleAction(ids), outgoingID(outgoingID), standingType(isInstanding) {}
 	
 	/**
 	 * Construct an Exit action for the ShuntingUnit and the Outgoing event.
@@ -213,12 +222,18 @@ public:
 	 * some type, with no set id. Therefore the ShuntingUnit in the shunting yard need to 
 	 * be specified seperately.
 	 */
-	Exit(const ShuntingUnit* su, const Outgoing* out) : Exit(su->GetTrainIDs(), out->GetID()) {}
+	Exit(const ShuntingUnit* su, const Outgoing* out) : Exit(su->GetTrainIDs(), out->GetID()) {
+		standingType = out->IsInstanding();	
+	}
 	/** The default copy constructor */
 	Exit(const Exit& exit) = default;
 	/** Get the id of the Outgoing event */
 	inline const int GetOutgoingID() const { return outgoingID; }
-	inline const string toString() const override { return "Exit: " + GetTrainsToString(); }
+	inline const string toString() const override {
+		if(!standingType) 
+			return "Exit: " + GetTrainsToString();
+		return 	"Exit: >> OutStanding train <<" + GetTrainsToString();
+	}
 	inline const string GetGeneratorName() const override { return "exit"; }
 	inline const Exit* Clone() const override { return new Exit(*this); }
 };
