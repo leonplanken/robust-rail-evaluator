@@ -33,7 +33,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
     google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(pb_action, &jsonResult);
     if (!status.ok())
     {
-         std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+        std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
     }
 
     int suggestedStartingTime = pb_action.suggestedstartingtime();
@@ -41,7 +41,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
     int minDuration = pb_action.minimumduration();
 
     auto &_pb_trainUnitIDs = pb_action.trainunitids();
- 
+
     vector<int> trainIDs = GetTrainIDs(pb_action.trainunitids());
 
     SimpleAction *action;
@@ -73,22 +73,36 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 break;
             case PBPredefinedTaskType::Exit:
             {
+                
+
                 vector<const TrainUnitType *> types;
                 for (int id : trainIDs)
+                {
                     types.push_back(scenario->GetTrainByID(id)->GetType());
-                auto &outgoingTrains = scenario->GetOutgoingTrains();
+                }
                 int start = pb_action.suggestedstartingtime();
                 int end = pb_action.suggestedfinishingtime();
+
+                auto &outgoingTrains = scenario->GetOutgoingTrains();
+
+                map<int, bool> track_exiting_trains(scenario->track_exiting_trains.begin(), scenario->track_exiting_trains.end());
                 auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(),
-                                  [start, end, &trainIDs, &types](const Outgoing *out) -> bool
+                                  [start, end, &trainIDs, &types, &track_exiting_trains](const Outgoing *out) -> bool
                                   {
                                       return out->GetTime() >= start &&
                                              out->GetTime() <= end &&
-                                             out->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types);
+                                             out->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types) &&
+                                             track_exiting_trains[out->GetID()] == false;
                                   });
                 if (it == outgoingTrains.end())
                     throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
+
                 action = new Exit(trainIDs, (*it)->GetID(), (*it)->IsInstanding());
+
+                if (scenario->track_exiting_trains.find((*it)->GetID()) != scenario->track_exiting_trains.end())
+                {
+                    scenario->UpdateTrackExitingTrains((*it)->GetID(), true);
+                }
 
                 break;
             }
@@ -276,7 +290,6 @@ POSPlan POSPlan::CreatePOSPlan(const Location *location, const Scenario *scenari
         {
             std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
         }
-     
     }
 
     transform(pb_actions.begin(), pb_actions.end(), back_inserter(actions),
@@ -504,13 +517,13 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
         // Check if the shunting unit is In/OutStanding train
         // If field is defined it states InStanding when the train unit was alredy on the yard even if the action says it is an arrival
         // or it states OutStanding when the train unit will stay in the shunting yards after the scenario ends even if the action is an exite one
-        if(hip_shuntingUnit.standingtype() != "")
+        if (hip_shuntingUnit.standingtype() != "")
         {
             action_.set_standingtype(hip_shuntingUnit.standingtype());
         }
 
         PB_HIP_TaskType taskType = hip_action.tasktype();
-        
+
         // test if predefined or other field is defined
         if (taskType.has_predefined())
         {
@@ -519,14 +532,14 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             {
             case PB_HIP_PredefinedTaskType::Move:
             {
-                
+
                 // Zero movement in HIP might be generated for HIP specific reasons
                 // but a Zero movement is seen as an error by TORS
-                if(hip_action.endtime() - hip_action.starttime() == 0)
+                if (hip_action.endtime() - hip_action.starttime() == 0)
                 {
                     break;
                 }
-                
+
                 PBMovementAction *move_action = action_.mutable_movement();
 
                 move_action->add_path(hip_action.location());
@@ -595,6 +608,7 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             }
             case PB_HIP_PredefinedTaskType::Arrive:
             {
+
                 PBTaskAction *task_action = action_.mutable_task();
 
                 PBTaskType *taskType = task_action->mutable_type();
@@ -607,6 +621,7 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
             }
             case PB_HIP_PredefinedTaskType::Exit:
             {
+
                 PBTaskAction *task_action = action_.mutable_task();
 
                 PBTaskType *taskType = task_action->mutable_type();
@@ -614,6 +629,7 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
                 taskType->set_predefined(PBPredefinedTaskType::Exit);
 
                 pb_actions.push_back(action_);
+
                 break;
             }
 
@@ -649,9 +665,9 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
         google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(action_, &jsonResult);
         if (!status.ok())
         {
-           std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+            std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
         }
-      
+
         index++;
     }
 
@@ -695,6 +711,14 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     // Add actions to plan
     for (auto &action : pb_actions)
     {
+        string jsonResult;
+        google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(action, &jsonResult);
+        if (!status.ok())
+        {
+            std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+        }
+        // cout << "Action : " << jsonResult << endl;
+
         PBAction *action_ = pb_plan.add_actions();
         action_->CopyFrom(action);
         // *pb_plan.add_actions() = action;

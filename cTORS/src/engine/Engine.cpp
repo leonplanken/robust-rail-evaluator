@@ -376,6 +376,8 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 
 			if (state->GetTime() >= it->GetSuggestedStart())
 			{
+
+			
 				cout << "**********************************************************ACTION**********************************************************" << endl;
 				
 				cout << "Applying action  " << (it->GetAction())->toString() << " at T" << state->GetTime() << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]" << endl;
@@ -384,6 +386,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan)
 
 				debug_out("Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime()
 											 << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]");
+				
 				ApplyActionAndStep(state, *(it->GetAction()));
 				it++;
 			}
@@ -446,7 +449,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 
 			if (state->GetTime() >= it->GetSuggestedStart())
 			{
-				state->file << "**********************************************************ACTION**********************************************************" << endl;
+				state->file << "**********************************************************ACTION**********************************************************" << endl;				
 				state->file << "Applying action " << (it->GetAction())->toString() << " at T" << state->GetTime() << " [" << it->GetSuggestedStart() << "-" << it->GetSuggestedEnd() << "]" << endl;
 				state->file << "**************************************************************************************************************************" << endl;
 
