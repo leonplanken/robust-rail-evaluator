@@ -15,9 +15,11 @@ void ExitAction::Start(State *state) const
 void ExitAction::Finish(State *state) const
 {
 	state->RemoveActiveAction(su, this);
-	if (!outgoing->IsInstanding())
+	if (!outgoing->IsInstanding()){
 		state->FreeTracks(vector({outgoing->GetParkingTrack(), outgoing->GetSideTrack()}));
+	}
 	state->RemoveShuntingUnit(su);
+	
 }
 
 const string ExitAction::toString() const
@@ -27,9 +29,11 @@ const string ExitAction::toString() const
 
 const Action *ExitActionGenerator::Generate(const State *state, const SimpleAction &action) const
 {
+
 	auto exit = static_cast<const Exit *>(&action);
 	auto su = InitialCheck(state, action);
 	auto out = state->GetOutgoingByID(exit->GetOutgoingID());
+	
 	if (out == nullptr)
 		throw InvalidActionException("There is no outgoing train with ID " + to_string(exit->GetOutgoingID()));
 	return new ExitAction(su, 0, out);
