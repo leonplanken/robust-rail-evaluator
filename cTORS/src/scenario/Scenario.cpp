@@ -50,6 +50,8 @@ Scenario::Scenario(const Scenario &scenario) : startTime(scenario.startTime), en
 		employees.push_back(new Employee(*e));
 	// TODO disturbances
 	// TODO tasks
+	for (auto out: scenario.outgoingTrains)
+		track_exiting_trains[out->GetID()] = false;
 }
 
 Scenario::~Scenario()
@@ -173,6 +175,9 @@ void Scenario::ImportShuntingUnits(const PBScenario &pb_scenario, const Location
 		outgoingTrains.push_back(dynamic_cast<Outgoing *>(ImportTrainGoal(location, pb_out, false, true)));
 
 	debug_out("finished loading ShuntingUnits from JSON");
+
+	for (auto out: outgoingTrains)
+		track_exiting_trains[out->GetID()] = false;
 }
 
 void Scenario::Serialize(PBScenario *pb_scenario) const

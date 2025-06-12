@@ -109,6 +109,11 @@ public:
 	/** Tests if the arrival track is a type of RailRoad**/
 	/** Tests if the last parking track is a type of RailRoad**/	
 	void CheckScenarioCorrectness(const Location& location) const;
+	
+	mutable map<int, bool> track_exiting_trains;
+	inline void UpdateTrackExitingTrains(int trainID, bool visited) const {track_exiting_trains[trainID] = visited;}
+
+
 };
 
 #endif
