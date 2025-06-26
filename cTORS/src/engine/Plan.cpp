@@ -25,20 +25,20 @@ POSAction &POSAction::operator=(const POSAction &pa)
     return *this;
 }
 
-
-static string formatExitTrainError(const int& track_exiting_train_ID,  const bool& isTrainMatched, const int& actionStartTime, const int& actionEndTime, const int& trainMustDepartTime){
+static string formatExitTrainError(const int &track_exiting_train_ID, const bool &isTrainMatched, const int &actionStartTime, const int &actionEndTime, const int &trainMustDepartTime)
+{
     std::ostringstream oss;
     oss << "\n+---------------------------+\n";
     oss << "|     🚨 ERROR OCCURRED     |\n";
     oss << "+---------------------------+\n";
     oss << "| Tracked Train     : " << track_exiting_train_ID << "\n";
-    oss << "| Is Train matched  : " << (isTrainMatched? "Yes":"No") << "\n";
+    oss << "| Is Train matched  : " << (isTrainMatched ? "Yes" : "No") << "\n";
     oss << "| Action start time : " << actionStartTime << "\n";
     oss << "| Action end time   : " << actionEndTime << "\n";
     oss << "| Trains's departure: " << trainMustDepartTime << "\n";
     oss << "+---------------------------+\n";
     oss << "| Error Suspected:  \n";
-    if(trainMustDepartTime >= actionStartTime || trainMustDepartTime <= actionEndTime)
+    if (trainMustDepartTime >= actionStartTime || trainMustDepartTime <= actionEndTime)
     {
         oss << "| Trains's departure mismatch " << "\n";
         oss << "| with Action start/end time" << "\n";
@@ -46,12 +46,10 @@ static string formatExitTrainError(const int& track_exiting_train_ID,  const boo
     else
     {
         oss << "| Probably train IDs cannot be found " << "\n";
-
     }
     oss << "+---------------------------+\n";
     return oss.str();
 }
-
 
 // Fixed to enable multi move actions
 POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *scenario, const PBAction &pb_action)
@@ -101,13 +99,13 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 break;
             case PBPredefinedTaskType::Exit:
             {
-                
+
                 vector<const TrainUnitType *> types;
                 for (int id : trainIDs)
                     types.push_back(scenario->GetTrainByID(id)->GetType());
                 int start = pb_action.suggestedstartingtime();
                 int end = pb_action.suggestedfinishingtime();
-                
+
                 auto &outgoingTrains = scenario->GetOutgoingTrains();
 
                 map<int, bool> track_exiting_trains(scenario->track_exiting_trains.begin(), scenario->track_exiting_trains.end());
@@ -120,9 +118,11 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                                              out->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types) &&
                                              track_exiting_trains[out->GetID()] == false;
                                   });
-                if (it == outgoingTrains.end()){
+                if (it == outgoingTrains.end())
+                {
                     vector<string> errorMessages;
-                    // cout << ">>>>>>>>>>>>>>>>>.. From <<<<<<<<<<<<<" << endl;
+                    const string pathToLocationFile = location->GetLocationFilePath();
+
                     for (const Outgoing *train : outgoingTrains)
                     {
 
@@ -130,9 +130,19 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                         errorMessages.push_back(errorMessage);
                         // cout << "Train: " << train->GetID() << " Tracked Trains: " << track_exiting_trains[train->GetID()] << " Matcing : " << train->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types) << "Action Start Time: " << start << "Action End Time: " << end << " Train Start/End Time: " << train->GetTime()<< endl;
                     }
+
+                    if (!pathToLocationFile.empty())
+                    { // That means that the EVAL_AND_STORE mode was called
+                        LocationEngine engine(pathToLocationFile);
+                        auto state = engine.StartSession(*scenario);
+                        state->file.open(scenario->GetEvaluatiorStoragePath());
+                        for (string errMessage : errorMessages)
+                            state->file << errMessage;
+                        state->file << "The plan is not valid";
+                        state->file.close();
+                    }
                     // throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
                     throw invalid_argument(Join(errorMessages.begin(), errorMessages.end(), " \n\n"));
-
                 }
 
                 action = new Exit(trainIDs, (*it)->GetID(), (*it)->IsInstanding());
@@ -216,7 +226,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
     else
     {
         action = new Wait(trainIDs);
-    } 
+    }
     return POSAction(suggestedStartingTime, suggestedEndingTime, minDuration, action);
 }
 
@@ -419,6 +429,7 @@ RunResult *RunResult::CreateRunResult(const Engine &engine, const PBRun &pb_run)
 RunResult *RunResult::CreateRunResult(const Location *location, const PBRun &pb_run)
 {
     Scenario scenario = Scenario(pb_run.scenario(), *location);
+
     POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_run.plan());
     bool feasible = pb_run.feasible();
     return new RunResult(location->GetLocationFilePath(), scenario, plan, feasible);
@@ -516,7 +527,7 @@ void sort_actions_helperfunction(vector<PBAction> &actions)
     }
 }
 
-RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string scenarioFileString, const Location *location)
+RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string scenarioFileString, const Location *location, const string &pathToStoreEval)
 {
     PBRun pb_run;
 
@@ -776,6 +787,8 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     pb_run.set_location(".");
 
     Scenario scenario = Scenario(scenarioFileString, *location);
+    if (!pathToStoreEval.empty())
+        scenario.SetEvaluatiorStoragePath(pathToStoreEval);
 
     POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_plan);
 

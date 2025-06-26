@@ -39,8 +39,7 @@ public:
 	~Scenario();
 
 	/** Print the Scenario Info */
-	void PrintScenarioInfo() const;
-	
+	void PrintScenarioInfo() const;	
 	/** Get the start time of this Scenario */
 	inline int GetStartTime() const { return startTime; }
 	/** Get the end time of this Scenario */
@@ -113,7 +112,9 @@ public:
 	mutable map<int, bool> track_exiting_trains;
 	inline void UpdateTrackExitingTrains(int trainID, bool visited) const {track_exiting_trains[trainID] = visited;}
 
-
+	string pathToStoreEval;
+	inline void SetEvaluatiorStoragePath(string path) {pathToStoreEval = path;}
+	inline const string GetEvaluatiorStoragePath() const {return pathToStoreEval;}
 };
 
 #endif

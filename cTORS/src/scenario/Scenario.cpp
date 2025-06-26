@@ -16,6 +16,8 @@ Scenario::Scenario(string scenarioFileString, const Location &location)
 		std::cout << "Protobuf has been initialized and may contain data." << std::endl;
 	}
 	Init(pb_scenario, location);
+
+	
 }
 
 Scenario::Scenario(const PBScenario &pb_scenario, const Location &location)

@@ -203,23 +203,31 @@ int main(int argc, char *argv[])
 			PB_HIP_Plan pb_hip_plan;
 
 			// Parses robus-rail-solver issued (plan also following Solver format)
-			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
-			auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
-
-			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
+			try
 			{
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
+				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location, path_eval_result);
 
-				cout << "The plan is valid" << endl;
+				if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
+				{
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+					cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+					cout << "The plan is valid" << endl;
+				}
+				else
+				{
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+					cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+					cout << "The plan is not valid" << endl;
+				}
 			}
-			else
+			catch (const std::invalid_argument &e)
 			{
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-
+				std::cerr << "Invalid argument: " << e.what() << std::endl;
 				cout << "The plan is not valid" << endl;
 			}
 
@@ -234,7 +242,7 @@ int main(int argc, char *argv[])
 
 			auto runResult_external = RunResult::CreateRunResult(&location, pb_run_external);
 
-			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
+			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()))
 			{
 
 				cout << "-------------------------------------------------------------------------------------------------" << endl;

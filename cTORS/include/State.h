@@ -89,7 +89,7 @@ public:
 	/** Destroy the State */
 	~State();
 	// To save state results to .txt format
-	ofstream file; 
+	ofstream file;
 	//Events
 	/** Get the number of Event%s in the EventQueue */
 	inline size_t GetNumberOfEvents() const { return events.size(); }
