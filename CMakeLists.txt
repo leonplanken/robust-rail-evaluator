@@ -10,6 +10,8 @@ project(TORS VERSION 0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 option(TORS_BuildTests "Build the unit tests when BUILD_TESTING is enabled." ON)
 option(TORS_Install "Install CMake targets during install step." ON)
 
