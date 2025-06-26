@@ -77,22 +77,30 @@ int main(int argc, char *argv[])
 
 			// Parses robus-rail-solver issued (plan also following Solver format)
 			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
-			auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
-
-			if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()))
+			try
 			{
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
+				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
 
-				cout << "The plan is valid" << endl;
+				if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()))
+				{
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+					cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+					cout << "The plan is valid" << endl;
+				}
+				else
+				{
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+					cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
+					cout << "-------------------------------------------------------------------------------------------------" << endl;
+
+					cout << "The plan is not valid" << endl;
+				}
 			}
-			else
+			catch (const std::invalid_argument &e)
 			{
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-				cout << "					PLAN EVALUATION TEST 		  			   				  " << endl;
-				cout << "-------------------------------------------------------------------------------------------------" << endl;
-
+				std::cerr << "Invalid argument: " << e.what() << std::endl;
 				cout << "The plan is not valid" << endl;
 			}
 

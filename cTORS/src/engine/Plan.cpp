@@ -25,6 +25,34 @@ POSAction &POSAction::operator=(const POSAction &pa)
     return *this;
 }
 
+
+static string formatExitTrainError(const int& track_exiting_train_ID,  const bool& isTrainMatched, const int& actionStartTime, const int& actionEndTime, const int& trainMustDepartTime){
+    std::ostringstream oss;
+    oss << "\n+---------------------------+\n";
+    oss << "|     🚨 ERROR OCCURRED     |\n";
+    oss << "+---------------------------+\n";
+    oss << "| Tracked Train     : " << track_exiting_train_ID << "\n";
+    oss << "| Is Train matched  : " << (isTrainMatched? "Yes":"No") << "\n";
+    oss << "| Action start time : " << actionStartTime << "\n";
+    oss << "| Action end time   : " << actionEndTime << "\n";
+    oss << "| Trains's departure: " << trainMustDepartTime << "\n";
+    oss << "+---------------------------+\n";
+    oss << "| Error Suspected:  \n";
+    if(trainMustDepartTime >= actionStartTime || trainMustDepartTime <= actionEndTime)
+    {
+        oss << "| Trains's departure mismatch " << "\n";
+        oss << "| with Action start/end time" << "\n";
+    }
+    else
+    {
+        oss << "| Probably train IDs cannot be found " << "\n";
+
+    }
+    oss << "+---------------------------+\n";
+    return oss.str();
+}
+
+
 // Fixed to enable multi move actions
 POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *scenario, const PBAction &pb_action)
 {
@@ -74,18 +102,16 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
             case PBPredefinedTaskType::Exit:
             {
                 
-
                 vector<const TrainUnitType *> types;
                 for (int id : trainIDs)
-                {
                     types.push_back(scenario->GetTrainByID(id)->GetType());
-                }
                 int start = pb_action.suggestedstartingtime();
                 int end = pb_action.suggestedfinishingtime();
-
+                
                 auto &outgoingTrains = scenario->GetOutgoingTrains();
 
                 map<int, bool> track_exiting_trains(scenario->track_exiting_trains.begin(), scenario->track_exiting_trains.end());
+
                 auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(),
                                   [start, end, &trainIDs, &types, &track_exiting_trains](const Outgoing *out) -> bool
                                   {
@@ -94,8 +120,20 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                                              out->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types) &&
                                              track_exiting_trains[out->GetID()] == false;
                                   });
-                if (it == outgoingTrains.end())
-                    throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
+                if (it == outgoingTrains.end()){
+                    vector<string> errorMessages;
+                    // cout << ">>>>>>>>>>>>>>>>>.. From <<<<<<<<<<<<<" << endl;
+                    for (const Outgoing *train : outgoingTrains)
+                    {
+
+                        string errorMessage = formatExitTrainError(train->GetID(), train->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types), start, end, train->GetTime());
+                        errorMessages.push_back(errorMessage);
+                        // cout << "Train: " << train->GetID() << " Tracked Trains: " << track_exiting_trains[train->GetID()] << " Matcing : " << train->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types) << "Action Start Time: " << start << "Action End Time: " << end << " Train Start/End Time: " << train->GetTime()<< endl;
+                    }
+                    // throw invalid_argument("Outgoing Train with ids " + Join(outgoingTrains.begin(), outgoingTrains.end(), ", ") + " does not exist.");
+                    throw invalid_argument(Join(errorMessages.begin(), errorMessages.end(), " \n\n"));
+
+                }
 
                 action = new Exit(trainIDs, (*it)->GetID(), (*it)->IsInstanding());
 
@@ -178,7 +216,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
     else
     {
         action = new Wait(trainIDs);
-    }
+    } 
     return POSAction(suggestedStartingTime, suggestedEndingTime, minDuration, action);
 }
 
