@@ -23,6 +23,7 @@ void ActionManager::Generate(const State *state, list<const Action *> &out) cons
 			auto result = IsValid(state, a);
 			if (!result.first) {
 				debug_out("Invalid action: " + a->toString() + " - " + result.second);
+				state->AddExtraInfo("Invalid action: " + a->toString() + " - " + result.second);
 				delete a;
 				return true;
 			}

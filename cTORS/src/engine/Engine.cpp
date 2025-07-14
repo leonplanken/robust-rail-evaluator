@@ -280,6 +280,8 @@ const Action *LocationEngine::GenerateAction(const State *state, const SimpleAct
 	}
 	catch (exception &e)
 	{
+		state->AddExtraInfo("Error in generating action (" + action.toString() + "): " + e.what());
+
 		throw InvalidActionException("Error in generating action (" + action.toString() + "): " + e.what());
 	}
 }
@@ -466,7 +468,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 		catch (ScenarioFailedException &e)
 		{
 			state->file << "------------------------------------RESULT------------------------------------" << endl;
-			cout << "Scenario failed." << endl;
+			state->file << "Scenario failed." << endl;
 			state->file << "------------------------------------------------------------------------------" << endl;
 			return false;
 			break;
@@ -474,7 +476,7 @@ bool LocationEngine::EvaluatePlan(const Scenario &scenario, const POSPlan &plan,
 		catch (InvalidActionException &e)
 		{
 			state->file << "------------------------------------RESULT------------------------------------" << endl;
-			cout << "Scenario failed. Invalid action: " << e.what() << "." << endl;
+			state->file << "Scenario failed. Invalid action: " << e.what() << "." << endl;
 			state->file << "------------------------------------------------------------------------------" << endl;
 
 			return false;

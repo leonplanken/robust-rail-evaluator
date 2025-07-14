@@ -926,7 +926,7 @@ void State::SaveState()
 	}
 }
 
-void State::AddExtraInfo(const string& info)
+void State::AddExtraInfo(const string& info) const
 {
 	if(file.is_open())
 		file << info << endl;
