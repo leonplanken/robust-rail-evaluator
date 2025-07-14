@@ -99,6 +99,7 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 break;
             case PBPredefinedTaskType::Exit:
             {
+                // Delta time to allow delays of the departure time
 
                 vector<const TrainUnitType *> types;
                 for (int id : trainIDs)
@@ -109,6 +110,13 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
                 auto &outgoingTrains = scenario->GetOutgoingTrains();
 
                 map<int, bool> track_exiting_trains(scenario->track_exiting_trains.begin(), scenario->track_exiting_trains.end());
+
+                // If a delay was introduced the actions's suggested finsih (departure time) is increased by this delay
+                if (scenario->GetDepartureDelay() != 0)
+                {
+                    end = end + scenario->GetDepartureDelay();
+                    start = start - scenario->GetDepartureDelay();
+                }
 
                 auto it = find_if(outgoingTrains.begin(), outgoingTrains.end(),
                                   [start, end, &trainIDs, &types, &track_exiting_trains](const Outgoing *out) -> bool
@@ -125,6 +133,8 @@ POSAction POSAction::CreatePOSAction(const Location *location, const Scenario *s
 
                     for (const Outgoing *train : outgoingTrains)
                     {
+                        // auto trains = train->GetShuntingUnit()->GetTrains();
+                        // trains.at(0)
 
                         string errorMessage = formatExitTrainError(train->GetID(), train->GetShuntingUnit()->MatchesTrainIDs(trainIDs, types), start, end, train->GetTime());
                         errorMessages.push_back(errorMessage);
@@ -527,7 +537,7 @@ void sort_actions_helperfunction(vector<PBAction> &actions)
     }
 }
 
-RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string scenarioFileString, const Location *location, const string &pathToStoreEval)
+RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string scenarioFileString, const Location *location, const string &pathToStoreEval, int departureDelay)
 {
     PBRun pb_run;
 
@@ -787,12 +797,30 @@ RunResult *RunResult::CreateRunResult(const PB_HIP_Plan &pb_hip_plan, string sce
     pb_run.set_location(".");
 
     Scenario scenario = Scenario(scenarioFileString, *location);
+
+    // Add delay to the departure time, if not spceified the delay is 0 by default
+    scenario.InitDepartureDelay(departureDelay);
+    cout << ">>>>>>> TEST departure delay time: " << scenario.GetDepartureDelay() << endl;
+
     if (!pathToStoreEval.empty())
         scenario.SetEvaluatiorStoragePath(pathToStoreEval);
 
     POSPlan plan = POSPlan::CreatePOSPlan(location, &scenario, pb_plan);
 
     bool feasible = pb_run.feasible();
+
+    pb_run.mutable_plan()->CopyFrom(pb_plan);
+    string jsonPlan;
+    google::protobuf::util::Status status = google::protobuf::util::MessageToJsonString(pb_run, &jsonPlan);
+    if (!status.ok())
+    {
+        std::cerr << "Failed to convert protobuf to JSON: " << status.ToString() << std::endl;
+    }
+
+    ofstream file;
+    file.open("/workspace/robust-rail-solver/ServiceSiteScheduling/database/TUSS-Instance-Generator/scenario_settings/setting_issue/plan_converted.json");
+    file << jsonPlan;
+    file.close();
 
     return new RunResult(location->GetLocationFilePath(), scenario, plan, feasible);
 }

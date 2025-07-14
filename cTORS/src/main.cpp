@@ -11,7 +11,7 @@
 //      --path_plan: specifies the path to the plan file e.g., my_plan.json
 //      --plan_type: specifies the type of the plan, when follows robust-rail-evaluator format use --plan_type Evaluator, when plan is issued by robust-rail-solver use --plan_type Solver
 
-int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result);
+int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result, int &departureDelay);
 
 int main(int argc, char *argv[])
 {
@@ -21,8 +21,9 @@ int main(int argc, char *argv[])
 	std::string path_plan;
 	std::string plan_type;
 	std::string path_eval_result;
+	int departureDelay;
 
-	if (parse(argc, argv, mode, path_location, path_scenario, path_plan, plan_type, path_eval_result) != 0)
+	if (parse(argc, argv, mode, path_location, path_scenario, path_plan, plan_type, path_eval_result, departureDelay) != 0)
 	{
 		return 1;
 	}
@@ -76,11 +77,11 @@ int main(int argc, char *argv[])
 			PB_HIP_Plan pb_hip_plan;
 
 			// Parses robus-rail-solver issued (plan also following Solver format)
-			ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
 			try
 			{
-				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location);
-
+				ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
+				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location, "", departureDelay);
+				
 				if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()))
 				{
 					cout << "-------------------------------------------------------------------------------------------------" << endl;
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
 			try
 			{
 				ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
-				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location, path_eval_result);
+				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location, path_eval_result, departureDelay);
 
 				if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan(), path_eval_result))
 				{
@@ -271,7 +272,7 @@ int main(int argc, char *argv[])
 }
 
 // Parse input arguments for configuration
-int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result)
+int parse(int argc, char *argv[], std::string &mode, std::string &path_location, std::string &path_scenario, std::string &path_plan, std::string &plan_type, std::string &path_eval_result, int &departureDelay)
 {
 	std::map<std::string, std::string> args;
 	for (int i = 1; i < argc; i += 2)
@@ -346,6 +347,15 @@ int parse(int argc, char *argv[], std::string &mode, std::string &path_location,
 	{
 		std::cout << "Missing plan_type " << std::endl;
 		return 1;
+	}
+	if (args.find("--departure_delay") != args.end())
+	{
+		departureDelay = stoi(args["--departure_delay"]);
+	}
+	else
+	{
+		// If the parameter is not spcified, the delay is 0 time
+		departureDelay = 0;
 	}
 
 	std::cout << "Configuration:" << std::endl;
