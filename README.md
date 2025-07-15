@@ -91,6 +91,7 @@ In this environment evaluator has three main modes.
 - **Plan Evaluation mode (EVAL)**: evaluates a schedule plan (provided as input) - it is an automatic process specifying the validity of a plan 
 - **Interactive mode (INTER)**: the user is asked to choose an action to be executed in each state of the scenario
 - **Plan Evaluation mode and storage of results (EVAL_AND_SOTE)**: the user can store all the evaluation results in a .txt file
+
 Usage is:
 
 ```bash
@@ -99,6 +100,7 @@ cd build
     --path_location "~/my_location_folder" \
     --path_scenario "~/my_scenarion.json" \
     --path_plan "~/my_plan.json" \
+    --departure_delay "0" \
     --plan_type "Evaluator"/"Solver"
     --path_eval_result "~/my_evaluation_results.txt" (in EVAL_AND_STORE mode only)
 ```
@@ -116,6 +118,8 @@ Arguments:
 
 **--path_plan** **"~/my_scenarion.json"** -specifies the path to the plan file e.g., `my_plan.json`
 
+**--departure_delay**: a certain amount of departure delay can be allowed - by default it is 0 (no departure delay is allowed) 
+
 **--plan_type** **"Evaluator"** - plan follows a evaluator (robusst-rail-evaluator) plan format
 **--plan_type** **"Solver"** - plan follows a Solver plan format (plan was issued by robust-rail-solver)
 
@@ -126,6 +130,7 @@ In the project directory run:
     --path_location "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst" \
     --path_scenario "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/scenario.json" \
     --path_plan "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/plan.json" \
+    --departure_delay "0" \
     --plan_type "Solver"
 ```
 Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
@@ -141,6 +146,7 @@ Or run the bash file [run_eval_example.sh](./run_eval_example.sh):
     --path_scenario "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/scenario.json" \
     --path_plan "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/plan.json" \
     --path_eval_result "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/evaluation_results.txt" \
+    --departure_delay "0" \
     --plan_type "Solver"
 ```
 
