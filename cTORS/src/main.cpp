@@ -299,7 +299,7 @@ int parse(int argc, char *argv[], std::string &mode, std::string &path_location,
 			if (args.find("--path_eval_result") != args.end())
 			{
 				path_eval_result = args["--path_eval_result"];
-				If the file does not exist yet, it must be created (empty file)
+				// If the file does not exist yet, it must be created (empty file)
 				if(!filesystem::exists(path_eval_result)){
 					ofstream evalResultsFile(path_eval_result);
 					evalResultsFile.close();
