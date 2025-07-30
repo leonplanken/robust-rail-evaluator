@@ -5,5 +5,5 @@
     --path_location "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst" \
     --path_scenario "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/scenario.json" \
     --path_plan "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/plan.json" \
-    --path_eval_result "./data/Demo/TUSS-Instance-Generator/kleine_brinkhorst_v2/Fixed/evaluation_results.txt" \
+    --path_eval_result "./data/Demo/TUSS-Instance-Generator/kleine_binckhorst/results/evaluation_results.txt" \
     --plan_type "Solver"
