@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 			{
 				ParseHIP_PlanFromJson(path_plan, pb_hip_plan);
 				auto runResult_external = RunResult::CreateRunResult(pb_hip_plan, path_scenario, &location, "", departureDelay);
-				
+
 				if (engine.EvaluatePlan(runResult_external->GetScenario(), runResult_external->GetPlan()))
 				{
 					cout << "-------------------------------------------------------------------------------------------------" << endl;
@@ -299,10 +299,19 @@ int parse(int argc, char *argv[], std::string &mode, std::string &path_location,
 			if (args.find("--path_eval_result") != args.end())
 			{
 				path_eval_result = args["--path_eval_result"];
+				
+				// Check if the file path exists 
+				std::filesystem::path filePath(path_eval_result);
+				if (!std::filesystem::exists(filePath.parent_path()))
+				{
+					std::filesystem::create_directories(filePath.parent_path());
+				}
+
 				// If the file does not exist yet, it must be created (empty file)
-				if(!filesystem::exists(path_eval_result)){
+				if (!filesystem::exists(filePath))
+				{
 					ofstream evalResultsFile(path_eval_result);
-					evalResultsFile.close();
+					// evalResultsFile.close();
 				}
 			}
 			else
