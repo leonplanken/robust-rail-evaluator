@@ -52,7 +52,7 @@ In the source directory execute the following commands:
 ```bash
 mkdir build
 cd build
-cmake .. -DCONDA_ENV="path/to/conda_env
+cmake .. -DCONDA_ENV="path/to/conda_env"
 cmake --build .
 ```
 This has been tested with gcc 9.4.0 Older versions may not support the c++17 standard. 
@@ -61,7 +61,7 @@ This has been tested with gcc 9.4.0 Older versions may not support the c++17 sta
 ```bash
 mkdir build
 cd build
-cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Debug
+cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Debug"
 cmake --build .
 ```
 
@@ -69,7 +69,7 @@ To go back from debug to release:
 ```bash
 mkdir build
 cd build
-cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Release
+cmake .. -DCONDA_ENV="path/to/conda_env -DCMAKE_BUILD_TYPE=Release"
 cmake --build .
 ```
 

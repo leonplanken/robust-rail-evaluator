@@ -388,8 +388,8 @@ void Scenario::CheckScenarioCorrectness(const Location &location) const
 
 		// Cheks if the shunting unit contains trains of the same type (SLT, SNG, etc)
 		// It is not possible to combine trains of different types
-		auto firstTrainUint = trainsTypes.begin();
-		string typeFirstTrainUnitLong = firstTrainUint->second;
+		auto firstTrainUnit = trainsTypes.begin();
+		string typeFirstTrainUnitLong = firstTrainUnit->second;
 		size_t position = typeFirstTrainUnitLong.find('-');						// find position to remove part with "-", e.g., from SLT-6 only SLT part is needed
 		string typeFirstTrainUnit = typeFirstTrainUnitLong.substr(0, position); // removes "-X" part
 

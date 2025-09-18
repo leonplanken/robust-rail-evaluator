@@ -323,7 +323,7 @@ int parse(int argc, char *argv[], std::string &mode, std::string &path_location,
 	}
 	else
 	{
-		std::cout << "Missing path_location " << std::endl;
+		std::cout << "Missing mode " << std::endl;
 		return 1;
 	}
 	if (args.find("--path_location") != args.end())
