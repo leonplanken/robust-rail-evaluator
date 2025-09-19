@@ -19,7 +19,9 @@ jobs:
         activate-environment: my_proto_env
         environment-file: env.yml
         auto-activate-base: false
-    - run: |
+    - name: conda info, list
+      shell: bash -el {0}
+      run: |
         conda info
         conda list
   
